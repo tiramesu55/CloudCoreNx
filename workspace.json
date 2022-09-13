@@ -1,5 +1,9 @@
 {
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
-  "projects": {}
+  "projects": {
+    "analytics": "apps/analytics",
+    "analytics-e2e": "apps/analytics-e2e",
+    "powerbi": "libs/powerbi"
+  }
 }
