@@ -15,7 +15,7 @@ export function Powerbi(props: PowerbiProps) {
           <Link to="/">powerbi root</Link>
         </li>
       </ul>
-      <Route path="/" element={<div>This is the powerbi root route.</div>} />
+      {/* <Route path="/" element={<div>This is the powerbi root route.</div>} /> */}
     </div>
   );
 }
