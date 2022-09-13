@@ -4,6 +4,7 @@
   "projects": {
     "analytics": "apps/analytics",
     "analytics-e2e": "apps/analytics-e2e",
-    "powerbi": "libs/powerbi"
+    "powerbi": "libs/powerbi",
+    "redux-store": "libs/redux-store"
   }
 }

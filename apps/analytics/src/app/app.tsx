@@ -4,9 +4,17 @@ import styles from './app.module.css';
 
 import { Route, Routes, Link } from 'react-router-dom';
 
+import { useSelector as useReduxSelector, TypedUseSelectorHook, useDispatch } from 'react-redux';
 import { Powerbi } from '@cloudcore/powerbi';
+import { getAccessToken, RootState, Report } from '@cloudcore/redux-store';
 
 export function App() {
+  // console.log(getAccessToken);
+  const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+  const reports = useSelector<Report[]>((state) => state.report.reports);
+
+  console.log(reports);
   return (
     <>
       {/* <NxWelcome title="analytics" /> */}

@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"]
+      "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"],
+      "@cloudcore/redux-store": ["libs/redux-store/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
