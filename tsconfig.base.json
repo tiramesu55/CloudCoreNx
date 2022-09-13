@@ -15,6 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloudcore/platform/platformlib": [
+        "libs/platform/platformlib/src/index.ts"
+      ],
       "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"]
     }
   },
