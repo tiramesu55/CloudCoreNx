@@ -18,7 +18,9 @@
       "@cloudcore/platform/platformlib": [
         "libs/platform/platformlib/src/index.ts"
       ],
-      "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"]
+      "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"],
+      "@cloudcore/redux-store": ["libs/redux-store/src/index.ts"],
+      "@cloudcore/routes": ["libs/routes/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

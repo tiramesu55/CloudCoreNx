@@ -3,13 +3,19 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "nx serve",
+    "start": "npx nx serve",
     "build": "nx build",
     "test": "nx test"
   },
   "private": true,
   "dependencies": {
+    "@mui/material": "^5.10.5",
+    "@mui/styles": "^5.10.3",
+    "@okta/okta-auth-js": "^6.8.0",
+    "@okta/okta-react": "^6.6.0",
     "@reduxjs/toolkit": "1.8.5",
+    "@types/axios": "^0.14.0",
+    "axios": "^0.27.2",
     "core-js": "^3.6.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
