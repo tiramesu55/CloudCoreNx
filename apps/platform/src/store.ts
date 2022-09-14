@@ -1,9 +1,5 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import {userReducer} from './Platfotm-UI/users/userSlice'
-import {configReducer} from './Platfotm-UI/configurations/configurationsSlice';
-import {applicationsReducer} from './Platfotm-UI/applications/applicationsSlice';
-import {sitesReducer} from './Platfotm-UI/sites/siteSlice';
-import {dashboardReduser} from './Platfotm-UI/dashboard/dashboardSlice';
+import {dashboardReduser, sitesReducer, applicationsReducer, configReducer, userReducer} from '@cloudcore/redux-store';
 
 export const store = configureStore({
    reducer:{

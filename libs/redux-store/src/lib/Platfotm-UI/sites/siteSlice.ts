@@ -7,7 +7,7 @@ import {
   isFulfilled,
   isRejected,
 } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
+import { RootState } from "../../store";
 import {
   getSitesByOrganizationApi,
   updateSiteApi,
@@ -58,14 +58,14 @@ export interface Site {
   startDate?: Date | null;
   endDate?: Date | null;
   phone: string;
-  applications: Application[];
+  applications: ApplicationSite[];
   createdBy: string | null;
   modifiedBy: string | null;
   createdDate: Date | null;
   modifiedDate: Date | null;
 }
 
-export interface Application {
+export interface ApplicationSite {
   appCode: string;
   subscriptionStart: Date | null;
   subscriptionEnd: Date | null;
@@ -280,12 +280,11 @@ export const {
 } = siteSlice.actions;
 
 export const selectAllSites = (state: RootState) => state.sites.sites;
-export const selectSelectedId = (state: RootState) => state.sites.selectedId;
 export const selectedSite = (state: RootState) => state.sites.site;
 export const getSiteFormModified = (state : RootState) => state.sites.siteFormModified;
 
 export const selectOpenSites = (state: RootState, app: string) => {
-  const predicate = (item: Application) =>
+  const predicate = (item: ApplicationSite) =>
     item.appCode === app &&
     ((item.subscriptionEnd && item.subscriptionEnd.getTime() > Date.now()) ||
       !item.subscriptionEnd);
@@ -300,4 +299,4 @@ export const selectOpenSites = (state: RootState, app: string) => {
   }));
   return shapedSites;
 };
-export default siteSlice.reducer;
+export const sitesReducer = siteSlice.reducer;

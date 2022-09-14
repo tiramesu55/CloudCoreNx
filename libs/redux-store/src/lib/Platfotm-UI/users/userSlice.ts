@@ -36,16 +36,16 @@ export interface Role {
   role: string;
   permissions: string[];
 }
-export interface Site {
+export interface SiteUser {
   siteCode: string;
   siteId: string;
 }
 
-export interface Application {
+export interface ApplicationUser {
   id?: string;
   appCode: string;
   roles: Role[];
-  sites: Site[];
+  sites: SiteUser[];
 }
 export interface PartialApplication {
   appCode: string;
@@ -53,7 +53,7 @@ export interface PartialApplication {
 }
 export interface PartialSite {
   appCode: string;
-  sites: Site[];
+  sites: SiteUser[];
 }
 export interface User {
   address: Iaddress;
@@ -63,7 +63,7 @@ export interface User {
   phone: string;
   title: string;
   officeAddress?: null;
-  applications: Application[];
+  applications: ApplicationUser[];
   id: string;
   orgCode: string;
   inactiveDate: Date | null;
@@ -81,7 +81,7 @@ export interface UserState {
   status: "idle" | "loading" | "failed";
   error: string;
   //we store applications for the selected or new user
-  applications: Application[];
+  applications: ApplicationUser[];
   userFormModified : boolean;
 }
 
@@ -203,7 +203,7 @@ const usersSlice = createSlice({
             )
           : [];
       //push apps
-      const app: Application = {
+      const app: ApplicationUser = {
         appCode: action.payload.appCode,
         sites: ((sites === null) || (sites === undefined)) ? [] : sites,
         roles: action.payload.roles,
@@ -226,7 +226,7 @@ const usersSlice = createSlice({
       ? state.applications.filter(
         (p) => p.appCode.toLowerCase() !== action.payload.appCode.toLowerCase()
       ) : [];
-      const app: Application = {
+      const app: ApplicationUser = {
         appCode: action.payload.appCode,
         roles: ((roles === null) || (roles === undefined)) ? [] : roles,
         sites: action.payload.sites,
@@ -287,4 +287,4 @@ export const { selectUserID, updatePartialApp, updatePartialSite, setUserFormMod
 
 export const currentApps = (state: RootState) => state.user.applications;
 
-export default usersSlice.reducer;
+export const userReducer = usersSlice.reducer;

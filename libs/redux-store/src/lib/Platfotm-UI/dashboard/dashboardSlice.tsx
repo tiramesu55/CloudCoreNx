@@ -5,7 +5,7 @@ import {
   isFulfilled,
   isRejected,
 } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
+import { RootState } from "../../store";
 import axios from "axios";
 
 interface DashboardStats {
@@ -83,4 +83,4 @@ export const getAllUsersCount = (state: RootState) => state.dashboard.users;
 
 export const getAllSitesCount = (state: RootState) => state.dashboard.sites;
 
-export default dashboardSlice.reducer;
+export const dashboardReduser = dashboardSlice.reducer;

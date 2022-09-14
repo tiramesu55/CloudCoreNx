@@ -156,4 +156,4 @@ export const applicationMapping = (state: RootState) =>
   return new Map (state.applications.applications.map( p =>  {return [p.appCode, p.name];}));
 }
 
-export default applicationSlice.reducer;
+export const applicationsReducer = applicationSlice.reducer;

@@ -72,4 +72,4 @@ export const { setToken } = configurationSlice.actions;
 
 export const isConfigSet = (state: RootState) => state.config.isConfigSet;
 
-export default configurationSlice.reducer;
+export const configReducer = configurationSlice.reducer;
