@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloudcore/okta-and-config": ["libs/okta-and-config/src/index.ts"],
       "@cloudcore/platform/platformlib": [
         "libs/platform/platformlib/src/index.ts"
       ],
