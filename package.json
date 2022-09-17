@@ -15,7 +15,7 @@
     "@mui/icons-material": "^5.4.2",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
-    "@okta/okta-auth-js": "6.6.1",
+    "@okta/okta-auth-js": "^6.6.0",
     "@okta/okta-react": "6.6.0",
     "@reduxjs/toolkit": "1.8.5",
     "@types/axios": "^0.14.0",

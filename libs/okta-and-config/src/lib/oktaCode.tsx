@@ -2,12 +2,6 @@ import {  useState } from "react";
 import { Route, useHistory } from "react-router-dom";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-
-
-
-import styles from './okta-and-config.module.css';
-
-/* eslint-disable-next-line */
 interface oidc{
   
     issuer:string;
@@ -70,6 +64,7 @@ export function OktaCode(props: OktaAndConfigProps) {
      <Route path="/login/callback" component={LoginCallback} />
      <SecureRoute
       onAuthRequired={customAuthHandler}
+ 
       path="/"
       component={props.router}
     />

@@ -7,7 +7,7 @@ import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
 import { OktaCode, useClaimsAndSignout } from '@cloudcore/okta-and-config';
 import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
 
-export function App() {
+function App() {
   return (
 
     <Routes>
