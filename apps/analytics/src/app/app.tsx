@@ -2,36 +2,17 @@
 import styles from './app.module.css';
 //import NxWelcome from './nx-welcome';
 
-import { Route, Routes, Link } from 'react-router-dom';
-import { Powerbi } from '@cloudcore/powerbi';
+import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
+//import { Powerbi } from '@cloudcore/powerbi';
+import { OktaAndConfig } from '@cloudcore/okta-and-config';
+import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
 
 export function App() {
-
   return (
     <>
-      {/* <NxWelcome title="analytics" /> */}
-      <div />
-
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/powerbi">Powerbi</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
+     <OktaAndConfig oidc={{    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
+    "clientId": "0oa2e7f4dvYLDDdmw1d7", "redirectUri": "http://localhost:3000/login/callback"}} router={AnalyticsPowerbi} />
+      {/* <Routes>
         <Route
           path="/"
           element={
@@ -41,6 +22,7 @@ export function App() {
             </div>
           }
         />
+        <Route path="/powerbi" element={<AnalyticsPowerbi />} />
         <Route path="/powerbi" element={<Powerbi />} />
         <Route
           path="/page-2"
@@ -50,7 +32,7 @@ export function App() {
             </div>
           }
         />
-      </Routes>
+      </Routes> */}
       {/* END: routes */}
     </>
   );

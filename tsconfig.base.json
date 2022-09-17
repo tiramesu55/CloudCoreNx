@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloudcore/analytics/powerbi": ["libs/analytics/powerbi/src/index.ts"],
       "@cloudcore/okta-and-config": ["libs/okta-and-config/src/index.ts"],
       "@cloudcore/platform/platformlib": [
         "libs/platform/platformlib/src/index.ts"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { Route, useHistory } from "react-router-dom";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
@@ -8,12 +8,16 @@ import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
 import styles from './okta-and-config.module.css';
 
 /* eslint-disable-next-line */
+interface oidc{
+  
+    issuer:string;
+    clientId: string;
+    redirectUri: string;
+  
+}
 export interface OktaAndConfigProps {
- issuer:string;
- clientId: string;
- redirectUri: string;
- scopes: string[]
-
+  oidc: oidc;
+  router:  React.FC<any>;
 }
 
 export function OktaAndConfig(props: OktaAndConfigProps) {
@@ -30,9 +34,9 @@ export function OktaAndConfig(props: OktaAndConfigProps) {
           authState["user"] = user; // also store user object on authState
           return authState;
         },
-        issuer: props.issuer,
-        clientId: props.clientId,
-        redirectUri: props.redirectUri,
+        issuer: props.oidc.issuer,
+        clientId: props.oidc.clientId,
+        redirectUri: props.oidc.redirectUri,
         scopes: ["openid", "email", "profile", "offline_access"],
       })
   );
@@ -51,13 +55,14 @@ export function OktaAndConfig(props: OktaAndConfigProps) {
     oktaAuth={oktaAuthClient}
     restoreOriginalUri={restoreOriginalUri}
   >
-    <SecureRoute
+     <Route path="/login/callback" component={LoginCallback} />
+     <SecureRoute
       onAuthRequired={customAuthHandler}
       path="/"
-      component={}
+      component={props.router}
     />
 
-    <Route path="/login/callback" component={LoginCallback} />
+   
   </Security>
   );
 }

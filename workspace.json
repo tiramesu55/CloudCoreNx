@@ -4,6 +4,7 @@
   "projects": {
     "analytics": "apps/analytics",
     "analytics-e2e": "apps/analytics-e2e",
+    "analytics-powerbi": "libs/analytics/powerbi",
     "main": "apps/main",
     "main-e2e": "apps/main-e2e",
     "okta-and-config": "libs/okta-and-config",
