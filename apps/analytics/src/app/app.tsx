@@ -4,14 +4,17 @@ import styles from './app.module.css';
 
 import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
 //import { Powerbi } from '@cloudcore/powerbi';
-import { OktaAndConfig } from '@cloudcore/okta-and-config';
+import { OktaCode, useClaimsAndSignout } from '@cloudcore/okta-and-config';
 import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
 
 export function App() {
+  //const {signOut, getClaims } = useClaimsAndSignout( "xxxs","yyy");
   return (
     <>
-     <OktaAndConfig oidc={{    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
+    <Routes>
+     <OktaCode oidc={{    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
     "clientId": "0oa2e7f4dvYLDDdmw1d7", "redirectUri": "http://localhost:3000/login/callback"}} router={AnalyticsPowerbi} />
+    </Routes>
       {/* <Routes>
         <Route
           path="/"

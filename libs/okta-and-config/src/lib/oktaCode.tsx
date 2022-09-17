@@ -20,20 +20,20 @@ export interface OktaAndConfigProps {
   router:  React.FC<any>;
 }
 
-export function OktaAndConfig(props: OktaAndConfigProps) {
+export function OktaCode(props: OktaAndConfigProps) {
   const history = useHistory();
   const [oktaAuthClient, ] = useState<OktaAuth >(
     new OktaAuth({
-        transformAuthState: async (oktaAuth, authState) => {
-          if (!authState.isAuthenticated) {
-            return authState;
-          }
-          // extra requirement: user must have valid Okta SSO session
-          const user = await oktaAuth.token.getUserInfo();
-          authState.isAuthenticated = !!user; // convert to boolean
-          authState["user"] = user; // also store user object on authState
-          return authState;
-        },
+        // transformAuthState: async (oktaAuth, authState) => {
+        //   if (!authState.isAuthenticated) {
+        //     return authState;
+        //   }
+        //   // extra requirement: user must have valid Okta SSO session
+        //   const user = await oktaAuth.token.getUserInfo();
+        //   authState.isAuthenticated = !!user; // convert to boolean
+        //   authState["user"] = user; // also store user object on authState
+        //   return authState;
+        // },
         issuer: props.oidc.issuer,
         clientId: props.oidc.clientId,
         redirectUri: props.oidc.redirectUri,
@@ -47,8 +47,20 @@ export function OktaAndConfig(props: OktaAndConfigProps) {
     );
   };
 
-  const customAuthHandler = () => {
-    oktaAuthClient?.signInWithRedirect({});
+  const triggerLogin = async () => {
+    await oktaAuthClient.signInWithRedirect();
+  };
+
+  const customAuthHandler = async () => {
+    const previousAuthState = oktaAuthClient.authStateManager.getPreviousAuthState();
+    if (!previousAuthState || !previousAuthState.isAuthenticated) {
+      // App initialization stage
+      await triggerLogin();
+    } else {
+      console.log("add timeout")
+      // Ask the user to trigger the login process during token autoRenew process
+      //setAuthRequiredModalOpen(true);
+    }
   };
   return (
     <Security
@@ -66,5 +78,3 @@ export function OktaAndConfig(props: OktaAndConfigProps) {
   </Security>
   );
 }
-
-export default OktaAndConfig;

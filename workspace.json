@@ -13,6 +13,7 @@
     "platform-platformlib": "libs/platform/platformlib",
     "powerbi": "libs/powerbi",
     "redux-store": "libs/redux-store",
-    "routes": "libs/routes"
+    "routes": "libs/routes",
+    "ui-shared": "libs/ui-shared"
   }
 }
