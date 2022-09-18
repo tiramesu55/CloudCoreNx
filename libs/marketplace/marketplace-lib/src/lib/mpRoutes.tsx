@@ -14,11 +14,11 @@ export const MpRoutes = () => {
   const {signOut, getClaims } = useClaimsAndSignout( "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout","https://ssotest.walgreens.com/idp/idpLogout");
 
   return (
- 
-     <HeaderLayout signOut={signOut} title = "Marketplace" >   
- 
+    
+          <HeaderLayout signOut={signOut} title="Marketplace">
+           
           <Switch>   
-                  
+
                   <Route
                    
                     path="/component1"
@@ -30,7 +30,8 @@ export const MpRoutes = () => {
                     component={Component2}
                   />
           </Switch>
-</HeaderLayout>
+
+          </HeaderLayout>  
       ) 
 
 };
