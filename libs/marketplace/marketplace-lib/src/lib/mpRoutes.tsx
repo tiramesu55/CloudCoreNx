@@ -14,9 +14,9 @@ export const MpRoutes = () => {
   const {signOut, getClaims } = useClaimsAndSignout( "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout","https://ssotest.walgreens.com/idp/idpLogout");
 
   return (
-  
-  //   <HeaderLayout signOut={signOut} title = "Marketplace" >   For some reason impedes route (secureRoute)
-   
+ 
+     <HeaderLayout signOut={signOut} title = "Marketplace" >   
+ 
           <Switch>   
                   
                   <Route
@@ -30,8 +30,7 @@ export const MpRoutes = () => {
                     component={Component2}
                   />
           </Switch>
- //      </HeaderLayout>  
-
+</HeaderLayout>
       ) 
 
 };
