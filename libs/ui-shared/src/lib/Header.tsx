@@ -6,6 +6,7 @@ import {
     Box,
    
     Button,
+    makeStyles,
 
   } from "@mui/material";
   import Logout from "@mui/icons-material/Logout";
@@ -16,8 +17,8 @@ interface userProps {
  //   initials: string;
     signOut: () => void;
   }
+  
 export  const Header = (props: userProps) => {
-
  
     return (
       <Box>
@@ -53,6 +54,13 @@ export  const Header = (props: userProps) => {
             </Box>
           </Toolbar>
         </AppBar>
+        <div>
+          <br></br>
+          <br></br>
+          <br></br>
+
+          </div>
+
       </Box>
     );
   };

@@ -6,10 +6,6 @@ export interface Component1Props {}
 export function Component1(props: Component1Props) {
   return (
     <div className={styles['container']}>
-      <br/>
-      <br/>
-      <br/>
-      <br/>
 
       <h1>Welcome to Component1!</h1>
     </div>
