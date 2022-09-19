@@ -1,5 +1,5 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import {dashboardReduser, sitesReducer, applicationsReducer, configReducer, userReducer, reportReducer} from '@cloudcore/redux-store';
+import {dashboardReduser, sitesReducer, applicationsReducer, configReducer, userReducer, reportReducer, organizationsReducer} from '@cloudcore/redux-store';
 
 export const store = configureStore({
    reducer:{
@@ -8,7 +8,8 @@ export const store = configureStore({
       applications: applicationsReducer,
       sites: sitesReducer,
       dashboard: dashboardReduser,
-      report: reportReducer
+      report: reportReducer,
+      organizations: organizationsReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers

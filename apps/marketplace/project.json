@@ -52,7 +52,7 @@
       "options": {
         "buildTarget": "marketplace:build",
         "hmr": true,
-        "port":3000
+        "port": 3000
       },
       "configurations": {
         "development": {

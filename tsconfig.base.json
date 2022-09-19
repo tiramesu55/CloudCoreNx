@@ -25,7 +25,6 @@
       ],
       "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"],
       "@cloudcore/redux-store": ["libs/redux-store/src/index.ts"],
-      "@cloudcore/routes": ["libs/routes/src/index.ts"],
       "@cloudcore/ui-shared": ["libs/ui-shared/src/index.ts"]
     }
   },

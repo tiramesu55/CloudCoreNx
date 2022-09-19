@@ -1,4 +1,5 @@
 export * from './lib/redux-store';
+export * from "./lib/Platfotm-UI/organizations/organizationsSlice";
 export * from "./lib/Platfotm-UI/applications/applicationsSlice";
 export * from "./lib/Platfotm-UI/configurations/configurationsSlice";
 export * from "./lib/Platfotm-UI/dashboard/dashboardSlice";

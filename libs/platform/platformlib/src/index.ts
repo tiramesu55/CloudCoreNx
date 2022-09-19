@@ -1,1 +1,1 @@
-export * from './lib/platform-platformlib';
+export * from './lib/routes/routes';

@@ -1,6 +1,10 @@
-import { useCallback } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback, useEffect } from 'react';
 import { useOktaAuth } from "@okta/okta-react";
 import { UserClaims } from "@okta/okta-auth-js";
+import { setLogoutSSO, setPostLogoutRedirectUri } from '@cloudcore/redux-store';
+import { useDispatch } from 'react-redux'
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UseClaimsAndSignout {
   signOut: () => void;
@@ -9,6 +13,16 @@ export interface UseClaimsAndSignout {
 
 export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string ): UseClaimsAndSignout {
   const {authState, oktaAuth } = useOktaAuth();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setLogoutSSO(logoutSSO));
+  }, [logoutSSO])
+  
+  useEffect(() => {
+    dispatch(setPostLogoutRedirectUri(postRedirectUrl));
+  }, [postRedirectUrl])
+
   const getClaims =  useCallback(() =>{
       return authState?.accessToken?.claims;
   },[authState?.accessToken?.claims]
@@ -44,5 +58,6 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
   //const increment = useCallback(() => setCount((x) => x + 1), []);
   return { signOut, getClaims };
 }
+export const useOktaAuthLib = () => useOktaAuth();
 
 export default useClaimsAndSignout;
