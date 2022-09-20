@@ -6,7 +6,7 @@ export const getApplicationsApi = (url : string, token: string) => axios.get(`${
       'Authorization': `Bearer ${token}`
         }
     }
-    );
+);
 
 
 export const updateApplicationApi = (app: Application, url : string, token: string) => axios.put(`${url}/UpdateApplication`, app, {

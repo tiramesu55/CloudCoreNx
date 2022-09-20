@@ -410,7 +410,6 @@ export const selectedOrganization = (state: RootState) =>
   state.organizations.organization;
 
 export const getOrgFormModified = (state : RootState) => {
-  console.log(state)
   return state.organizations.orgFormModified;
 }
   

@@ -13,14 +13,13 @@ interface Configuration {
 }
 
 const initialState: Configuration = {
-  
-    baseUrl: "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
-    logoutSSO : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout",
+    baseUrl: "",
+    logoutSSO : "",
      oidcConfig: {
-      issuer: "https://iarx-services.oktapreview.com/oauth2/default/",
-      clientId: "0oa2e7f4dvYLDDdmw1d7",
-      redirectUri: "https://platform8ui.dev.nexia.app/login/callback",
-      postLogoutRedirectUri:"https://ssotest.walgreens.com/idp/idpLogout",
+      issuer: "",
+      clientId: "",
+      redirectUri: "",
+      postLogoutRedirectUri:"",
       pkce:true
     },
   authToken: "",
@@ -31,7 +30,7 @@ const initialState: Configuration = {
 export const getConfig = createAsyncThunk(
   "configuration/getConfig",
   async () => {
-    const response = await axios.get("/config.json");
+    const response = await axios.get("/assets/config.json");
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,

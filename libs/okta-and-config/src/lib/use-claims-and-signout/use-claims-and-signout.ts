@@ -2,7 +2,7 @@
 import { useCallback, useEffect } from 'react';
 import { useOktaAuth } from "@okta/okta-react";
 import { UserClaims } from "@okta/okta-auth-js";
-import { setLogoutSSO, setPostLogoutRedirectUri } from '@cloudcore/redux-store';
+import { setLogoutSSO, setPostLogoutRedirectUri, AppDispatch } from '@cloudcore/redux-store';
 import { useDispatch } from 'react-redux'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -13,12 +13,14 @@ export interface UseClaimsAndSignout {
 
 export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string ): UseClaimsAndSignout {
   const {authState, oktaAuth } = useOktaAuth();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     dispatch(setLogoutSSO(logoutSSO));
   }, [logoutSSO])
-  
+
+ 
+
   useEffect(() => {
     dispatch(setPostLogoutRedirectUri(postRedirectUrl));
   }, [postRedirectUrl])
