@@ -6,6 +6,7 @@
     "analytics-e2e": "apps/analytics-e2e",
     "analytics-powerbi": "libs/analytics/powerbi",
     "common-lib": "libs/common-lib",
+    "context": "libs/context",
     "main": "apps/main",
     "main-e2e": "apps/main-e2e",
     "marketplace": "apps/marketplace",

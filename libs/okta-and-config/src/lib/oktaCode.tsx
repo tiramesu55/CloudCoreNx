@@ -1,14 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {  useState, useEffect } from "react";
+import {  useState } from "react";
 import { Route, useHistory } from "react-router-dom";
 import { Security, SecureRoute, LoginCallback } from "@okta/okta-react";
 import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
-import { getConfig, AppDispatch } from '@cloudcore/redux-store';
-import { useDispatch } from 'react-redux'
 interface oidc{ 
-    issuer:string;
-    clientId: string;
-    redirectUri: string;
+    issuer:string | undefined;
+    clientId: string | undefined;
+    redirectUri: string | undefined;
 }
 export interface OktaAndConfigProps {
   oidc: oidc;
@@ -17,12 +15,6 @@ export interface OktaAndConfigProps {
 
 export function OktaCode(props: OktaAndConfigProps) {
   const history = useHistory();
-  const dispatch = useDispatch<AppDispatch>()
-
-  useEffect(() => {
-    dispatch(getConfig());
-  }, [])
-
   const [oktaAuthClient, ] = useState<OktaAuth >(
     new OktaAuth({
         // transformAuthState: async (oktaAuth, authState) => {

@@ -4,7 +4,7 @@
      "oidcConfig": {
       "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
       "clientId": "0oa2e7f4dvYLDDdmw1d7",
-      "redirectUri": "https://localhost:3000/login/callback",
+      "redirectUri": "http://localhost:3000/login/callback",
       "postLogoutRedirectUri":"https://ssotest.walgreens.com/idp/idpLogout",
       "pkce":true
     }
