@@ -1,18 +1,30 @@
+
+/* eslint-disable react/jsx-no-useless-fragment */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import styles from './app.module.css';
-import {  BrowserRouter as Routes } from 'react-router-dom';
+import { useContext } from 'react';
 
-import { MpRoutes } from '@cloudcore/marketplace/marketplace-lib';
 import { OktaCode } from '@cloudcore/okta-and-config';
 
-export function App() {
+import { Routes as PlatformRoutes } from '@cloudcore/platform/platformlib';
+import { ConfigCtx, IConfig } from '@cloudcore/context';
+
+function App() {
+  const config: IConfig | null = useContext(ConfigCtx);
   return (
+    <>
+      {config && 
 
-    <Routes>
-     <OktaCode oidc={{    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
-    "clientId": "0oa2e7f4dvYLDDdmw1d7", "redirectUri": "http://localhost:3000/login/callback"}} router={MpRoutes} />
-    </Routes>
-
+          <OktaCode
+            oidc={{
+              issuer: config.oidcConfig?.issuer,
+              clientId: config.oidcConfig?.clientId,
+              redirectUri: config.oidcConfig?.redirectUri,
+            }}
+            router={PlatformRoutes}
+          />
+          }
+     </>
   );
 }
 
