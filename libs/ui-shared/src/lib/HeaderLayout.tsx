@@ -2,7 +2,7 @@ import {Header} from '@cloudcore/ui-shared'
 interface headerProps {
     title: string;
     signOut: () => void;
-    children: JSX.Element,
+    children: React.ReactNode,
   }
  export const HeaderLayout = (props: headerProps ) => {
     return(

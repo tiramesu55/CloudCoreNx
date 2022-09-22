@@ -18,11 +18,7 @@ function App() {
 
           <OktaCode
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            oidc={{
-              issuer: config.oidcConfig?.issuer,
-              clientId: config.oidcConfig?.clientId,
-              redirectUri: config.oidcConfig?.redirectUri,
-            }}
+            oidc={config.oidcConfig!}
             router={MpRoutes}
           />
       }
