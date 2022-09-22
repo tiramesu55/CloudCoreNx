@@ -13,10 +13,11 @@ import { ConfigCtx, IConfig } from '@cloudcore/context';
 
 function App() {
   const config: IConfig | null = useContext(ConfigCtx);
+  console.log(config)
   return (
     <>
       {config ? (
-        <Routes>
+     
           <OktaCode
             oidc={{
               issuer: config.oidcConfig?.issuer,
@@ -25,7 +26,7 @@ function App() {
             }}
             router={PlatformRoutes}
           />
-        </Routes>
+
       ) : (
         <Backdrop
           sx={{

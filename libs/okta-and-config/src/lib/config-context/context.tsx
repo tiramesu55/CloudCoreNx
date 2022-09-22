@@ -14,6 +14,7 @@ const ConfigContext = ({ children } : any ) => {
     const getConfigData = async () => {
         try {
             const configData = await service.GetConfig();
+
             setConfig(configData)
         } catch(err){
             console.log(err)
@@ -22,7 +23,7 @@ const ConfigContext = ({ children } : any ) => {
     getConfigData();
   }, [])
 
-  return <ConfigCtx.Provider value={config}>{children}</ConfigCtx.Provider>
+  return( <ConfigCtx.Provider value={config}>{children}</ConfigCtx.Provider>  )
 };
 export {
     ConfigContext,  //context creator vunction

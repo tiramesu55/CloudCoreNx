@@ -47,10 +47,8 @@ export  const Header = (props: userProps) => {
             </Box>
             <Box sx={{ display: { xs: "inline-flex", md: "inline-flex" } }}>
               
-            <Button onClick={ props.signOut}> Sign Out</Button>
+                <Button onClick={ props.signOut}> Sign Out</Button>
              
-  
- 
             </Box>
           </Toolbar>
         </AppBar>
