@@ -16,11 +16,8 @@ function App() {
       {config && 
 
           <OktaCode
-            oidc={{
-              issuer: config.oidcConfig?.issuer,
-              clientId: config.oidcConfig?.clientId,
-              redirectUri: config.oidcConfig?.redirectUri,
-            }}
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            oidc={config.oidcConfig!}
             router={PlatformRoutes}
           />
           }
