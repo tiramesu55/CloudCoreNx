@@ -37,23 +37,6 @@ export const Routes = () => {
     setFormModified(value);
   };
 
- // const [oktaAuthClient, setOktaAuth] = useState<OktaAuth | null>(null); // use for now local
-  // const customAuthHandler = () => {
-  //   props.oktaAuthClient?.signInWithRedirect({});
-  // };
-
-  // useEffect(() => {
-  //   if (config) {
-  //     setOktaAuth(new OktaAuth(oktaCfg));
-  //   }
-  // }, [config, oktaCfg]);
-
-  // useEffect(() => {
-  //   if (!authState?.isAuthenticated) {
-  //     oktaAuth.signInWithRedirect();
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (error) {
       setSnackbar(true);

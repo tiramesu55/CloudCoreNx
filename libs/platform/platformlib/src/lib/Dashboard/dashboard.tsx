@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../hooks/hooks";
 import {
   Grid,
@@ -23,9 +23,10 @@ import {
   getAllSitesCount,
   getAllUsersCount,
   getDashboardStats,
-  selectBaseUrl
+  //selectBaseUrl
 } from '@cloudcore/redux-store';
 import { useOktaAuth } from "@okta/okta-react";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
 
 const InfoTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -52,7 +53,11 @@ const InfoTooltip = styled(({ className, ...props }: TooltipProps) => (
 export const Dashboard = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
-  const baseUrl = useAppSelector(selectBaseUrl);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+ 
+  const baseUrl = platformBaseUrl;
+  console.log(baseUrl)
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);

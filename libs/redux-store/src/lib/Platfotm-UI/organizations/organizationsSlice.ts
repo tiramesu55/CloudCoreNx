@@ -88,10 +88,10 @@ export const getOrganizationsAsync = createAsyncThunk<
   OrgsGetAction,
   any,
   { state: RootState }
->("organizations/getOrganizations", async (_, { getState }) => {
+>("organizations/getOrganizations", async (baseUrl, { getState }) => {
   const state = getState();
   const token = state.config.authToken;
-  const url = state.config.baseUrl;
+  const url = baseUrl;
   //if not authorized - no token
   if (!token) return { data: [], type: "getAll" };
   const response = await axios.get<any>(

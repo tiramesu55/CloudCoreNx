@@ -1,4 +1,4 @@
-import { useState, Fragment, useEffect } from "react";
+import { useState, Fragment, useEffect, useContext } from "react";
 import {
   Box,
   Avatar,
@@ -14,40 +14,19 @@ import User from "../images/user.svg";
 import SignOut from "../images/sign-out.svg";
 import { useOktaAuth } from "@okta/okta-react";
 import { useAppSelector } from "../hooks/hooks";
-import { logoutSSO, postLogoutRedirectUri } from '@cloudcore/redux-store';
+
+//import { IConfig } from "@microsoft/applicationinsights-web";
+import { ConfigCtx, IConfig, useClaimsAndSignout } from "@cloudcore/okta-and-config";
 
 export const UserMenu = () => {
   const [userName, setUserName] = useState("");
   const [userInitials, setUserInitials] = useState("");
-  const { oktaAuth, authState } = useOktaAuth();
-  const postLogoutUrl: string | undefined = useAppSelector(
-    postLogoutRedirectUri
-  );
-  const ssoUrl = useAppSelector(logoutSSO);
-  const logout = async () => {
-    //get token
-    const accessTok = oktaAuth.getAccessToken() ?? "";
-    const request = new Request(ssoUrl!, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessTok}`,
-      },
-      method: "GET",
-    });
-    try {
-      const response = await fetch(request);
+  const { oktaAuth, authState } = useOktaAuth();   // needs to be removed and replaced with getClaims
+ 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const {signOut, getClaims } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
 
-      if (!response.ok) {
-        console.log(`HTTP error in closing Session: ${response.status}`);
-      }
-      console.log("session closed");
-    } finally {
-      await oktaAuth.signOut({
-        postLogoutRedirectUri: postLogoutUrl, //'https://ssotest.walgreens.com/idp/idpLogout',
-        clearTokensBeforeRedirect: true,
-      });
-    }
-  };
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
@@ -82,20 +61,20 @@ export const UserMenu = () => {
       fontSize: theme.typography.subtitle1.fontSize,
     },
   }));
-
-  useEffect(() => {
-    if (!authState?.isAuthenticated) {
-      oktaAuth.signInWithRedirect();
-    } else {
-      const claims = authState.accessToken?.claims as any;
-      if (claims?.initials) {
-        setUserName(claims?.initials.join(" "));
-        setUserInitials(
-          claims?.initials.map((name: string) => name[0].toUpperCase()).join("")
-        );
-      }
-    }
-  }, []);
+//@alec: needs to use login from app
+  // useEffect(() => {
+  //   if (!authState?.isAuthenticated) {
+  //     oktaAuth.signInWithRedirect();
+  //   } else {
+  //     const claims = authState.accessToken?.claims as any;
+  //     if (claims?.initials) {
+  //       setUserName(claims?.initials.join(" "));
+  //       setUserInitials(
+  //         claims?.initials.map((name: string) => name[0].toUpperCase()).join("")
+  //       );
+  //     }
+  //   }
+  // }, []);
 
   return (
     <Fragment>
@@ -157,7 +136,7 @@ export const UserMenu = () => {
           </ListItemIcon>
           MY PROFILE
         </MenuItem>
-        <MenuItem style={style.MenuItem} onClick={logout}>
+        <MenuItem style={style.MenuItem} onClick={signOut}>
           <ListItemIcon>
             <img src={SignOut} alt="SignOut" />
           </ListItemIcon>

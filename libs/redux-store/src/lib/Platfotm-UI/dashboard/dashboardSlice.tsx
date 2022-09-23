@@ -41,7 +41,7 @@ export const getDashboardStats = createAsyncThunk<
 >("dashboard/getStats", async (baseUrl: string, { getState }) => {
   const state = getState();
   const token = state.config.authToken;
-  const url = state.config.baseUrl;
+  const url = baseUrl;
   if (!token) return { data: {}, type: "getAllStats" };
   const response = await axios.get(`${url}/Statistics/Platform/All`, {
     headers: {

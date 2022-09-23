@@ -8,10 +8,11 @@ import {
   selectedId,
   selectedIdOrganization,
   selectOrganizations,
-  selectBaseUrl
+  //selectBaseUrl
 } from '@cloudcore/redux-store';
 import { withStyles } from "@mui/styles";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
 console.log(theme)
 const CustomTableCss = withStyles(() => ({
   "@global": {
@@ -54,7 +55,10 @@ const CustomTableCss = withStyles(() => ({
 
 export const OrganizationList = () => {
   const data = useAppSelector(selectOrganizations);
-  const baseUrl = useAppSelector(selectBaseUrl);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+      const baseUrl = platformBaseUrl;
+
   const idSelected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
   const id = idSelected === "" ? data[0]?.id : idSelected;
