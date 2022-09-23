@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useContext, useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -17,6 +18,8 @@ import {
   updateOrganizationAsync,
 } from '@cloudcore/redux-store';
 import { useHistory } from "react-router-dom";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {
   orgDomain: string;
@@ -28,6 +31,9 @@ interface Props {
 export const ActivateDeactivateOrg = (props: Props) => {
   const [open, setOpen] = useState(false);
   const organization = useAppSelector(selectedOrganization);
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { authState } = useOktaAuth();
+ 
   const history = useHistory();
   const dispatch = useAppDispatch();
 
@@ -65,7 +71,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         modifiedBy: null,
         childOrgs: [],
       };
-      dispatch(updateOrganizationAsync(updatedOrganization))
+      dispatch(updateOrganizationAsync({organization: updatedOrganization, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
         .unwrap()
         .then(
           (value) => {
@@ -90,7 +96,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
   const handleDeactivate = () => {
     setOpen(false);
     try {
-      dispatch(deleteOrganizationAsync(organization?.orgCode))
+      dispatch(deleteOrganizationAsync({orgCode: organization?.orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }))
         .unwrap()
         .then(
           (value) => {

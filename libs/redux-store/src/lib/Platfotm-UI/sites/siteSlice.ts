@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import {
   createAsyncThunk,
   createSlice,
@@ -14,6 +16,7 @@ import {
   addSiteApi,
   deleteSiteApi,
 } from "./sitesAPI";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface SitesGetAction {
   data: Site[];
@@ -120,10 +123,7 @@ export const getSites = createAsyncThunk<
   SitesGetAction,
   any,
   { state: RootState }
->("sites/getSites", async ({ orgCode }: { orgCode: string }, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("sites/getSites", async ({ orgCode, url, token }: { orgCode: string, url: string, token: string }, { getState }) => {
   if (!token) return { data: [], type: "getAll" };
   const response = await getSitesByOrganizationApi(url, token, orgCode);
   // The value we return becomes the `fulfilled` action payload
@@ -137,10 +137,7 @@ export const updateSite = createAsyncThunk<
   SiteAction,
   any,
   { state: RootState }
->("sites/updateSite", async (site: Site, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("sites/updateSite", async ({site, url, token} : {site: Site, url: string, token: string}, { getState }) => {
   if (!token) return { data: null, type: "updateOne" };
   const response = await updateSiteApi(url, token, site);
   // The value we return becomes the `fulfilled` action payload
@@ -154,10 +151,7 @@ export const createSite = createAsyncThunk<
   SiteAction,
   any,
   { state: RootState }
->("sites/createSite", async (site: {}, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("sites/createSite", async ({site, url, token} : {site: Site, url: string, token: string}, { getState }) => {
   if (!token) return { data: null, type: "addOne" };
   const response = await addSiteApi(url, token, site);
   // The value we return becomes the `fulfilled` action payload
@@ -171,10 +165,7 @@ export const deleteSite = createAsyncThunk<
   SiteDeleteAction,
   any,
   { state: RootState }
->("sites/deleteSite", async (id: string, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("sites/deleteSite", async ({id, url, token} : {id: string, url: string, token: string}, { getState }) => {
   if (!token) return { data: null, type: "deleteOne" };
 
   const response = await deleteSiteApi(url, token, id);

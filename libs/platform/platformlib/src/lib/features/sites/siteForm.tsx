@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-types */
+import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { Grid, Box, Typography, IconButton, Button } from "@mui/material";
 import theme from "../../themes";
@@ -23,12 +25,12 @@ import {
   updateSite,
   updateSiteAdress,
   updateSiteField,
-  selectBaseUrl,
-  selectToken,
   getApplications
 } from '@cloudcore/redux-store';
 import { ActivateDeactivateSite } from "./activate-deactivate-site";
 import { useOktaAuth } from "@okta/okta-react";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+
 
 interface Application {
   appCode: string;
@@ -45,7 +47,9 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const SiteForm = () => {
-  const site = useAppSelector(selectedSite);
+  const site = useAppSelector(selectedSite);  
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+ 
   const selectedSiteId = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
   const location: any = useLocation();
@@ -57,14 +61,13 @@ export const SiteForm = () => {
   const selected = useAppSelector(selectedId);
   const [disableEditApp, setDisableEditApp] = useState(true);
   const [phoneLabelColor, setPhoneLabelColor] = useState("#616161");
+
   const [siteApplications, setSiteApplications] = useState<Application[]>(
     site.applications
   );
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState("");
   const [snackBarMsg, setSnackBarMsg] = useState("");
-  const baseUrl: string = useAppSelector(selectBaseUrl);
-  const token = useAppSelector(selectToken);
 
   const [siteName, setSiteName] = useState("");
   const [email, setEmail] = useState("");
@@ -90,10 +93,10 @@ export const SiteForm = () => {
   const siteFormModified = useAppSelector(getSiteFormModified);
 
   useEffect(() => {
-    if (token) {
-      dispatch(getApplications(baseUrl));
-    }
-  }, []);
+     if(platformBaseUrl){
+       dispatch(getApplications({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
+     }
+  }, [platformBaseUrl]);
 
   useEffect(() => {
     setSiteApplications(site.applications);
@@ -346,7 +349,7 @@ export const SiteForm = () => {
           state &&
           zip
         ) {
-          dispatch(createSite(newSite))
+          dispatch(createSite({site: newSite, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
             .unwrap()
             .then(
               (value: any) => {
@@ -439,7 +442,7 @@ export const SiteForm = () => {
           applications: [...siteApplications],
         };
         if (!hasError) {
-          dispatch(updateSite(updatedSite))
+          dispatch(updateSite({site: updatedSite, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
             .unwrap()
             .then(
               (value: any) => {

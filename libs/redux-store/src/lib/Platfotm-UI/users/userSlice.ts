@@ -15,6 +15,7 @@ import {
   addUserApi,
   deleteUserApi
 } from "./userAPI";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface UsersGetAction{
   data: User[];
@@ -101,10 +102,7 @@ const initialState = userAdapter.getInitialState<UserState>({
 
 export const fetchUsers = createAsyncThunk<UsersGetAction, any, {state:RootState}>(
   "users/fetchUsers",
-  async (_, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ({ url, token } : {url: string, token: string}, {getState}) => {
     if(!token)
     return {data: [],type: "getAll"}
     const response = await getUsersApi(url, token);
@@ -119,10 +117,7 @@ export const fetchUsers = createAsyncThunk<UsersGetAction, any, {state:RootState
 
 export const updateUser = createAsyncThunk<UserAction,any, {state:RootState}>(
   "users/updateUser",
-  async (user: User, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ({ user, url, token }:{user: User, url: string, token: string}, {getState}) => {
     if(!token)
     {
       return {data: null,type: "updateOne"}
@@ -139,10 +134,7 @@ export const updateUser = createAsyncThunk<UserAction,any, {state:RootState}>(
 
 export const addNewUser = createAsyncThunk<UserAction,any, {state:RootState}>(
   "users/addNewUser",
-  async (user: User, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ({user, url, token} : {user: User, url: string, token: string}, {getState}) => {
     if(!token)
     return {data: null,type: "addOne"}
     const response = await addUserApi(url, token, user);
@@ -156,10 +148,7 @@ export const addNewUser = createAsyncThunk<UserAction,any, {state:RootState}>(
 
 export const deleteUser = createAsyncThunk<UserAction,any, {state:RootState}>(
   "Users/deleteUser",
-  async (user: User, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ({ user, url, token } : {user: User, url: string, token: string}, {getState}) => {
     if(!token)
     return {data: null,type: "updateOne"}
     const { id } = user;

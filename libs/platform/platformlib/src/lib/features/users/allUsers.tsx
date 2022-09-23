@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
 import { Box, Grid, Button } from "@mui/material";
 import theme from "../../themes";
@@ -9,8 +10,9 @@ import { useHistory } from "react-router-dom";
 import { Snackbar, Card } from "../../components";
 import Tooltip from "@mui/material/Tooltip";
 import { applicationMapping,
-  getApplications, selectOrganizations,  selectBaseUrl,
-  selectToken, selectUserID, Application, fetchUsers, allUsers } from '@cloudcore/redux-store';
+  getApplications, selectOrganizations, selectUserID, Application, fetchUsers, allUsers } from '@cloudcore/redux-store';
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {}
 
@@ -60,10 +62,13 @@ const CustomTableCss = withStyles(() => ({
 
 export const ListUsers = (props: Props) => {
   const dispatch = useAppDispatch();
-  const baseUrl = useAppSelector(selectBaseUrl);
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  // const baseUrl = useAppSelector(selectBaseUrl);
+  
   const users = useAppSelector(allUsers);
   const allApps = useAppSelector(applicationMapping);
   const orgData = useAppSelector(selectOrganizations);
+  const { authState } = useOktaAuth();
   const usersWithOrg = users.map((user) => {
     const orgName = orgData.find((org) => {
       return user.orgCode === org.orgCode;
@@ -73,7 +78,6 @@ export const ListUsers = (props: Props) => {
       orgName: orgName?.name,
     };
   });
-  const token = useAppSelector(selectToken);
   const history = useHistory();
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState("");
@@ -81,11 +85,11 @@ export const ListUsers = (props: Props) => {
   //const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (token) {
-      dispatch(getApplications(baseUrl));
-      dispatch(fetchUsers(baseUrl));
+    if (platformBaseUrl) {
+      dispatch(getApplications({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
+      dispatch(fetchUsers({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
     }
-  }, [baseUrl, token, dispatch]);
+  }, [platformBaseUrl, dispatch, authState]);
 
   const { error } = useAppSelector((state) => state.user);
   useEffect(() => {

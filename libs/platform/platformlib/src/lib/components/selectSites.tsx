@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Typography, Grid, Divider } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CustomMultiSelectBox } from "./CustomMultiSelectBox";
 import theme from "../themes";
 
@@ -13,11 +14,10 @@ import {
   setUserFormModified,
   selectAllSites, getSites,
   checkIfRootOrganization,
-  selectBaseUrl,
-  selectToken,
   selectAppRoles
 } from '@cloudcore/redux-store';
-
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {
   orgCode: string;
@@ -35,14 +35,17 @@ export const SelectSites = (props: Props) => {
   //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
   const allApps = useAppSelector(selectAppRoles);
   //selectedApps below are from the user. for new user it is empty.  See the state.applications section of the state
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
   const selectedApps = useAppSelector(currentApps);
   const allSites = useAppSelector(selectAllSites);
-  const baseUrl: string = useAppSelector(selectBaseUrl);
-  const token = useAppSelector(selectToken);
   const root = useAppSelector((state) =>
     checkIfRootOrganization(state, props.orgCode)
   );
   const [loadSite, setLoadSite] = useState(false);
+  const { authState } = useOktaAuth();
+ 
+  // const { authState } = useOktaAuth();
+  // const token = useMemo(() => authState?.accessToken?.accessToken, [authState]);
   //function that filters sites based on appCode and subscription
   const appSites = (app: string): { name: string; value: string }[] => {
     const rawSites =
@@ -83,21 +86,19 @@ export const SelectSites = (props: Props) => {
   };
 
   useEffect(() => {
-    if (token) {
       if (props.orgCode !== "") {
-        dispatch(getSites({ orgCode: props.orgCode }))
+        dispatch(getSites({ orgCode: props.orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }))
           .unwrap()
           .then(
-            (value: any) => {
+            () => {
               setLoadSite(true);
             },
-            (reason: any) => {
+            () => {
               setLoadSite(false);
             }
           );
       }
-    }
-  }, [baseUrl, dispatch, props.orgCode, token]);
+  }, [platformBaseUrl, dispatch, props.orgCode]);
 
   return (
     <>

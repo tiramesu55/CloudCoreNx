@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-no-useless-fragment */
 import { useOktaAuth } from "@okta/okta-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Switch, Route } from "react-router-dom";
 import {NotAuthorized} from "../components/NotAuthorized";
 import {UserForm} from "../features/users/userForm";
@@ -11,13 +12,11 @@ import { OrganizationForm as AddNewOrganisation } from "../features/organization
 import {MiniDrawer, NavBar, Snackbar} from "../components";
 import {ListUsers} from "../features/users/allUsers";
 import {
-  selectBaseUrl,
-  selectToken,
-  setToken,
   getOrganizationsAsync,
 } from '@cloudcore/redux-store';
-import {SiteForm} from "../features/sites/siteForm";
-import {Sites} from "../features/sites/sites";
+import { SiteForm } from "../features/sites/siteForm";
+import { Sites } from "../features/sites/sites";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
 
 export const Routes = () => {
   const { oktaAuth, authState } = useOktaAuth();
@@ -25,8 +24,8 @@ export const Routes = () => {
   // const config = useAppSelector(isConfigSet);
   const dispatch = useAppDispatch();
   const [authorizedState, setAuthorizedState] = useState<boolean|undefined>();
-  const url = useAppSelector(selectBaseUrl);
-  const token = useAppSelector(selectToken);
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+ 
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState("");
   const [snackBarMsg, setSnackBarMsg] = useState("");
@@ -46,10 +45,10 @@ export const Routes = () => {
   }, [error]);
 
   useEffect(() => {
-    if (token) {
-      dispatch(getOrganizationsAsync(url));
+    if (platformBaseUrl) {
+      dispatch(getOrganizationsAsync({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
     }
-  }, [dispatch, token,url]);
+  }, [dispatch, platformBaseUrl, authState]);
 
   useEffect(() => {
     async function authenticate() {
@@ -58,7 +57,6 @@ export const Routes = () => {
       if (!authState.isAuthenticated || !authState.accessToken) {
         oktaAuth.signInWithRedirect({});
       } else {
-        dispatch(setToken(authState.accessToken.accessToken));
         const claims = authState.accessToken?.claims as any;
         const adminPermissions = claims?.admin;
         if (

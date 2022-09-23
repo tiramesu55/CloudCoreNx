@@ -7,6 +7,7 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 import axios from "axios";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface DashboardStats {
   users: number;
@@ -38,10 +39,7 @@ export const getDashboardStats = createAsyncThunk<
   DashboardStatsAction,
   any,
   { state: RootState }
->("dashboard/getStats", async (baseUrl: string, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = baseUrl;
+>("dashboard/getStats", async ({url, token} : {url: string, token: string}, { getState }) => {
   if (!token) return { data: {}, type: "getAllStats" };
   const response = await axios.get(`${url}/Statistics/Platform/All`, {
     headers: {

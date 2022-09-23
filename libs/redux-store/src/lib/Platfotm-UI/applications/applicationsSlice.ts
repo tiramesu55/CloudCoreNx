@@ -15,7 +15,11 @@ interface AppsGetAction{
   data : Application[];
   type: string;
 }
-
+interface IAppActionPayload {
+  app: Application; 
+  url: string;
+  token: string;
+}
 interface AppAction{
   data : Application;
   type: string;
@@ -42,10 +46,7 @@ export const initialState: ApplicationState = {
 
 export const getApplications = createAsyncThunk<AppsGetAction,any, {state:RootState}>(
   "applications/getApplications",
-  async (_, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ({ url, token } : {url: string, token: string}, {getState}) => {
     if(!token)
     return {data: null,type: "getAll"}
     const response = await getApplicationsApi(url,token);
@@ -58,14 +59,13 @@ export const getApplications = createAsyncThunk<AppsGetAction,any, {state:RootSt
 );
 
 export const updateApplication = createAsyncThunk<AppAction,any, {state:RootState}>(
-  "sites/updateSite",
-  async (app: Application, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  "applications/updateApplication",
+  async (appPayload: IAppActionPayload, {getState}) => {
+    const { app, url, token } = appPayload;
+    // const url = state.config.baseUrl;
     if(!token)
     return {data: null,type: "updateOne"}
-      const response = await updateApplicationApi(app,url,token);
+      const response = await updateApplicationApi(app, url,token);
       // The value we return becomes the `fulfilled` action payload
       return {
         data: response.data,
@@ -76,14 +76,12 @@ export const updateApplication = createAsyncThunk<AppAction,any, {state:RootStat
 );
 
 export const createApplication = createAsyncThunk<AppAction,any, {state:RootState}>(
-  "sites/createSite",
-  async (app: Application, {getState}) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  "applications/createApplication",
+  async (appPayload: IAppActionPayload, {getState}) => {
+    const { app, url, token } = appPayload;
     if(!token)
       return {data: null,type: "addOne"}
-    const response = await addApplicationApi(app,url,token);
+    const response = await addApplicationApi(app, url, token);
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,

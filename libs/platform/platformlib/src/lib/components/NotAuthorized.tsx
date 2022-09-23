@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useContext } from 'react';
 import { useOktaAuth } from "@okta/okta-react";
 import { makeStyles } from "@mui/styles";
 import { Typography, Grid, Button } from "@mui/material";
-import { useAppSelector } from "../hooks/hooks";
 import theme from "../themes";
 import access_denied from "../images/access_denied.svg";
-import { logoutSSO, postLogoutRedirectUri } from '@cloudcore/redux-store';
+import { ConfigCtx } from "@cloudcore/okta-and-config";
 
 const useStyles = makeStyles({
   root: {
@@ -24,14 +25,12 @@ const useStyles = makeStyles({
 
 export const NotAuthorized = () => {
   const { oktaAuth } = useOktaAuth();
-  const postLogoutUrl: string | undefined = useAppSelector(
-    postLogoutRedirectUri
-  );
-  const ssoUrl = useAppSelector(logoutSSO);
+  const { logoutSSO, postLogoutRedirectUri } = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+
   const logout = async () => {
     //get token
     const accessTok = oktaAuth.getAccessToken() ?? "";
-    const request = new Request(ssoUrl!, {
+    const request = new Request(logoutSSO!, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessTok}`,
@@ -47,7 +46,7 @@ export const NotAuthorized = () => {
       console.log("session closed");
     } finally {
       await oktaAuth.signOut({
-        postLogoutRedirectUri: postLogoutUrl, //'https://ssotest.walgreens.com/idp/idpLogout',
+        postLogoutRedirectUri, //'https://ssotest.walgreens.com/idp/idpLogout',
         clearTokensBeforeRedirect: true,
       });
     }

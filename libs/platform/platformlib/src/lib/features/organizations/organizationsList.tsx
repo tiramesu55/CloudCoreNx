@@ -13,7 +13,8 @@ import {
 import { withStyles } from "@mui/styles";
 import { useContext, useEffect } from "react";
 import { ConfigCtx } from "@cloudcore/okta-and-config";
-console.log(theme)
+import { useOktaAuth } from "@okta/okta-react";
+
 const CustomTableCss = withStyles(() => ({
   "@global": {
     ".css-1ya7byf-MuiButtonBase-root-MuiIconButton-root": {
@@ -56,8 +57,9 @@ const CustomTableCss = withStyles(() => ({
 export const OrganizationList = () => {
   const data = useAppSelector(selectOrganizations);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
-      const baseUrl = platformBaseUrl;
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const baseUrl = platformBaseUrl;
+  const { authState } = useOktaAuth();
 
   const idSelected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
@@ -65,9 +67,9 @@ export const OrganizationList = () => {
 
   useEffect(() => {
     if (baseUrl) {
-      dispatch(getOrganizationsAsync(baseUrl));
+      dispatch(getOrganizationsAsync({url: baseUrl, token: authState?.accessToken?.accessToken}));
     }
-  }, [dispatch, baseUrl]);
+  }, [dispatch, baseUrl, authState]);
 
   useEffect(() => {
     if (data.length > 0 && idSelected === "") {

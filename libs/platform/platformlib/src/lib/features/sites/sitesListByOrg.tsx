@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-no-useless-fragment */
 import MUIDataTable, { MUIDataTableOptions } from "mui-datatables";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
@@ -10,8 +11,10 @@ import {
   selectSelectedId,
 } from '@cloudcore/redux-store';
 import { withStyles } from "@mui/styles";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {
   orgCode: string;
@@ -58,14 +61,16 @@ const CustomTableCss = withStyles(() => ({
 
 export const SitesListByOrg = (props: Props) => {
   const location: any = useLocation();
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
   const orgCode = props.orgCode;
+  const { authState } = useOktaAuth();
   const data = useAppSelector(selectAllSites);
   const idSelected = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
   const id = idSelected === "" ? data[0]?.id : idSelected;
 
   useEffect(() => {
-    dispatch(getSites({ orgCode }));
+    dispatch(getSites({ orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }));
   }, []);
 
   useEffect(() => {

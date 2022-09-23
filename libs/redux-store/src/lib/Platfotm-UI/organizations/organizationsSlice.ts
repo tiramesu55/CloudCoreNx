@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import {
   createAsyncThunk,
   createSlice,
@@ -6,6 +8,7 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from '../../store';
 import axios from "axios";
+import { useOktaAuth } from "@okta/okta-react";
 
 export interface Organization {
   name: string;
@@ -88,11 +91,7 @@ export const getOrganizationsAsync = createAsyncThunk<
   OrgsGetAction,
   any,
   { state: RootState }
->("organizations/getOrganizations", async (baseUrl, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = baseUrl;
-  //if not authorized - no token
+>("organizations/getOrganizations", async ({ url, token } : {url: string, token: string}, { getState }) => {
   if (!token) return { data: [], type: "getAll" };
   const response = await axios.get<any>(
     `${url}/Platform/PlatformOrganization`,
@@ -108,17 +107,20 @@ export const getOrganizationsAsync = createAsyncThunk<
     type: "getAll",
   };
 });
-
+ 
+interface IOrgCall {
+  organization: Organization;
+  url: string;
+  token: string;
+}
 export const updateOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
   { state: RootState }
 >(
   "organizations/updateOrganization",
-  async (organization: Organization, { getState }) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ( orgData: IOrgCall , { getState }) => {
+    const { url, organization, token } = orgData;
     if (!token) return { data: null, type: "updateOne" };
     const response = await axios.put(
       `${url}/UpdateOrganization`,
@@ -143,10 +145,8 @@ export const createOrganizationAsync = createAsyncThunk<
   { state: RootState }
 >(
   "organizations/createOrganization",
-  async (organization: Organization, { getState }) => {
-    const state = getState();
-    const token = state.config.authToken;
-    const url = state.config.baseUrl;
+  async ( orgData: IOrgCall, { getState }) => {
+    const { url, organization, token } = orgData;
     if (!token) return { data: null, type: "addOne" };
     const response = await axios.post(
       `${url}/Platform/Add/PlatformOrganization`,
@@ -164,15 +164,17 @@ export const createOrganizationAsync = createAsyncThunk<
     };
   }
 );
-
+interface IOrgCode {
+  url: string;
+  orgCode: string;
+  token: string;
+}
 export const deleteOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
   { state: RootState }
->("organizations/deleteOrganization", async (orgCode: string, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("organizations/deleteOrganization", async (orgData: IOrgCode, { getState }) => {
+  const { url, orgCode, token } = orgData;
   if (!token) return { data: null, type: "deleteOne" };
   const response = await axios.delete(
     `${url}/Platform/PlatformOrganization/${orgCode}`,
@@ -193,10 +195,8 @@ export const getOrganizationStatsAsync = createAsyncThunk<
   OrgStatsAction,
   any,
   { state: RootState }
->("organizations/organizationStats", async (orgCode, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("organizations/organizationStats", async (orgData: IOrgCode, { getState }) => {
+  const { url, orgCode, token } = orgData;
   if (!token) return { data: null, type: "getStats" };
   const response = await axios.get(
     `${url}/Statistics/Organization/${orgCode}`,
@@ -217,10 +217,7 @@ export const getAllOrganizationsDomains = createAsyncThunk<
   AllOrgDomainsAction,
   any,
   { state: RootState }
->("organizations/organizationDomains", async (_, { getState }) => {
-  const state = getState();
-  const token = state.config.authToken;
-  const url = state.config.baseUrl;
+>("organizations/organizationDomains", async ({ url, token } : { url: string, token: string }, { getState }) => {
   if (!token) return { data: null, type: "getAllDomains" };
   const response = await axios.get(`${url}/Platform/Domain/All`, {
     headers: {

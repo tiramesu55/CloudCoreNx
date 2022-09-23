@@ -22,7 +22,7 @@ import {
   getAllOrgCount,
   getAllSitesCount,
   getAllUsersCount,
-  getDashboardStats,
+  getDashboardStats
   //selectBaseUrl
 } from '@cloudcore/redux-store';
 import { useOktaAuth } from "@okta/okta-react";
@@ -57,18 +57,18 @@ export const Dashboard = () => {
   const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
  
   const baseUrl = platformBaseUrl;
-  console.log(baseUrl)
+  // console.log(baseUrl)
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);
-  const { oktaAuth, authState } = useOktaAuth();
+  const { authState } = useOktaAuth();
   const [newOrgButton, setNewOrgButton] = useState(false);
 
   useEffect(() => {
     if (baseUrl) {
-      dispatch(getDashboardStats(baseUrl));
+      dispatch(getDashboardStats({url: baseUrl, token: authState?.accessToken?.accessToken}));
     }
-  }, [dispatch, baseUrl]);
+  }, [dispatch, baseUrl, authState]);
 
   useEffect(() => {
 

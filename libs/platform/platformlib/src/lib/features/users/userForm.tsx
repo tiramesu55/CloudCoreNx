@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useState, useEffect, useContext } from "react";
 import "react-phone-number-input/style.css";
 import { useHistory, useLocation } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
@@ -21,6 +22,8 @@ import {
   selectOrganizationByDomain
 } from '@cloudcore/redux-store';
 import { withStyles } from "@mui/styles";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 const CustomCss = withStyles(() => ({
   "@global": {
@@ -34,7 +37,9 @@ const CustomCss = withStyles(() => ({
 export const UserForm = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
-
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+ 
+  const { oktaAuth, authState } = useOktaAuth();
   const location: any = useLocation();
   const selectedApps = useAppSelector(currentApps);
 
@@ -181,7 +186,7 @@ export const UserForm = () => {
         updatedUserInfo.modifiedDate = new Date();
       }
       if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(updateUser(updatedUserInfo!))
+        dispatch(updateUser({user: updatedUserInfo!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
           .unwrap()
           .then(
             (value) => {
@@ -240,7 +245,7 @@ export const UserForm = () => {
         modifiedDate: new Date(),
       };
       if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(addNewUser(newUser))
+        dispatch(addNewUser({user : newUser, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
           .unwrap()
           .then(
             (value) => {

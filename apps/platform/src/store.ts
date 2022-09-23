@@ -1,10 +1,9 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import {dashboardReduser, sitesReducer, applicationsReducer, configReducer, userReducer, reportReducer, organizationsReducer} from '@cloudcore/redux-store';
+import {dashboardReduser, sitesReducer, applicationsReducer, userReducer, reportReducer, organizationsReducer} from '@cloudcore/redux-store';
 
 export const store = configureStore({
    reducer:{
       user: userReducer,
-      config: configReducer,
       applications: applicationsReducer,
       sites: sitesReducer,
       dashboard: dashboardReduser,

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useState, useContext } from "react";
 import {
   Dialog,
   DialogActions,
@@ -12,6 +13,8 @@ import warningImg from "../../images/warning.png";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { useHistory, useLocation } from "react-router-dom";
 import { deleteSite, selectedSite, Site, updateSite } from '@cloudcore/redux-store';
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {
   setSnackbar: (value: boolean) => void;
@@ -25,7 +28,9 @@ interface Props {
 }
 
 export const ActivateDeactivateSite = (props: Props) => {
-  const [open, setOpen] = useState(false);
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+   const [open, setOpen] = useState(false);
+   const { authState } = useOktaAuth();
   const site = useAppSelector(selectedSite);
   const history = useHistory();
   const location: any = useLocation();
@@ -68,7 +73,7 @@ export const ActivateDeactivateSite = (props: Props) => {
         },
         applications: site.applications,
       };
-      dispatch(updateSite(updatedSite))
+      dispatch(updateSite({site: updatedSite, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
         .unwrap()
         .then(
           (value: any) => {
@@ -97,7 +102,7 @@ export const ActivateDeactivateSite = (props: Props) => {
   const handleDeactivate = () => {
     setOpen(false);
     try {
-      dispatch(deleteSite(site?.id))
+      dispatch(deleteSite({id: site?.id, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
         .unwrap()
         .then(
           (value: any) => {

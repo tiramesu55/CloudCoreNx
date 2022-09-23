@@ -9,7 +9,7 @@ import {
   Stack,
   Autocomplete,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import theme from "../../themes";
 import CloseIcon from "@mui/icons-material/Close";
 import {InputTextWithLabel, Card, InfoCard, PhoneInput as CustomPhoneNumber, UnsavedData, Snackbar} from "../../components";
@@ -46,6 +46,8 @@ import { useSelector } from "react-redux";
 import { ActivateDeactivateOrg } from "./activate-deactivate-org";
 import { withStyles } from "@mui/styles";
 import { OrgDomainModal } from "./orgDomainModal";
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 const CustomCss = withStyles(() => ({
   "@global": {
@@ -57,7 +59,10 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const OrganizationForm = () => {
-  const organization = useAppSelector(selectedOrganization);
+  const organization = useAppSelector(selectedOrganization);  
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { authState } = useOktaAuth();
+ 
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -122,13 +127,13 @@ export const OrganizationForm = () => {
   useEffect(() => {
     if (isAddOrganization) {
       dispatch(resetOrganization());
-      dispatch(getAllOrganizationsDomains({}));
+      dispatch(getAllOrganizationsDomains({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
       setOrgDomain("");
     }
   }, []);
 
   useEffect(() => {
-    dispatch(fetchUsers({}));
+    dispatch(fetchUsers({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
   }, []);
 
   useEffect(() => {
@@ -137,13 +142,15 @@ export const OrganizationForm = () => {
     );
     if (isEditOrganization || isEditOrganizationRedirect) {
       dispatch(
-        getOrganizationStatsAsync(
-          selectOrgByID?.orgCode
-            ? selectOrgByID?.orgCode
-            : storedOrgData?.orgCode
+        getOrganizationStatsAsync({
+            orgCode: selectOrgByID?.orgCode
+              ? selectOrgByID?.orgCode
+              : storedOrgData?.orgCode,
+            url: platformBaseUrl, token: authState?.accessToken?.accessToken
+          }
         )
       );
-      dispatch(getAllOrganizationsDomains({}));
+      dispatch(getAllOrganizationsDomains({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
     }
   }, []);
 
@@ -532,7 +539,7 @@ export const OrganizationForm = () => {
           validState &&
           validZipCode
         ) {
-          dispatch(updateOrganizationAsync(updatedOrganization))
+          dispatch(updateOrganizationAsync({organization: updatedOrganization, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
             .unwrap()
             .then(
               () => {

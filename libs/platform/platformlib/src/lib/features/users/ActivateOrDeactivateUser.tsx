@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useState, useContext } from "react";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
 import { useHistory } from "react-router-dom";
 import {
@@ -18,6 +19,8 @@ import {
   updateUser,
   User,
 } from '@cloudcore/redux-store';
+import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface Props {
   user: User | undefined;
@@ -27,8 +30,11 @@ interface Props {
   setSnackBarMsg: (value: string) => void;
 }
 
-export const DeactivateUser = (props: Props) => {
+export const DeactivateUser = (props: Props) => {  
+  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
   const dispatch = useAppDispatch();
+  
+  const { authState } = useOktaAuth();
   const history = useHistory();
   const selectedId: string = useAppSelector(selectedUserEmail);
   const [open, setOpen] = useState(false);
@@ -48,7 +54,7 @@ export const DeactivateUser = (props: Props) => {
 
     try {
       setAddRequestStatus("pending");
-      dispatch(deleteUser(user!))
+      dispatch(deleteUser({user: user!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
         .unwrap()
         .then(
           (value) => {
@@ -78,7 +84,7 @@ export const DeactivateUser = (props: Props) => {
     try {
       setAddRequestStatus("pending");
       props.setActiveDate(null);
-      dispatch(updateUser(props.user!))
+      dispatch(updateUser({user: props.user!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
         .unwrap()
         .then(
           (value) => {
