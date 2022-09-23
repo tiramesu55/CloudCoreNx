@@ -55,7 +55,7 @@ export const fetchPowerbi = createAsyncThunk(
 export const initialPowerbiState: PowerbiState = powerbiAdapter.getInitialState(
   {
     loadingStatus: 'not loaded',
-    error: null,
+    error: "",
   }
 );
 
@@ -81,7 +81,7 @@ export const powerbiSlice = createSlice({
       )
       .addCase(fetchPowerbi.rejected, (state: PowerbiState, action) => {
         state.loadingStatus = 'error';
-        state.error = action.error.message;
+        state.error = action.error.message?  action.error.message : "";
       });
   },
 });
@@ -127,7 +127,7 @@ export const powerbiActions = powerbiSlice.actions;
  */
 const { selectAll, selectEntities } = powerbiAdapter.getSelectors();
 
-export const getPowerbiState = (rootState: unknown): PowerbiState =>
+export const getPowerbiState = (rootState: any): PowerbiState =>
   rootState[POWERBI_FEATURE_KEY];
 
 export const selectAllPowerbi = createSelector(getPowerbiState, selectAll);

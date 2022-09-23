@@ -4,11 +4,20 @@
   "projects": {
     "analytics": "apps/analytics",
     "analytics-e2e": "apps/analytics-e2e",
+    "analytics-powerbi": "libs/analytics/powerbi",
+    "common-lib": "libs/common-lib",
+
     "main": "apps/main",
     "main-e2e": "apps/main-e2e",
+    "marketplace": "apps/marketplace",
+    "marketplace-e2e": "apps/marketplace-e2e",
+    "marketplace-marketplace-lib": "libs/marketplace/marketplace-lib",
+    "okta-and-config": "libs/okta-and-config",
     "platform": "apps/platform",
     "platform-e2e": "apps/platform-e2e",
     "platform-platformlib": "libs/platform/platformlib",
-    "powerbi": "libs/powerbi"
+    "powerbi": "libs/powerbi",
+    "redux-store": "libs/redux-store",
+    "ui-shared": "libs/ui-shared"
   }
 }
