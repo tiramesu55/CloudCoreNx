@@ -4,15 +4,24 @@ import styles from './app.module.css';
 
 import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
 //import { Powerbi } from '@cloudcore/powerbi';
-import { OktaCode, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+
 import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
+import { ConfigCtx, IConfig, OktaCode } from '@cloudcore/okta-and-config';
+import { useContext } from 'react';
 
 function App() {
+  const config: IConfig | null = useContext(ConfigCtx);
+  if(!config){
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <></>
+  }
   return (
 
     <Routes>
-     <OktaCode oidc={{    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
-    "clientId": "0oa2e7f4dvYLDDdmw1d7", "redirectUri": "http://localhost:3000/login/callback"}} router={AnalyticsPowerbi} />
+     <OktaCode
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          oidc={config.oidcConfig!}
+          router={AnalyticsPowerbi} />
     </Routes>
 
   );

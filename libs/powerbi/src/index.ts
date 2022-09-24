@@ -1,2 +1,1 @@
-export * from './lib/powerbi.slice';
-export * from './lib/powerbi';
+export * from './lib/ReportBiClientComponent';

@@ -1,0 +1,11 @@
+{
+    "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
+    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout",
+    "postLogoutRedirectUri":"https://ssotest.walgreens.com/idp/idpLogout",
+     "oidcConfig": {
+      "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
+      "clientId": "0oa2e7f4dvYLDDdmw1d7",
+      "redirectUri": "http://localhost:3000/login/callback",
+      "pkce":true
+    }
+}

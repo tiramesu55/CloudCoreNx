@@ -7,6 +7,7 @@ import { UserClaims } from "@okta/okta-auth-js";
 export interface UseClaimsAndSignout {
   signOut: () => void;
   getClaims: () => UserClaims|undefined;
+  getToken :() => string | undefined;
 }
 
 export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string ): UseClaimsAndSignout {
@@ -14,12 +15,16 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
 
   const getClaims =  useCallback(() =>{
       return authState?.accessToken?.claims;
-  },[authState?.accessToken?.claims]
+   },[authState?.accessToken?.claims]
   )
-
+  
+  const getToken =  useCallback(() =>{
+    return authState?.accessToken?.accessToken;
+  },[authState?.accessToken]
+)
   const signOut = async () => {
     //get token
-    const accessToken = oktaAuth.getAccessToken() ?? "";
+    const accessToken = oktaAuth.getAccessToken() ?? "";   //so that token type is a string
     //create a request for
     const request = new Request( logoutSSO , {
       headers: {
@@ -45,8 +50,8 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
   }
 
   //const increment = useCallback(() => setCount((x) => x + 1), []);
-  return { signOut, getClaims };
+  return { signOut, getClaims, getToken };
 }
 export const useOktaAuthLib = () => useOktaAuth();
 
-export default useClaimsAndSignout;
+

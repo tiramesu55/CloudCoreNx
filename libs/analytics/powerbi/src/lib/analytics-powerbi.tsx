@@ -1,21 +1,207 @@
-import { useClaimsAndSignout } from '@cloudcore/okta-and-config';
-import styles from './analytics-powerbi.module.css';
+import { ConfigCtx, IConfig, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+
 import {Header} from '@cloudcore/ui-shared'
+
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useOktaAuth } from "@okta/okta-react";
+import { useContext, useEffect, useRef, useState } from "react";
+import {HeaderLayout} from '@cloudcore/ui-shared'
+
+import ListReports from "./components/ListReports";
+import {ReportBiClientComponent} from  "@cloudcore/powerbi"
+import { Box } from "@mui/system";
+//import useAppInsightHook from "../hooks/AppInsightHook/AppInsightHook";
+//import service from "../service/service";
+//import { IErrorTypeResponse } from "../models/interfaces";
+import {NotAuthorized} from "@cloudcore/ui-shared";
+//import IdlePopUp from "../components/idleTimeOut/idlePopup";
+//import { useIdleTimer } from "react-idle-timer";
+
+export const AnalyticsPage = () => {
+  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const {signOut, getClaims } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
+
+  //const { HandleUserLogIn, HandleUserEvent } = useAppInsightHook();
+  const { authState, oktaAuth } = useOktaAuth();
+  const [userName, setUserName] = useState("");
+  const [userInitials, setUserInitials] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [authorizedState, setAuthorizedState] = useState<boolean>(true);
+  const [listReportLoading, setListReportLoading] = useState<boolean>(false);
+  const [activityModal, setActivityModal] = useState<boolean>(false);
+  const sessionTimeoutRef: any = useRef(null);
+//  const { HandleUserLogOut } = useAppInsightHook();
 /* eslint-disable-next-line */
 export interface AnalyticsPowerbiProps {}
+export const AnalyticsPowerbi = () => {
+  //const { HandleUserLogIn, HandleUserEvent } = useAppInsightHook();
+  const [listReportLoading, setListReportLoading] = useState<boolean>(false);
+  const [activityModal, setActivityModal] = useState<boolean>(false);
+  const sessionTimeoutRef: any = useRef(null);
+//  const { HandleUserLogOut } = useAppInsightHook();
 
-export function AnalyticsPowerbi(props: AnalyticsPowerbiProps) {
-  //we will need to send 
-  //the hook arguyments (below) needs toi be passed from a component
-  const {signOut, getClaims } = useClaimsAndSignout( "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout","https://ssotest.walgreens.com/idp/idpLogout");
+  // const handleErrorResponse = (err: IErrorTypeResponse) => {
+  //   HandleUserEvent(
+  //     {
+  //       name: userName,
+  //       email: userEmail,
+  //     },
+  //     err?.message,
+  //     err?.type
+  //   );
+  //   openAlert(
+  //     err?.message ? err.message : "Error response",
+  //     err.status ? err.status : 0
+  //   );
+  // };
+
+  // useEffect(() => {
+  //   if (!authState?.isAuthenticated) {
+  //     oktaAuth.signInWithRedirect();
+  //   } else {
+  //     if (!authState.accessToken?.claims.analytics) {
+  //       setAuthorizedState(false);
+  //     } else {
+  //       setAuthorizedState(true);
+  //       //const payload = authState.accessToken?.claims.analytics;
+  //       if (config?.REACT_APP_SUITES_URL) {
+  //         setListReportLoading(true);
+  //         service.requests
+  //           .post(
+  //             config?.REACT_APP_SUITES_URL,
+  //             {
+  //               // permissions: payload
+  //             },
+  //             {
+  //               "Content-Type": "application/json",
+  //               Authorization: authState?.accessToken?.accessToken
+  //                 ? `Bearer ${authState?.accessToken?.accessToken}`
+  //                 : "",
+  //             }
+  //           )
+  //           .then((response) => {
+  //             setListReportLoading(false);
+  //             loadReports(response.suites);
+  //           })
+  //           .catch((error) => {
+  //             setListReportLoading(false);
+  //             handleErrorResponse({
+  //               type: "GetGroupReports",
+  //               message: error.message,
+  //               status: error.status ? error.status : 401,
+  //               messageToShow: error.message,
+  //             });
+  //           });
+  //       }
+  //     }
+  //     const claims = authState.accessToken?.claims as any;
+  //     if (claims?.initials) {
+  //       setUserName(claims?.initials.join(" "));
+  //       setUserInitials(
+  //         claims?.initials.map((name: String) => name[0].toUpperCase()).join("")
+  //       );
+  //     }
+  //     if (claims?.sub) {
+  //       setUserEmail(claims?.sub);
+  //     }
+  //   }
+  // }, [])
+
+  // const signOut = async () => {
+  //   //get token
+  //   //return access token from out custom hook
+  //   //const accessToken = oktaAuth.getAccessToken() ?? "";
+  //   //create a request for
+  //   const request = new Request(config ? config.logoutSSO : "", {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${accessToken}`,
+  //     },
+  //     method: "GET",
+  //   });
+  //   try {
+  //     const response = await fetch(request);
+  //     if (!response.ok) {
+  //       console.log(`HTTP error in closing Session: ${response.status}`);
+  //     }
+  //     console.log("session closed");
+  //   } catch (ex) {
+  //     console.log(ex);
+  //   } finally {
+  //     oktaAuth.signOut({
+  //       postLogoutRedirectUri: config?.postLogoutRedirectUri, //'https://ssotest.walgreens.com/idp/idpLogout',
+  //       revokeAccessToken: true,
+  //     });
+  //     HandleUserLogOut({
+  //       name: userName,
+  //       email: userEmail,
+  //     });
+  //   }
+  // };
+
+
+
+  // //idle timeout
+  // const handleOnIdle = () => {
+  //   if (!activityModal) {
+  //     setActivityModal(true);
+  //     sessionTimeoutRef.current = setTimeout(logOut, 1000 * 298);
+  //   }
+  // };
+
+  const handleActive = () => {
+    if (!activityModal) {
+      clearTimeout(sessionTimeoutRef.current);
+    }
+  };
+
+  const userActive = () => {
+    // isIdle && idleTimerReset();
+    clearTimeout(sessionTimeoutRef.current);
+    setActivityModal(false);
+  };
+
+  // const { getLastActiveTime, reset } = useIdleTimer({
+  //   timeout: 1000 * 1500,
+  //   onIdle: handleOnIdle,
+  //   onActive: handleActive,
+  //   debounce: 500,
+  // });
+  //idle timeout
+
   return (
     <>
-      <Header signOut={signOut} title = "Analytics" />
-      <div className={styles['container']}>
-        <h1>Welcome to AnalyticsPowerbi!</h1>
-      </div>
+      {/* if not authorized then go to route unauthorized  */}
+        <>
+          {/* <IdlePopUp
+            open={activityModal}
+            logOut={logOut}
+            userActive={userActive}
+            minutes={5}
+            seconds={0}
+            timer={{ minutes: 5, seconds: 0 }}
+          /> */}
+          <HeaderLayout signOut={signOut} title="Marketplace">
+          {/* <Header userEmail={userEmail} userName={userName} initials={userInitials} /> need a full header*/}
+          <Box sx={{ display: "flex" }}>
+            {/* <ListReports
+              listReportLoading={listReportLoading}
+              userName={userName}
+              userEmail={userEmail}
+            /> */}
+            {selectedReportId && (
+              <ReportBiClientComponent
+                userName={userName}
+                userEmail={userEmail}
+                reset={reset}
+              />
+            )}
+          </Box>
+          </HeaderLayout>
+        </>
+     
+        {/* <NotAuthorized postRedirect={config?.postLogoutRedirectUri!} /> */}
+
     </>
   );
 }
-
-export default AnalyticsPowerbi;
