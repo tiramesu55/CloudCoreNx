@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { makeStyles } from "@mui/styles";
 import { Theme } from "@mui/material/styles";
-import ReportEmbedding from "./PowerBI/ReportEmbeddingClass";
+import ReportEmbedding from "./ReportEmbeddingClass";
 import { useOktaAuth } from "@okta/okta-react";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { useActions } from "../../hooks/useActions";
-import BackdropPowerBi from "../BackDrop/Backdrop";
+import { useAppSelector } from "./hooks/hooks";
+import { reportsActions } from "@cloudcore/redux-store";
+import { BackdropPowerBi } from "@cloudcore/analytics/powerbi";
 import { throttle } from "throttle-debounce";
-import useAppInsightHook from "../../hooks/AppInsightHook/AppInsightHook";
-import { IErrorTypeResponse } from "../../models/interfaces";
+import { useAppInsightHook } from "@cloudcore/common-lib";
+import { IErrorTypeResponse } from "./models/interfaces";
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 import { UserClaims } from "@okta/okta-auth-js";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -39,14 +41,14 @@ export const ReportBiClientComponent = ({
   userEmail: string;
   reset: () => any
 }) => {
-  const reportContainer = React.createRef<HTMLDivElement>();
+  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+   const reportContainer = React.createRef<HTMLDivElement>();
   const reportEmbedding = new ReportEmbedding();
-  const { config } = useTypedSelector((state) => state.configReducer);
   const { loadingSingleReport, selectedReportId, reportFilter } =
-    useTypedSelector((state) => state.reportReducer);
+  useAppSelector((state) => state.report);
   const { authState, oktaAuth } = useOktaAuth();
   const { openAlert, loadingReportSingle, selectFilterItemSelected } =
-    useActions();
+  reportsActions;
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [containerCurrent, setContainerCurrent] =
     useState<HTMLDivElement | null>(null);
@@ -69,7 +71,7 @@ export const ReportBiClientComponent = ({
     }
   };
   const getToken = async (reportContainer: HTMLDivElement) => {
-    const request = new Request(config ? config.REACT_APP_POWERBI_URL : "", {
+    const request = new Request(config ? config.REACT_APP_POWERBI_URL! : "", {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${
@@ -84,7 +86,7 @@ export const ReportBiClientComponent = ({
     const response = await fetch(request)
       .then((res) => res.json())
       .catch((err) => {
-        let errorData = JSON.parse(err.message);
+        const errorData = JSON.parse(err.message);
         let errorText;
         try {
           errorText = JSON.parse(errorData.text);
@@ -145,7 +147,7 @@ export const ReportBiClientComponent = ({
       authState?.accessToken?.accessToken
         ? authState?.accessToken?.accessToken
         : "",
-      config ? config.REACT_APP_POWERBI_URL : "",
+      config ? config.REACT_APP_POWERBI_URL! : "",
       handleErrorResponse,
       loadingReportSingle,
       reportFilter,

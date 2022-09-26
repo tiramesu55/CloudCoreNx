@@ -4,7 +4,7 @@
 import * as pbi from 'powerbi-client';
 import { IEmbedConfiguration, IEmbedSettings } from 'powerbi-client';
 import * as models from 'powerbi-models';
-import { IFilterReport, IErrorTypeResponse } from "../../../models/interfaces";
+import { IFilterReport, IErrorTypeResponse } from "./models/interfaces";
 
 interface IReportEmbedModel {
   id: string;
@@ -71,7 +71,7 @@ export default class ReportEmbedding {
       )
       .catch((err) => {
         loadingReportSingle(false);
-        let errorData = JSON.parse(err.message);
+        const errorData = JSON.parse(err.message);
         let errorText;
         try {
           errorText = JSON.parse(errorData.text);
@@ -178,10 +178,10 @@ export default class ReportEmbedding {
         .then(() => this.showReport(hostContainer))
         .then(() => loadingReportSingle(false));
     });
-    report.on('rendered', (event) => {
+    report.on('rendered', (event: any) => {
       report.getPages().then((pages: any) => {
         pages[0].getVisuals().then((visuals: any) => {
-          let slicer = visuals.find((slicer: any) => slicer.type === 'slicer' && slicer.title === "Location");
+          const slicer = visuals.find((slicer: any) => slicer.type === 'slicer' && slicer.title === "Location");
           if(slicer){
             slicer.getSlicerState().then((slicerState: any) => {
               if(slicerState && slicerState.filters.length === 0){
@@ -194,7 +194,7 @@ export default class ReportEmbedding {
         });
       });
     });
-    report.on('error', (e) => {
+    report.on('error', (e: any) => {
       const error = e.detail as models.IError;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (error.level! > models.TraceType.Error) {
@@ -225,7 +225,7 @@ export default class ReportEmbedding {
     const { innerHeight: height } = window;
     return report.getPages().then(async (p: Array<pbi.Page>) => {
       const visuals = await p[0].getVisuals();
-      let slicer = visuals.find((slicer: any) => slicer.type === 'slicer' && slicer.title === 'Location');
+      const slicer = visuals.find((slicer: any) => slicer.type === 'slicer' && slicer.title === 'Location');
       if(slicer){
         if(actualReportFilter){
             slicer.getSlicerState().then((slicerState: any) => {
@@ -263,7 +263,7 @@ export default class ReportEmbedding {
       }
       p[0]
         .hasLayout(models.LayoutType.MobilePortrait)
-        .then((hasMobileLayout) => {
+        .then((hasMobileLayout: any) => {
           if (!hasMobileLayout || !showMobileLayout) {
             hostContainer.style.height = `${height - 100}px`;
           }

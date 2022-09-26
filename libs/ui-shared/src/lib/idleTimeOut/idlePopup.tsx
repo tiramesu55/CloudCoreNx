@@ -10,8 +10,8 @@ import {
   Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import timerIcon from "../../assets/timer-icon.svg";
-import CountDownTimer from "./countDown-timer";
+import timerIcon from "../assets/timer-icon.svg";
+import {CountDownTimer} from "./countDown-timer";
 //   import theme from "themes";
 //   import CountDownTimer from "./countdown-timer";
 

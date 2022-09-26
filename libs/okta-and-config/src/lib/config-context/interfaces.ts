@@ -13,7 +13,9 @@ export interface IConfig {
     postLogoutRedirectUri: string,
     platformBaseUrl: string,
     powerbiBaseUrl?: string,
-    marketBaseUrl?: string
+    marketBaseUrl?: string,
+    REACT_APP_SUITES_URL?: string,
+    REACT_APP_POWERBI_URL?: string
 }
 
 export interface IdleConfigReducerState {

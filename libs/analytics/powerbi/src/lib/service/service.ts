@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable import/no-anonymous-default-export */
 import axios, { AxiosResponse } from "axios";
 
@@ -25,7 +24,7 @@ const requests = {
       .then(responseBody),
   del: (url: string) => axios.delete(url).then(responseBody),
   postForm: (url: string, file: Blob) => {
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append("File", file);
     return axios
       .post(url, formData, {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   // Drawer,
   List,
@@ -11,17 +12,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { styled, Theme, CSSObject } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
-import { useTypedSelector } from "../hooks/useTypedSelector";
+import { useAppSelector } from "../hooks/hooks";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TimelineIcon from "@mui/icons-material/Timeline";
-import { useEffect, useState } from "react";
-import { useActions } from "../hooks/useActions";
+import { useEffect, useState, useContext } from "react";
+import { reportsActions } from "@cloudcore/redux-store";
 import { useOktaAuth } from "@okta/okta-react";
 import { Box } from "@mui/system";
-import useAppInsightHook from "../hooks/AppInsightHook/AppInsightHook";
-import BackdropPowerBi from "./BackDrop/Backdrop";
+import {useAppInsightHook} from "@cloudcore/common-lib";
+import { BackdropPowerBi } from "./BackDrop/Backdrop";
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 const drawerWidth = 310;
 
@@ -63,7 +65,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const ListReports = ({
+export const ListReports = ({
   listReportLoading,
   userName,
   userEmail,
@@ -72,18 +74,19 @@ const ListReports = ({
   userName: string;
   userEmail: string;
 }) => {
+  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { selectReport } = reportsActions;
   const { HandleUserEvent } = useAppInsightHook();
-  const { reports, selectedReportId } = useTypedSelector(
-    (state) => state.reportReducer
+  const { reports, selectedReportId } = useAppSelector(
+    (state) => state.report
   );
-  const { selectReport } = useActions();
+
   const [selectedIndexSet, setSelectedIndexSet] = useState(new Set<number>());
   const [open, setOpen] = useState(true);
 
   const handleDrawer = () => {
     setOpen(!open);
   };
-  const { config } = useTypedSelector((state) => state.configReducer);
 
   const handleClick = (e: any, index: number) => {
     e.stopPropagation();
@@ -267,5 +270,3 @@ const ListReports = ({
     </Box>
   );
 };
-
-export default ListReports;

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { Typography } from "@mui/material";
 import Countdown from "react-countdown";
 

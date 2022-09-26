@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
+import { Provider } from 'react-redux';
+import { store } from './store';
 import App from './app/app';
 import { BrowserRouter } from 'react-router-dom';
 import { ConfigContext } from '@cloudcore/okta-and-config';
@@ -11,10 +13,12 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ConfigContext>
-  <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </StrictMode>
+    <Provider store={store}>
+      <StrictMode>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </StrictMode>
+    </Provider>
   </ConfigContext>
 );

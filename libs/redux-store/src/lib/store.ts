@@ -6,8 +6,6 @@ import {dashboardReduser} from './Platfotm-UI/dashboard/dashboardSlice';
 import { organizationsReducer } from './Platfotm-UI/organizations/organizationsSlice';
 import { reportReducer } from "./PowerBI/state-management/reducers/reportReducer";
 
-console.log("reportReducer", reportReducer)
-
 export const store = configureStore({
    reducer:{
       user: userReducer,

@@ -2,7 +2,7 @@ import { makeStyles } from "@mui/styles";
 import { Typography, Grid, Button } from "@mui/material";
 
 import React from "react";
-import access_denied from "../assets/access_denied.svg";
+import access_denied from "./assets/access_denied.svg";
 const useStyles = makeStyles({
   root: {
     //minWidth: "100%",

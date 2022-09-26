@@ -1,12 +1,12 @@
 import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import { appInsights } from "../AppInsights";
-import { IUserInfo, ITracker, IProperties } from '../models/interfaces';
+import { IUserInfo, ITracker } from '../models/interfaces';
 
-const useAppInsightHook = () => {
+export const useAppInsightHook = () => {
     const trackException = (error: string) => {
         appInsights && appInsights.trackException({ error: new Error(error), severityLevel: SeverityLevel.Error });
     }
-    const useTrackEvent = ({name, user, message, visualName} : ITracker) => {
+    const useTrackEvent = ({name, user, message} : ITracker) => {
         const isLogged = sessionStorage.getItem('isLogged');
         if(name === "User LogIn" && !isLogged){
             sessionStorage.setItem('isLogged', 'Y');
@@ -41,18 +41,13 @@ const useAppInsightHook = () => {
                 }
             })
         } else {
-            const properties = {
-                displayName: user?.name,
-                email: user?.email,
-                message 
-            } as IProperties;
-
-            if(visualName){
-                properties["visualName"] = visualName
-            }
             appInsights && appInsights.trackEvent({
                 name,
-                properties
+                properties: {
+                    displayName: user?.name,
+                    email: user?.email,
+                    message 
+                }
             })
         }       
     }
@@ -62,8 +57,8 @@ const useAppInsightHook = () => {
     const HandleUserLogOut = (user: IUserInfo) => {
         useTrackEvent({ name: "User LogOut", user });
     }
-    const HandleUserEvent = (user: IUserInfo, message?: string, type?: string, visualName?: string) => {
-        useTrackEvent({ name: type? type : "errorType", user, message: message? message : "Error message", visualName });
+    const HandleUserEvent = (user: IUserInfo, message?: string, type?: string) => {
+        useTrackEvent({ name: type? type : "errorType", user, message: message? message : "Error message" });
     }
     return {
         HandleUserLogOut,
@@ -72,5 +67,3 @@ const useAppInsightHook = () => {
         HandleUserEvent
     }
 }
-
-export default useAppInsightHook
