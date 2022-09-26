@@ -2,7 +2,7 @@
 import styles from './app.module.css';
 //import NxWelcome from './nx-welcome';
 
-import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
+//import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
 //import { Powerbi } from '@cloudcore/powerbi';
 
 import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
@@ -17,12 +17,11 @@ function App() {
   }
   return (
 
-    <Routes>
+
      <OktaCode
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           oidc={config.oidcConfig!}
           router={AnalyticsPowerbi} />
-    </Routes>
 
   );
 }

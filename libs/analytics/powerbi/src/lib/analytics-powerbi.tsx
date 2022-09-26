@@ -181,7 +181,7 @@ const { HandleUserLogOut,  HandleUserLogIn, HandleUserEvent } = useAppInsightHoo
             seconds={0}
             timer={{ minutes: 5, seconds: 0 }}
           /> */}
-          <HeaderLayout signOut={signOut} title="Marketplace">
+          <HeaderLayout signOut={signOut} title="Analytics">
           {/* <Header userEmail={userEmail} userName={userName} initials={userInitials} /> need a full header*/}
           <Box sx={{ display: "flex" }}>
             <ListReports
