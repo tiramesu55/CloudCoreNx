@@ -10,8 +10,8 @@ import {
   Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import timerIcon from "../../assets/timer-icon.svg";
-import CountDownTimer from "./countDown-timer";
+// import timerIcon from "../../assets/timer-icon.svg";
+//import CountDownTimer from "./countDown-timer";
 //   import theme from "themes";
 //   import CountDownTimer from "./countdown-timer";
 
@@ -63,11 +63,11 @@ export const IdlePopUp = ({
         <DialogContent>
           <Stack spacing={5}>
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <img
+              {/* <img
                 src={timerIcon}
                 alt="timer icon"
                 style={{ paddingRight: "19px" }}
-              />
+              /> */}
               <Typography
                 fontSize={"18px"}
                 fontWeight={"bold"}
@@ -76,11 +76,11 @@ export const IdlePopUp = ({
                 Your online session will expire in
               </Typography>
             </Box>
-            <CountDownTimer minutes={minutes} seconds={seconds} timer={timer} />
+            {/* <CountDownTimer minutes={minutes} seconds={seconds} timer={timer} />
             <Typography fontSize={"18px"} sx={{ color: "#000000" }}>
               Please click "Continue" to keep working or click "Log Off" to end
               your session now.
-            </Typography>
+            </Typography> */}
           </Stack>
         </DialogContent>
         <DialogActions sx={{ padding: "16px" }}>

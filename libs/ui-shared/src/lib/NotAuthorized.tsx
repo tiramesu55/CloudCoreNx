@@ -2,7 +2,7 @@ import { makeStyles } from "@mui/styles";
 import { Typography, Grid, Button } from "@mui/material";
 
 import React from "react";
-import access_denied from "../assets/access_denied.svg";
+//import access_denied from "../assets/access_denied.svg";
 const useStyles = makeStyles({
   root: {
     //minWidth: "100%",
@@ -33,7 +33,7 @@ export const NotAuthorized: React.FC<Props> = (props) => {
         justifyContent={"center"}
         sx={{ marginTop: 3 }}
       >
-        <img height={"240px"} src={access_denied} alt="access_denied" />
+        {/* <img height={"240px"} src={access_denied} alt="access_denied" /> */}
         {/* <BlockIcon
           sx={{ fontSize: "100px", color: theme.palette.error.main }}
         /> */}
