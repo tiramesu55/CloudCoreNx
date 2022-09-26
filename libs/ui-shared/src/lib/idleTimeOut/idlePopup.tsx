@@ -8,10 +8,12 @@ import {
   Typography,
   Button,
   Box,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import timerIcon from '../assets/timer-icon.svg';
-import { CountDownTimer } from './countDown-timer';
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+// import timerIcon from "../../assets/timer-icon.svg";
+//import CountDownTimer from "./countDown-timer";
+//   import theme from "themes";
+//   import CountDownTimer from "./countdown-timer";
 
 interface IdlePopUpProps {
   open: boolean;
@@ -73,55 +75,73 @@ export const IdlePopUp = ({
               Your online session will expire in
             </Typography>
           </Box>
-          <CountDownTimer minutes={minutes} seconds={seconds} timer={timer} />
-          <Typography fontSize={'18px'} sx={{ color: '#000000' }}>
-            Please click "Continue" to keep working or click "Log Off" to end
-            your session now.
-          </Typography>
-        </Stack>
-      </DialogContent>
-      <DialogActions sx={{ padding: '16px' }}>
-        <Button
-          variant="outlined"
-          sx={{
-            borderRadius: 'full',
-            paddingTop: '8px',
-            paddingBottom: '8px',
-            paddingLeft: '25px',
-            paddingRight: '25px',
-            fontSize: '16px',
-            color: '#8141F2',
-            borderColor: '#8141F2',
-            '&:hover': {
-              background: '#6513F0',
-              color: '#ffffff',
-              border: '1px solid #ffffff',
-            },
-          }}
-          onClick={logOut}
-        >
-          LOG OFF
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            borderRadius: 'full',
-            paddingTop: '8px',
-            paddingBottom: '8px',
-            paddingLeft: '25px',
-            paddingRight: '25px',
-            fontSize: '16px',
-            backgroundColor: '#8141F2',
-            color: '#ffffff',
-            '&:hover': {
-              backgroundColor: '#6513F0',
-            },
-          }}
-          onClick={onActive}
-        >
-          CONTINUE
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={5}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {/* <img
+                src={timerIcon}
+                alt="timer icon"
+                style={{ paddingRight: "19px" }}
+              /> */}
+              <Typography
+                fontSize={"18px"}
+                fontWeight={"bold"}
+                sx={{ color: "#000000" }}
+              >
+                Your online session will expire in
+              </Typography>
+            </Box>
+            {/* <CountDownTimer minutes={minutes} seconds={seconds} timer={timer} />
+            <Typography fontSize={"18px"} sx={{ color: "#000000" }}>
+              Please click "Continue" to keep working or click "Log Off" to end
+              your session now.
+            </Typography> */}
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ padding: "16px" }}>
+          <Button
+            variant="outlined"
+            sx={{
+              borderRadius: "full",
+              paddingTop: "8px",
+              paddingBottom: "8px",
+              paddingLeft: "25px",
+              paddingRight: "25px",
+              fontSize: "16px",
+              color: "#8141F2",
+              borderColor: "#8141F2",
+              "&:hover": {
+                background: "#6513F0",
+                color: "#ffffff",
+                border: "1px solid #ffffff",
+              },
+            }}
+            onClick={logOut}
+          >
+            LOG OFF
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: "full",
+              paddingTop: "8px",
+              paddingBottom: "8px",
+              paddingLeft: "25px",
+              paddingRight: "25px",
+              fontSize: "16px",
+              backgroundColor: "#8141F2",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#6513F0",
+              },
+            }}
+            onClick={userActive}
+          >
+            CONTINUE
+          </Button>
+        </DialogActions>
+      </Dialog>
+
   );
 };
