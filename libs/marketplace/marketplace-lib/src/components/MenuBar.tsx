@@ -1,34 +1,35 @@
+import { makeStyles } from '@mui/styles';
 import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+
 import * as React from 'react';
-
+import { Link } from 'react-router-dom';
+import { createTheme } from '@mui/material';
+const theme = createTheme();
+const useStyles = makeStyles( () => ({
+  link: {
+    textDecoration: "none",
+    color: "black",
+    fontSize: "20px",
+    marginLeft: theme.spacing(20),
+    "&:hover": {
+      color: "purple",
+      borderBottom: "1px solid white",
+    },
+  }
+}));
 export const MenuBar: React.FC  = () => {
-  debugger;
-const pages = ['Component1', 'Compopnent2'];
-const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  const classes = useStyles();
   return (
-          <Menu
-              id="menu-appbar"  anchorEl={anchorElNav}  anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
+     
+        <Typography sx={{  color: "#8141f2", display: "flex", alignItems: "center", fontSize: "18px" }}>
+        <Link to="/component1" className={classes.link}>
+              Component1
+        </Link>
+        <Link to="/component2" className={classes.link} >
+              Component2
+        </Link>
 
-              >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu} >
-                  <Typography sx={{ ml: 3, color: "#8141f2", display: "flex", alignItems: "center", fontSize: "18px" }}>{page}</Typography>
-                </MenuItem>
-              ))}
-          </Menu>
+        </Typography>
+        
   )
 }
