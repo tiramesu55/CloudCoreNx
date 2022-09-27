@@ -9,24 +9,26 @@ import {
     makeStyles,
 
   } from "@mui/material";
+  import {FC, ReactNode} from 'react'
   import Logout from "@mui/icons-material/Logout";
 
 interface userProps {
     title: string;
 //    userName: string;
  //   initials: string;
+     menu?: ReactNode;
     signOut: () => void;
   }
   
-export  const Header = (props: userProps) => {
- 
+export  const Header: React.FC<userProps > = (props) => {
+
     return (
       <Box>
         <AppBar
           position="fixed"
           sx={{ backgroundColor: "#FFFFFF", zIndex: "2000" }}
         >
-          <Toolbar>
+          <Toolbar disableGutters>
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "flex" } }}>
               <Typography
                 variant="h6"
@@ -40,10 +42,10 @@ export  const Header = (props: userProps) => {
               <Typography variant="h6" sx={{ ml: 3, color: "#8141f2", display: "flex", alignItems: "center", fontSize: "18px" }}>
                 {props.title}
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-               
-              </Box>
-  {/* manu should go there and be done ad a specific library component */}
+             
+              {props.menu}
+           
+  {/* menu should go there and be done ad a specific library component */}
             </Box>
             <Box sx={{ display: { xs: "inline-flex", md: "inline-flex" } }}>
               
