@@ -1,3 +1,4 @@
+/* eslint-disable @nrwl/nx/enforce-module-boundaries */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useContext } from "react";
@@ -5,14 +6,10 @@ import { makeStyles } from "@mui/styles";
 import { Theme } from "@mui/material/styles";
 import ReportEmbedding from "./ReportEmbeddingClass";
 import { useOktaAuth } from "@okta/okta-react";
-import { useAppSelector } from "./hooks/hooks";
-import { reportsActions } from "@cloudcore/redux-store";
-import { BackdropPowerBi } from "@cloudcore/analytics/powerbi";
 import { throttle } from "throttle-debounce";
 import { useAppInsightHook } from "@cloudcore/common-lib";
 import { IErrorTypeResponse } from "./models/interfaces";
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
-import { UserClaims } from "@okta/okta-auth-js";
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
@@ -35,20 +32,27 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const ReportBiClientComponent = ({
   userName,
   userEmail,
-  reset
+  reset,
+  openAlert, 
+  loadingReportSingle, 
+  selectFilterItemSelected,
+  selectedReportId,
+  reportFilter
 }: {
   userName: string;
   userEmail: string;
-  reset: () => any
+  reset: () => void;
+  openAlert: ( message: string, type: number ) => void; 
+  loadingReportSingle: ( v : boolean) => void; 
+  selectFilterItemSelected: (filter: string[], operator: string) => void;
+  selectedReportId: string;
+  reportFilter: any;
 }) => {
   const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
-   const reportContainer = React.createRef<HTMLDivElement>();
+  const reportContainer = React.createRef<HTMLDivElement>();
   const reportEmbedding = new ReportEmbedding();
-  const { loadingSingleReport, selectedReportId, reportFilter } =
-  useAppSelector((state) => state.report);
-  const { authState, oktaAuth } = useOktaAuth();
-  const { openAlert, loadingReportSingle, selectFilterItemSelected } =
-  reportsActions;
+
+  const { authState } = useOktaAuth();
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [containerCurrent, setContainerCurrent] =
     useState<HTMLDivElement | null>(null);
@@ -165,8 +169,7 @@ export const ReportBiClientComponent = ({
   }, [selectedReportId]);
 
   return (
-    <>
-      <div
+    <div
         style={{
           display: "flex",
           flexGrow: 1,
@@ -176,8 +179,6 @@ export const ReportBiClientComponent = ({
         className={classes.container}
         onClick={() => console.log("From container")}
       />
-      <BackdropPowerBi loadingState={loadingSingleReport} />
-    </>
   );
 };
 

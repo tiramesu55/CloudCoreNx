@@ -127,10 +127,10 @@ export const ListReports = ({
         setOpen(true);
       } else {
         console.log("Session Expired");
-        oktaAuth.signOut({
-          postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-          revokeAccessToken: true,
-        });
+        // oktaAuth.signOut({
+        //   postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
+        //   revokeAccessToken: true,
+        // });
       }
     });
   };
@@ -161,10 +161,10 @@ export const ListReports = ({
             })
             .catch((e) => {
               console.log("Session Expired");
-              oktaAuth.signOut({
-                postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-                revokeAccessToken: true,
-              });
+              // oktaAuth.signOut({
+              //   postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
+              //   revokeAccessToken: true,
+              // });
             });
         }
       });

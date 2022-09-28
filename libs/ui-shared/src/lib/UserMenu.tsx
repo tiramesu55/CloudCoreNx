@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, Fragment, useEffect, useContext } from "react";
 import {
   Box,
@@ -11,10 +9,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import theme from "../themes";
-import User from "../images/user.svg";
-import SignOut from "../images/sign-out.svg";
+import { theme } from "./themes";
+import User from "./assets/user.svg";
+import SignOut from "./assets/sign-out.svg";
 import { useOktaAuth } from "@okta/okta-react";
+
+//import { IConfig } from "@microsoft/applicationinsights-web";
 import { ConfigCtx, IConfig, useClaimsAndSignout } from "@cloudcore/okta-and-config";
 
 export const UserMenu = () => {
@@ -65,7 +65,7 @@ export const UserMenu = () => {
     if (!authState?.isAuthenticated) {
       oktaAuth.signInWithRedirect();
     } else {
-      const claims = getClaims() as any;
+      const claims = authState.accessToken?.claims as any;
       if (claims?.initials) {
         setUserName(claims?.initials.join(" "));
         setUserInitials(

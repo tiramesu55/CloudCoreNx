@@ -5,7 +5,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Typography, IconButton, Box } from "@mui/material";
+import { IconButton, Box } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
+export const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
   const onClose = Props;
 
   return (
@@ -84,5 +84,3 @@ const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
     </div>
   );
 };
-
-export default ReportIssue;

@@ -57,7 +57,6 @@ export const loadingReportSingle =
 
 export const loadReports =
   (reportsState: IUiReport[]) => async (dispatch: Dispatch<LoadReportsAction>) => {
-    console.log("reportsState", reportsState)
     dispatch({
       type: ActionType.SET_REPORTS,
       payload: reportsState,
