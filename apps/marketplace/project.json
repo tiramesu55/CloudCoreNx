@@ -1,0 +1,84 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/marketplace/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/marketplace",
+        "index": "apps/marketplace/src/index.html",
+        "baseHref": "/",
+        "main": "apps/marketplace/src/main.tsx",
+        "polyfills": "apps/marketplace/src/polyfills.ts",
+        "tsConfig": "apps/marketplace/tsconfig.app.json",
+        "assets": [
+          "apps/marketplace/src/favicon.ico",
+          "apps/marketplace/src/assets"
+        ],
+        "styles": ["apps/marketplace/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/marketplace/src/environments/environment.ts",
+              "with": "apps/marketplace/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "marketplace:build",
+        "hmr": true,
+        "port": 3000
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "marketplace:build:development"
+        },
+        "production": {
+          "buildTarget": "marketplace:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/marketplace/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/marketplace"],
+      "options": {
+        "jestConfig": "apps/marketplace/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

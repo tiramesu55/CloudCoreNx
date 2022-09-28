@@ -2,65 +2,27 @@
 import styles from './app.module.css';
 //import NxWelcome from './nx-welcome';
 
-import { Route, Routes, Link } from 'react-router-dom';
+//import { Route, BrowserRouter as Routes, Link } from 'react-router-dom';
+//import { Powerbi } from '@cloudcore/powerbi';
 
-import { useSelector as useReduxSelector, TypedUseSelectorHook, useDispatch } from 'react-redux';
-import { Powerbi } from '@cloudcore/powerbi';
-import { getAccessToken, RootState, Report } from '@cloudcore/redux-store';
+import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
+import { ConfigCtx, IConfig, OktaCode } from '@cloudcore/okta-and-config';
+import { useContext } from 'react';
 
-export function App() {
-  // console.log(getAccessToken);
-  const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
-
-  const reports = useSelector<Report[]>((state) => state.report.reports);
-
-  console.log(reports);
+function App() {
+  const config: IConfig | null = useContext(ConfigCtx);
+  if(!config){
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <></>
+  }
   return (
-    <>
-      {/* <NxWelcome title="analytics" /> */}
-      <div />
 
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/powerbi">Powerbi</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
-            </div>
-          }
-        />
-        <Route path="/powerbi" element={<Powerbi />} />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-      {/* END: routes */}
-    </>
+
+     <OktaCode
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          oidc={config.oidcConfig!}
+          router={AnalyticsPowerbi} />
+
   );
 }
 

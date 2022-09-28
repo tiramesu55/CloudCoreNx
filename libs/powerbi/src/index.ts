@@ -1,1 +1,1 @@
-export * from './lib/powerbi';
+export * from './lib/ReportBiClientComponent';
