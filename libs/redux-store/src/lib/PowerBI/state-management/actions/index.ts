@@ -1,5 +1,4 @@
 import { ActionType } from "../action-types";
-import { IConfig } from "../../models/config";
 import {IUiReport} from '../../models/interfaces'
 interface AlertOpenAction {
   type: ActionType.SET_OPEN;
@@ -14,13 +13,6 @@ interface AlertCloseAction {
 }
 
 export type AlertsActions = AlertOpenAction | AlertCloseAction;
-interface configAction {
-  type: ActionType.SET_CONFIG;
-  payload: IConfig | null;
-}
-
-export type ConfigActions = configAction;
-
 interface loadingAction {
   type: ActionType.SET_LOADING_REPORTS | ActionType.SET_LOADING_REPORT_SINGLE;
   payload: boolean;
