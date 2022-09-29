@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
 import { Provider } from 'react-redux';
-import { store } from './store';
+import { store } from '@cloudcore/analytics/powerbi';
 import App from './app/app';
 import { BrowserRouter } from 'react-router-dom';
 import { ConfigContext } from '@cloudcore/okta-and-config';

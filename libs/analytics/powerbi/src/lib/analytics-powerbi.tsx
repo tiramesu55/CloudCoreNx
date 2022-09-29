@@ -16,7 +16,8 @@ import { IdlePopUp } from "@cloudcore/ui-shared";
 import { useIdleTimer } from "react-idle-timer";
 import { IErrorTypeResponse } from "./models/interfaces";
 import {useAppInsightHook} from "@cloudcore/common-lib";
-import { reportsActions, useAppDispatch, useAppSelector } from "@cloudcore/redux-store";
+import { reportsActions, useAppDispatch} from "@cloudcore/redux-store";
+import {useAppSelector} from "./store"
 import { HeaderMenuPowerBI } from "./components";
 
 /* eslint-disable-next-line */

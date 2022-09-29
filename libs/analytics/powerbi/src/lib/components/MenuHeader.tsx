@@ -9,7 +9,8 @@ import {
   import { useState, useEffect, SetStateAction, useContext } from "react";
   import { useOktaAuth } from "@okta/okta-react";
   import { useAppInsightHook } from "@cloudcore/common-lib";
-  import { useAppSelector, reportsActions, useAppDispatch } from "@cloudcore/redux-store";
+  import {  reportsActions, useAppDispatch } from "@cloudcore/redux-store";
+  import {useAppSelector} from "../store"
   import betaIcon from "../assets/betaIcon.png";
   import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
   

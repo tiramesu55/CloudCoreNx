@@ -1,9 +1,9 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { reportReducer } from '@cloudcore/redux-store';
-
+import { TypedUseSelectorHook,  useSelector } from 'react-redux';
 export const store = configureStore({
    reducer:{
-      report: reportReducer
+      report: reportReducer.reportReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers
@@ -18,4 +18,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
-//export default store
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
