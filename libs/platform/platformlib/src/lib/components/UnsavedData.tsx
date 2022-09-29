@@ -9,8 +9,7 @@ import {
 } from "@mui/material";
 import theme from "../themes";
 import warningImg from "../images/warning.png";
-import { useAppDispatch } from "../hooks/hooks";
-import { setOrgFormModified, setSiteFormModified, setUserFormModified } from '@cloudcore/redux-store';
+import { setOrgFormModified, setSiteFormModified, setUserFormModified, platformStore } from '@cloudcore/redux-store';
 
 interface Props {
   open: boolean;
@@ -19,6 +18,7 @@ interface Props {
 }
 
 export const UnsavedData = (props: Props) => {
+  const { useAppDispatch } = platformStore;
   const history = useHistory();
   const location : any = useLocation();
   const dispatch = useAppDispatch()

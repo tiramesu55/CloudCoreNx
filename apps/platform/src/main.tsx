@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
-import { store } from './store';
+import { platformStore } from '@cloudcore/redux-store';
 import App from './app/app';
 import { ConfigContext } from '@cloudcore/okta-and-config';
 
@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ConfigContext>
-    <Provider store={store}>
+    <Provider store={platformStore.store}>
       <StrictMode>
         <BrowserRouter>
           <App />

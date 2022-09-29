@@ -14,16 +14,16 @@ import service from "./service/service";
 import { NotAuthorized } from "@cloudcore/ui-shared";
 import { IdlePopUp } from "@cloudcore/ui-shared";
 import { useIdleTimer } from "react-idle-timer";
-import { IErrorTypeResponse } from "./models/interfaces";
+import { IErrorTypeResponse } from "./interfaces/interfaces";
 import {useAppInsightHook} from "@cloudcore/common-lib";
-import { reportsActions, useAppDispatch} from "@cloudcore/redux-store";
-import {useAppSelector} from "./store"
+import { analyticsStore, reportsActions } from "@cloudcore/redux-store";
 import { HeaderMenuPowerBI } from "./components";
 
 /* eslint-disable-next-line */
 export interface AnalyticsPowerbiProps {}
 
 export const AnalyticsPowerbi = () => {
+  const { useAppDispatch, useAppSelector } = analyticsStore;
   const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
   const dispatch = useAppDispatch();
   const { signOut, getClaims } = useClaimsAndSignout( config.logoutSSO, config.postLogoutRedirectUri);

@@ -1,9 +1,9 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import { reportReducer } from '@cloudcore/redux-store';
-import { TypedUseSelectorHook,  useSelector } from 'react-redux';
+import { reportReducer } from "./PowerBI/state-management/reducers/reportReducer"
+import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 export const store = configureStore({
    reducer:{
-      report: reportReducer.reportReducer
+      report: reportReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers
@@ -19,3 +19,4 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   Action<string>
 >;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch = () => useDispatch<AppDispatch>();

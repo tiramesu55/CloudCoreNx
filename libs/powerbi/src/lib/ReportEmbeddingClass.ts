@@ -4,7 +4,7 @@
 import * as pbi from 'powerbi-client';
 import { IEmbedConfiguration, IEmbedSettings } from 'powerbi-client';
 import * as models from 'powerbi-models';
-import { IFilterReport, IErrorTypeResponse } from "./models/interfaces";
+import { IFilterReport, IErrorTypeResponse } from "./interfaces/interfaces";
 
 interface IReportEmbedModel {
   id: string;

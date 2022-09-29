@@ -8,7 +8,7 @@ import ReportEmbedding from "./ReportEmbeddingClass";
 import { useOktaAuth } from "@okta/okta-react";
 import { throttle } from "throttle-debounce";
 import { useAppInsightHook } from "@cloudcore/common-lib";
-import { IErrorTypeResponse } from "./models/interfaces";
+import { IErrorTypeResponse } from "./interfaces/interfaces";
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 const useStyles = makeStyles((theme: Theme) => ({

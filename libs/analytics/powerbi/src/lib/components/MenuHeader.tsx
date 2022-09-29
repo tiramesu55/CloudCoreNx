@@ -9,8 +9,7 @@ import {
   import { useState, useEffect, SetStateAction, useContext } from "react";
   import { useOktaAuth } from "@okta/okta-react";
   import { useAppInsightHook } from "@cloudcore/common-lib";
-  import {  reportsActions, useAppDispatch } from "@cloudcore/redux-store";
-  import {useAppSelector} from "../store"
+  import {  reportsActions, analyticsStore } from "@cloudcore/redux-store";
   import betaIcon from "../assets/betaIcon.png";
   import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
   
@@ -20,6 +19,7 @@ import {
     initials: string;
   }
   export const HeaderMenuPowerBI = (props: userProps) => {
+    const {useAppSelector, useAppDispatch} = analyticsStore;
     const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
     const { oktaAuth } = useOktaAuth();
     const dispatch = useAppDispatch();

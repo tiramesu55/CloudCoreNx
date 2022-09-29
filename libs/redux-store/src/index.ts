@@ -8,3 +8,5 @@ export * as reportsActions from "./lib/PowerBI/state-management/action-creators"
 export * as reportReducer from "./lib/PowerBI/state-management/reducers/reportReducer"
 export * from "./lib/store";
 export * from "./lib/hooks"
+export * as analyticsStore from "./lib/store-analytics";
+export * as platformStore from "./lib/store-platform";
