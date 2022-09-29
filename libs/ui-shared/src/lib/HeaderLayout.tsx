@@ -1,16 +1,14 @@
-import {Header} from '@cloudcore/ui-shared'
+import { Header } from '@cloudcore/ui-shared';
 interface headerProps {
-    title: string;
-    signOut: () => void;
-    children:any,
-    menuComponent?: any
+  title: string;
+  signOut: () => void;
+  children: JSX.Element;
 }
-
-export const HeaderLayout = (props: headerProps ) => {
-    return(
-        <>
-        <Header title={props.title} signOut={props.signOut} menuComponent={props.menuComponent}/>
-            {props.children}
-        </>
-    )
-}
+export const HeaderLayout = (props: headerProps) => {
+  return (
+    <>
+      <Header title={props.title} />
+      {props.children}
+    </>
+  );
+};

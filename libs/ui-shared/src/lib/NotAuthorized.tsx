@@ -1,12 +1,29 @@
+import { makeStyles } from "@mui/styles";
 import { Typography, Grid, Button } from "@mui/material";
+
 import React from "react";
 import access_denied from "./assets/access_denied.svg";
-
+const useStyles = makeStyles({
+  root: {
+    //minWidth: "100%",
+    minHeight: "80vh",
+    //display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  card: {
+    maxWidth: "40%",
+    minHeight: "20vh",
+    display: "flex",
+    alignItems: "center",
+  },
+});
 type Props = {
   signOut: () => void
 };
-
 export const NotAuthorized: React.FC<Props> = (props) => {
+  //const classes = useStyles();
+ 
   return (
     <Grid container>
       <Grid
