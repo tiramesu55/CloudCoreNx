@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
 import { platformStore } from '@cloudcore/redux-store';
+import theme from 'libs/ui-shared/src/themes';
+import { ThemeProvider } from '@mui/material';
 import App from './app/app';
 import { ConfigContext } from '@cloudcore/okta-and-config';
 
@@ -14,9 +16,11 @@ root.render(
   <ConfigContext>
     <Provider store={platformStore.store}>
       <StrictMode>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ThemeProvider>
       </StrictMode>
     </Provider>
   </ConfigContext>

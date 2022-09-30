@@ -24,7 +24,6 @@ export const closeAlert = () => async (dispatch: Dispatch<AlertsActions>) => {
 };
 
 
-
 export const loadingReports =
   (loadingState: boolean) => async (dispatch: Dispatch<LoadingActions>) => {
     dispatch({
