@@ -2,22 +2,54 @@
 import {  useContext } from "react";
 import { Switch, Route, Link } from "react-router-dom";
 
-import { ConfigCtx, IConfig, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+import { ConfigCtx, IConfig, useClaimsAndSignout} from '@cloudcore/okta-and-config';
 import {Header} from '@cloudcore/ui-shared'
-
+import { useHistory } from "react-router-dom";
 import Component1 from "../components/component1/component1";
 import Component2 from "../components/component2/component2";
-import {MenuBar} from "../components/MenuBar";
 
+import logo from './images/Nexia-Logo2.png';
+import logOutIcon from './images/sign-out.svg';
 
 export const MpRoutes = () => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
-  const {signOut, getClaims } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
-
+  const {signOut, initials, names, permissions } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
+  console.log( permissions.marketplace ?"allowed to marketplace" :"no marketplace permissions. Redirect to notauthorized")
+  const history = useHistory();
   return (
     <>
-          <Header signOut={signOut} title="Marketplace" menu={<MenuBar/>}/>
+          <Header
+            title={'MARKETPLACE'}
+            logo={{ img: logo, path: '/' }}
+            betaIcon={true}
+            reportIssue={false}
+            navLinkMenuList={[
+              { label: 'Component1', route: '/component1' },
+              
+              // submenu
+              {
+                label: 'More Components',
+                subMenuList: [
+                  { label: 'Component2', onClick: () => history.push('/component2') },
+                  { label: 'Go back', onClick: () => history.push('/') },
+
+                ],
+              },
+            ]}
+            userMenu={{
+              userName: names? names[0] : "",
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              userInitials: initials!,
+            }}
+            userMenuList={[
+              {
+                icon: logOutIcon,
+                label: 'Logout',
+                onClick: signOut,
+              },
+            ]}
+          />
            
           <Switch>   
 

@@ -15,8 +15,19 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloudcore/analytics/powerbi": ["libs/analytics/powerbi/src/index.ts"],
+      "@cloudcore/common-lib": ["libs/common-lib/src/index.ts"],
+      "@cloudcore/context": ["libs/context/src/index.ts"],
+      "@cloudcore/marketplace/marketplace-lib": [
+        "libs/marketplace/marketplace-lib/src/index.ts"
+      ],
+      "@cloudcore/okta-and-config": ["libs/okta-and-config/src/index.ts"],
+      "@cloudcore/platform/platformlib": [
+        "libs/platform/platformlib/src/index.ts"
+      ],
       "@cloudcore/powerbi": ["libs/powerbi/src/index.ts"],
-      "@cloudcore/redux-store": ["libs/redux-store/src/index.ts"]
+      "@cloudcore/redux-store": ["libs/redux-store/src/index.ts"],
+      "@cloudcore/ui-shared": ["libs/ui-shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

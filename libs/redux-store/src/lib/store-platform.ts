@@ -4,20 +4,18 @@ import {applicationsReducer} from './Platfotm-UI/applications/applicationsSlice'
 import {sitesReducer} from './Platfotm-UI/sites/siteSlice';
 import {dashboardReduser} from './Platfotm-UI/dashboard/dashboardSlice';
 import { organizationsReducer } from './Platfotm-UI/organizations/organizationsSlice';
-//import { reportReducer } from "./PowerBI/state-management/reducers/reportReducer";
-
+import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 export const store = configureStore({
-   reducer:{
-      user: userReducer,
-      applications: applicationsReducer,
-      sites: sitesReducer,
-      dashboard: dashboardReduser,
-   //   report: reportReducer,
-      organizations: organizationsReducer
-   },
-   devTools: process.env['NODE_ENV'] !== 'production',
-   // Optional Redux store enhancers
-   enhancers: [],
+    reducer:{
+        user: userReducer,
+        applications: applicationsReducer,
+        sites: sitesReducer,
+        dashboard: dashboardReduser,
+        organizations: organizationsReducer
+     },
+     devTools: process.env['NODE_ENV'] !== 'production',
+     // Optional Redux store enhancers
+     enhancers: [],
 })
 //type for combine state
 export type RootState = ReturnType<typeof store.getState>
@@ -28,4 +26,5 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
-//export default store
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch = () => useDispatch<AppDispatch>();

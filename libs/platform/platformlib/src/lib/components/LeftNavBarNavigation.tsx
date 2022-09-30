@@ -22,8 +22,7 @@ import { makeStyles, withStyles } from "@mui/styles";
 import { useLocation, useHistory } from "react-router-dom";
 import theme from "../themes";
 import { UnsavedData } from "./UnsavedData";
-import { getOrgFormModified, getSiteFormModified, getUserFormModified } from '@cloudcore/redux-store';
-import {  useAppSelector } from "../hooks/hooks";
+import { getOrgFormModified, getSiteFormModified, getUserFormModified, platformStore } from '@cloudcore/redux-store';
 
 const drawerWidth = 240;
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -145,6 +144,7 @@ interface Props {
 }
 
 export const MiniDrawer = (props: Props) => {
+  const { useAppSelector } = platformStore;
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);

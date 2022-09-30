@@ -1,9 +1,9 @@
 import { ActionType } from "../action-types";
-import { ConfigActions, AlertsActions, LoadingActions, 
+import {  AlertsActions, LoadingActions, 
          LoadReportsAction, SelectReportAction, 
          SelectFilterItemSelectedAction } from "../actions";
 import { Dispatch } from "redux";
-import service from "../../service/service";
+//import service from "../../service/service";
 import {IUiReport} from '../../models/interfaces';
 
 export const openAlert =
@@ -23,21 +23,6 @@ export const closeAlert = () => async (dispatch: Dispatch<AlertsActions>) => {
   });
 };
 
-export const setConfig = () => async (dispatch: Dispatch<ConfigActions>) => {
-  let config = null;
-  try {
-    config = await service.GetConfig();
-    dispatch({
-      type: ActionType.SET_CONFIG,
-      payload: config,
-    });
-  } catch (err) {
-    dispatch({
-      type: ActionType.SET_CONFIG,
-      payload: config,
-    });
-  }
-};
 
 export const loadingReports =
   (loadingState: boolean) => async (dispatch: Dispatch<LoadingActions>) => {
@@ -57,7 +42,6 @@ export const loadingReportSingle =
 
 export const loadReports =
   (reportsState: IUiReport[]) => async (dispatch: Dispatch<LoadReportsAction>) => {
-    console.log("reportsState", reportsState)
     dispatch({
       type: ActionType.SET_REPORTS,
       payload: reportsState,

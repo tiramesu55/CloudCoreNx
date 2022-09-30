@@ -1,10 +1,11 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+
+import { Provider } from 'react-redux';
+import { platformStore } from '@cloudcore/redux-store';
 import theme from 'libs/ui-shared/src/themes';
 import { ThemeProvider } from '@mui/material';
-import { Provider } from 'react-redux';
-import { store } from './store';
 import App from './app/app';
 import { ConfigContext } from '@cloudcore/okta-and-config';
 
@@ -13,7 +14,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ConfigContext>
-    <Provider store={store}>
+    <Provider store={platformStore.store}>
       <StrictMode>
         <ThemeProvider theme={theme}>
           <BrowserRouter>

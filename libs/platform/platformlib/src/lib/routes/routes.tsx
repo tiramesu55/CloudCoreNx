@@ -20,7 +20,7 @@ import logOutIcon from '../images/sign-out.svg';
 import {
   ConfigCtx,
   IConfig,
-  useClaimsAndSignout,
+  useClaimsAndSignout
 } from '@cloudcore/okta-and-config';
 
 export const Routes = () => {
@@ -43,7 +43,7 @@ export const Routes = () => {
     setFormModified(value);
   };
   const config: IConfig = useContext(ConfigCtx)!;
-  const { signOut } = useClaimsAndSignout(
+  const { signOut, initials, names } = useClaimsAndSignout(
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
@@ -52,11 +52,12 @@ export const Routes = () => {
     if (!authState?.isAuthenticated) {
       oktaAuth.signInWithRedirect();
     } else {
-      const claims = authState.accessToken?.claims as any;
-      if (claims?.initials) {
-        setUserName(claims?.initials.join(' '));
-        setUserInitials(
-          claims?.initials.map((name: string) => name[0].toUpperCase()).join('')
+      if( names ){
+        setUserName(names.join(' '));
+      }
+      if( initials ){
+          setUserInitials(
+          initials
         );
       }
     }
@@ -126,15 +127,6 @@ export const Routes = () => {
             navLinkMenuList={[
               { label: 'DASHBOARD', route: '/' },
               { label: 'USERS', route: '/user' },
-              // Analytics menu example
-              {
-                label: 'REPORTS',
-                subMenuList: [
-                  { label: 'Reports 1', onClick: () => alert('open Report1') },
-                  { label: 'Reports 2', onClick: () => alert('open Report2') },
-                  { label: 'Reports 3', onClick: () => alert('open Report3') },
-                ],
-              },
             ]}
             userMenu={{
               userName: userName,
@@ -148,9 +140,6 @@ export const Routes = () => {
               },
             ]}
           />
-          <MiniDrawer />
-          <Switch>
-            <MiniDrawer>
               <>
                 <Route exact path="/" component={Dashboard} />
                 <Route
@@ -174,8 +163,6 @@ export const Routes = () => {
                   component={SiteForm}
                 />
               </>
-            </MiniDrawer>
-          </Switch>
         </>
       ) : authorizedState === undefined ? (
         <></>

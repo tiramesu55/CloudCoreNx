@@ -5,6 +5,8 @@ export * from "./lib/Platfotm-UI/dashboard/dashboardSlice";
 export * from "./lib/Platfotm-UI/sites/siteSlice";
 export * from "./lib/Platfotm-UI/users/userSlice";
 export * as reportsActions from "./lib/PowerBI/state-management/action-creators"
-export * from "./lib/PowerBI/state-management/reducers/reportReducer"
+export * as reportReducer from "./lib/PowerBI/state-management/reducers/reportReducer"
 export * from "./lib/store";
 export * from "./lib/hooks"
+export * as analyticsStore from "./lib/store-analytics";
+export * as platformStore from "./lib/store-platform";

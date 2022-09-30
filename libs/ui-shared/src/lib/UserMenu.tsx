@@ -28,7 +28,7 @@ interface userMenuList {
   onClick: () => void;
 }
 
-export default function UserMenu(props: userMenuProps) {
+export const UserMenu = (props: userMenuProps) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {

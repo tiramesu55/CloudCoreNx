@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
+export const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
   const onClose = Props;
 
   return (
@@ -85,5 +85,3 @@ const ReportIssue: React.FC<Props> = ({ isOpen, onClose: Props }) => {
     </div>
   );
 };
-
-export default ReportIssue;

@@ -1,27 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useContext } from 'react';
 import { useOktaAuth } from "@okta/okta-react";
-import { makeStyles } from "@mui/styles";
 import { Typography, Grid, Button } from "@mui/material";
 import theme from "../themes";
 import access_denied from "../images/access_denied.svg";
 import { ConfigCtx } from "@cloudcore/okta-and-config";
-
-const useStyles = makeStyles({
-  root: {
-    //minWidth: "100%",
-    minHeight: "80vh",
-    //display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  card: {
-    maxWidth: "40%",
-    minHeight: "20vh",
-    display: "flex",
-    alignItems: "center",
-  },
-});
 
 export const NotAuthorized = () => {
   const { oktaAuth } = useOktaAuth();
