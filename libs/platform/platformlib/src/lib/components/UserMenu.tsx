@@ -24,7 +24,7 @@ export const UserMenu = () => {
  
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
-  const {signOut, getClaims } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
+  const {signOut, names, initials } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -65,11 +65,12 @@ export const UserMenu = () => {
     if (!authState?.isAuthenticated) {
       oktaAuth.signInWithRedirect();
     } else {
-      const claims = getClaims() as any;
-      if (claims?.initials) {
-        setUserName(claims?.initials.join(" "));
+      if(names){
+        setUserName(names.join(" "));
+      }
+      if (initials) {
         setUserInitials(
-          claims?.initials.map((name: string) => name[0].toUpperCase()).join("")
+          initials
         );
       }
     }
