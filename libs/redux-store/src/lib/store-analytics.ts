@@ -1,5 +1,5 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import { reportReducer } from "./PowerBI/state-management/reducers/reportReducer"
+import { reportReducer } from "./PowerBI/reducers/reportReducer"
 import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 export const store = configureStore({
    reducer:{

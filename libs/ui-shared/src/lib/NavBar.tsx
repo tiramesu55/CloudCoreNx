@@ -1,17 +1,7 @@
 import { Box, Typography, Menu, MenuItem } from '@mui/material';
 import { NavLink } from 'react-router-dom';
-import theme from '../themes';
+import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
-
-const style = {
-  navLinkIcon: {
-    textDecoration: 'none',
-    color: theme.palette.text.primary,
-    fontSize: theme.typography.subtitle1.fontSize,
-    marginLeft: theme.spacing(4),
-    fontWeight: 600,
-  },
-};
 
 interface navigationProps {
   navigationProps: navigation[];
@@ -29,9 +19,20 @@ interface subMenuListProps {
   onClick: () => void;
 }
 const NavBar = (props: navigationProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [index, setIndex] = useState<null | number>(null);
   const openMenu = Boolean(anchorEl);
+
+  const style = {
+    navLinkIcon: {
+      textDecoration: 'none',
+      color: theme.palette.text.primary,
+      // fontSize: theme.typography.subtitle1.fontSize,
+      marginLeft: theme.spacing(4),
+      // fontWeight: 600,
+    },
+  };
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {props.navigationProps.map((item, ind) =>
@@ -62,7 +63,6 @@ const NavBar = (props: navigationProps) => {
                 display: 'flex',
                 alignItems: 'center',
                 height: '64px',
-                fontSize: '18px',
                 cursor: 'default',
               }}
             >

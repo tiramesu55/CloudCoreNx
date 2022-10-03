@@ -1,12 +1,11 @@
 import { AppBar, Toolbar, Typography, Divider, Box } from '@mui/material';
-import { Link, NavLink } from 'react-router-dom';
-import theme from '../themes';
 import { useState } from 'react';
 import {ReportIssue} from './ReportIssue';
 import {UserMenu} from './UserMenu';
 import NavBar from './NavBar';
 import betaIcon from './assets/betaIcon.png';
 import reportIssueIcon from './assets/report-issue.svg';
+import { useTheme } from '@mui/material/styles';
 
 interface headerProps {
   title: string;
@@ -50,7 +49,7 @@ interface subMenuListProps {
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
   const [isOpen, setIsOpen] = useState(false);
-
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const handleReportIssueDialogOpen = () => {
     setIsOpen(true);
@@ -70,6 +69,7 @@ export const Header = (props: headerProps) => {
   };
   /* End of Report Issue */
   const open = Boolean(anchorEl);
+  
   const style = {
     layoutLogo: {
       width: '100%',
@@ -99,7 +99,7 @@ export const Header = (props: headerProps) => {
       color: theme.palette.primary.main,
       fontSize: theme.typography.subtitle1.fontSize,
       marginLeft: theme.spacing(3),
-      // fontWeight: 600,
+      fontWeight: 600,
     },
     appBar: {
       border: '1px',

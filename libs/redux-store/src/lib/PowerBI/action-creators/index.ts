@@ -1,10 +1,6 @@
-import { ActionType } from "../action-types";
-import {  AlertsActions, LoadingActions, 
-         LoadReportsAction, SelectReportAction, 
-         SelectFilterItemSelectedAction } from "../actions";
+import { AlertsActions, LoadingActions, LoadReportsAction, SelectReportAction, SelectFilterItemSelectedAction } from "../actions";
 import { Dispatch } from "redux";
-//import service from "../../service/service";
-import {IUiReport} from '../../models/interfaces';
+import { IUiReport, ActionType } from '../interfaces/interfaces';
 
 export const openAlert =
   (error: string, status: number) => async (dispatch: Dispatch<AlertsActions>) => {

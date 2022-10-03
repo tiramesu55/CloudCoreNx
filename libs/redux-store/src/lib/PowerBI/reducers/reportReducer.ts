@@ -1,8 +1,7 @@
 import { AnyAction } from "redux";
-import { ActionType } from "../action-types";
-import {IUiReport, IFilterReport} from '../../models/interfaces';
-export interface IReportReducerState {
+import { IUiReport, IFilterReport, ActionType } from '../interfaces/interfaces';
 
+export interface IReportReducerState {
   loadingReportsAll: boolean;
   loadingSingleReport: boolean;
   selectedReportId: string | null;

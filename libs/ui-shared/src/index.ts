@@ -6,3 +6,4 @@ export * from './lib/NavBar';
 export * from './lib/NotAuthorized';
 export * from './lib/idleTimeOut/idlePopup';
 export * from './lib/idleTimeOut/countDown-timer';
+export * from './themes/index';

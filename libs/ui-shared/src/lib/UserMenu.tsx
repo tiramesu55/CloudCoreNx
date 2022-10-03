@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import theme from '../themes';
+import { theme } from '../themes';
 
 interface userMenuProps {
   userMenuProps: userMenu;

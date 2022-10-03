@@ -1,5 +1,5 @@
-import { ActionType } from "../action-types";
-import {IUiReport} from '../../models/interfaces'
+import { IUiReport, ActionType } from '../interfaces/interfaces';
+
 interface AlertOpenAction {
   type: ActionType.SET_OPEN;
   payload: {
