@@ -13,6 +13,6 @@ const requests = {
  
 };
 
-const GetConfig = () => requests.get("/assets/config.json", {});
+const GetConfig = () => requests.get("./assets/config.json", {});
 
 export default { GetConfig, requests };

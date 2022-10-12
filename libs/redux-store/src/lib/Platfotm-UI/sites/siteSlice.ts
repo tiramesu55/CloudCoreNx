@@ -9,7 +9,7 @@ import {
   isFulfilled,
   isRejected,
 } from "@reduxjs/toolkit";
-import { RootState } from "../../store";
+import { RootState } from "../../store-platform";
 import {
   getSitesByOrganizationApi,
   updateSiteApi,

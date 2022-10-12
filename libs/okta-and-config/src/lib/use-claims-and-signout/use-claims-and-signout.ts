@@ -11,8 +11,8 @@ export type Dictionary = {
 };
 export interface UseClaimsAndSignout {
   signOut: () => void;
-  getClaims: () => UserClaims|undefined;   // to be removed
-  getToken :() => string | undefined;     // to be removed
+  //getClaims: () => UserClaims|undefined;   // to be removed
+  //getToken :() => string | undefined;     // to be removed
   token?: string;
   permissions: Dictionary; 
   initials?: string;
@@ -32,10 +32,10 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
   const {authState, oktaAuth } = useOktaAuth();
 
   //to be removed
-  const getClaims =  useCallback(() =>{
-      return authState?.accessToken?.claims;
-   },[authState?.accessToken?.claims]
-  )
+  // const getClaims =  useCallback(() =>{
+  //     return authState?.accessToken?.claims;
+  //  },[authState?.accessToken?.claims]
+  // )
   //permissions object
   const permissions: Dictionary = {
     erv: [],
@@ -54,10 +54,10 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
   const token = authState?.accessToken?.accessToken;
 
   //getToken to be removed
-  const getToken =  useCallback(() =>{
-    return authState?.accessToken?.accessToken;
-  },[authState?.accessToken]
-)
+//   const getToken =  useCallback(() =>{
+//     return authState?.accessToken?.accessToken;
+//   },[authState?.accessToken]
+// )
   const signOut = async () => {
     //get token
     const accessToken = oktaAuth.getAccessToken() ?? "";   //so that token type is a string
@@ -85,8 +85,8 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
     }
   }
 
-  //const increment = useCallback(() => setCount((x) => x + 1), []);
-  return { signOut, getClaims, getToken, token,  permissions, initials, email,  names };
+ 
+  return { signOut,  token,  permissions, initials, email,  names };
 }
 export const useOktaAuthLib = () => useOktaAuth();
 

@@ -1,5 +1,5 @@
-import { Grid, Typography } from "@mui/material";
-import theme from "../../themes";
+import { Grid, Typography } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { Address } from '@cloudcore/redux-store';
 
 interface Props {
@@ -9,13 +9,14 @@ interface Props {
 }
 
 export const SiteContactDetails = (props: Props) => {
+  const theme = useTheme();
   return (
     <>
       <Typography
         sx={{
           fontSize: theme.typography.h5.fontSize,
           my: 3,
-          fontWeight: "bold",
+          fontWeight: 'bold',
         }}
       >
         Site Contact Details:
@@ -26,7 +27,7 @@ export const SiteContactDetails = (props: Props) => {
             sx={{
               paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             }}
           >
             Address
@@ -44,7 +45,7 @@ export const SiteContactDetails = (props: Props) => {
             sx={{
               paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             }}
           >
             City
@@ -62,7 +63,7 @@ export const SiteContactDetails = (props: Props) => {
             sx={{
               paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             }}
           >
             Zip/Postal
@@ -80,7 +81,7 @@ export const SiteContactDetails = (props: Props) => {
             sx={{
               paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             }}
           >
             Site Phone
@@ -98,7 +99,7 @@ export const SiteContactDetails = (props: Props) => {
             sx={{
               paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             }}
           >
             Site Email ID

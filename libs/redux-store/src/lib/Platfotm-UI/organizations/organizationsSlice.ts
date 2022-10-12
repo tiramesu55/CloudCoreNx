@@ -6,7 +6,7 @@ import {
   PayloadAction,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
-import { RootState } from '../../store';
+import { RootState } from '../../store-platform';
 import axios from "axios";
 import { useOktaAuth } from "@okta/okta-react";
 

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
+import { useEffect, useState } from 'react';
+import { platformStore } from '@cloudcore/redux-store';
 import {
   Button,
   Box,
@@ -8,16 +8,23 @@ import {
   IconButton,
   TextField,
   InputAdornment,
-} from "@mui/material";
-import { Card } from "../../components";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-import { selectOrganizationByDomain, selectUserByIdEntity, selectUserID } from '@cloudcore/redux-store';
-import theme from "../../themes";
-import { useHistory } from "react-router-dom";
+} from '@mui/material';
+import { Card } from '@cloudcore/ui-shared';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  selectOrganizationByDomain,
+  selectUserByIdEntity,
+  selectUserID,
+} from '@cloudcore/redux-store';
+import { useTheme } from '@mui/material';
+import { useHistory } from 'react-router-dom';
+
+const {useAppDispatch, useAppSelector } = platformStore
 
 export const AddUserForm = () => {
-  const [emailID, setEmailID] = useState("");
+  const theme = useTheme();
+  const [emailID, setEmailID] = useState('');
   const dispatch = useAppDispatch();
 
   const org = useAppSelector((state) =>
@@ -27,14 +34,14 @@ export const AddUserForm = () => {
 
   const style = {
     Card: {
-      minHeight: "70vh",
+      minHeight: '70vh',
     },
   };
 
   const history = useHistory();
 
   const closeAddUser = () => {
-    history.push("/user");
+    history.push('/user');
   };
 
   useEffect(() => {
@@ -46,9 +53,9 @@ export const AddUserForm = () => {
       <Grid item xs={12}>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             paddingX: theme.spacing(3),
             paddingY: theme.spacing(2),
           }}
@@ -60,7 +67,7 @@ export const AddUserForm = () => {
           >
             Add New User
           </Typography>
-          <IconButton sx={{ color: "#000000" }} onClick={closeAddUser}>
+          <IconButton sx={{ color: '#000000' }} onClick={closeAddUser}>
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
@@ -76,7 +83,7 @@ export const AddUserForm = () => {
                 <Grid
                   item
                   xs={4}
-                  sx={{ textAlign: "center", marginTop: "10%" }}
+                  sx={{ textAlign: 'center', marginTop: '10%' }}
                 >
                   <Typography sx={{ marginBottom: 2 }}>
                     Please input the user email ID to fetch the user Data
@@ -110,9 +117,9 @@ export const AddUserForm = () => {
           <Grid item xs={12} my={2}>
             <Box
               sx={{
-                alignItems: "flex-end",
-                display: "flex",
-                justifyContent: "end",
+                alignItems: 'flex-end',
+                display: 'flex',
+                justifyContent: 'end',
                 paddingX: theme.spacing(0),
               }}
             >
@@ -121,21 +128,21 @@ export const AddUserForm = () => {
                 disabled={!org}
                 onClick={() => {
                   if (usr) {
-                    history.push("/user/editUser", {
-                      title: "Edit User",
-                      task: "editUser",
-                      from: "editUser",
+                    history.push('/user/editUser', {
+                      title: 'Edit User',
+                      task: 'editUser',
+                      from: 'editUser',
                     });
                   } else {
-                    history.push("/user/addUser", {
-                      from: "addUser",
-                      task: "addUser",
+                    history.push('/user/addUser', {
+                      from: 'addUser',
+                      task: 'addUser',
                     });
                   }
                 }}
                 sx={{
                   fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: "bold",
+                  fontWeight: 'bold',
                   paddingX: theme.spacing(5),
                 }}
               >
@@ -148,4 +155,3 @@ export const AddUserForm = () => {
     </Grid>
   );
 };
-

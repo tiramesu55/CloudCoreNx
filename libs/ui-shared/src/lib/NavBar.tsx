@@ -2,6 +2,8 @@ import { Box, Typography, Menu, MenuItem } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface navigationProps {
   navigationProps: navigation[];
@@ -16,26 +18,34 @@ interface navigation {
 
 interface subMenuListProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
+  route?: string;
 }
 const NavBar = (props: navigationProps) => {
+  const history = useHistory();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [index, setIndex] = useState<null | number>(null);
   const openMenu = Boolean(anchorEl);
+  const handleMenuItemClick = (route?: string) => {
+    if (route) {
+      history.push(route);
+    }
+    setAnchorEl(null);
+  };
 
   const style = {
     navLinkIcon: {
       textDecoration: 'none',
       color: theme.palette.text.primary,
-      // fontSize: theme.typography.subtitle1.fontSize,
+      fontSize: theme.typography.subtitle1.fontSize,
       marginLeft: theme.spacing(4),
-      // fontWeight: 600,
+      //fontWeight: 600,
     },
   };
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {props.navigationProps.map((item, ind) =>
+      {props.navigationProps?.map((item, ind) =>
         item.subMenuList ? (
           <Box
             sx={{
@@ -64,9 +74,13 @@ const NavBar = (props: navigationProps) => {
                 alignItems: 'center',
                 height: '64px',
                 cursor: 'default',
+                fontWeight: 'normal',
               }}
             >
               {item.label}
+              <Box>
+                <KeyboardArrowDownIcon sx={{ mt: 1 }} />
+              </Box>
             </Typography>
             {index === ind && (
               <Menu
@@ -89,16 +103,21 @@ const NavBar = (props: navigationProps) => {
               >
                 {item.subMenuList.map((sub, indx) => (
                   <MenuItem
-                    onClick={sub.onClick}
+                    onClick={() => {
+                      handleMenuItemClick(sub?.route);
+                      console.log(sub, 'subRoute');
+                      sub?.onClick?.();
+                    }}
                     key={indx}
                     sx={{
                       width: '252px',
                       '&:hover': {
-                        backgroundColor: '#E6E8F3',
+                        backgroundColor: theme.palette.menuHoverColor.main,
                       },
                       '&:active': {
-                        backgroundColor: '#E6E8F3',
+                        backgroundColor: theme.palette.menuHoverColor.main,
                       },
+                      backgroundColor: theme.palette.secondary.main,
                     }}
                   >
                     {sub.label}

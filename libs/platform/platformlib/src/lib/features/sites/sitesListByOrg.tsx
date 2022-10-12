@@ -1,76 +1,84 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-no-useless-fragment */
-import MUIDataTable, { MUIDataTableOptions } from "mui-datatables";
-import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { Box } from "@mui/material";
-import theme from "../../themes";
+import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
+import { platformStore } from '@cloudcore/redux-store';
+import { Box } from '@mui/material';
+import { useTheme } from '@mui/material';
 import {
   getSites,
   selectAllSites,
   selectedIdSite,
   selectSelectedId,
 } from '@cloudcore/redux-store';
-import { withStyles } from "@mui/styles";
-import { useEffect, useContext } from "react";
-import { useLocation } from "react-router-dom";
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { withStyles } from '@mui/styles';
+import { useEffect, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
 interface Props {
   orgCode: string;
 }
 
-const CustomTableCss = withStyles(() => ({
-  "@global": {
-    ".css-1ya7byf-MuiButtonBase-root-MuiIconButton-root": {
-      color: "inherit !important",
-    },
-    "*::-webkit-scrollbar-button": {
-      height: "0px",
-    },
-    "*::-webkit-scrollbar": {
-      width: "0.4em",
-    },
-    "*::-webkit-scrollbar-track": {
-      "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.00)",
-    },
-    "*::-webkit-scrollbar-thumb": {
-      backgroundColor: "rgba(0,0,0,.1)",
-      borderRadius: "10px",
-    },
-    ".css-1m9da53-MuiButtonBase-root-MuiButton-root": {
-      padding: "0px !important",
-    },
-    ".tss-1fbujeu-MUIDataTableHeadCell-toolButton": {
-      fontWeight: "bold !important",
-      fontSize: "18px !important",
-      textTransform: "capitalize !important",
-    },
-    ".tss-tlx3x1-MUIDataTableToolbar-root": {
-      backgroundColor: `${theme.palette.secondary.main} !important`,
-      padding: "0px !important",
-      paddingLeft: "16px !important",
-    },
-    ".tss-1vsygk-MUIDataTableFilterList-root": {
-      backgroundColor: "#f6f5f7 !important",
-      margin: "0px !important",
-      paddingBottom: theme.spacing(1),
-    },
-  },
-}))(() => null);
-
+const {useAppDispatch, useAppSelector } = platformStore
 export const SitesListByOrg = (props: Props) => {
+  const theme = useTheme();
+  const CustomTableCss = withStyles(() => ({
+    '@global': {
+      '.css-1ya7byf-MuiButtonBase-root-MuiIconButton-root': {
+        color: 'inherit !important',
+      },
+      '*::-webkit-scrollbar-button': {
+        height: '0px',
+      },
+      '*::-webkit-scrollbar': {
+        width: '0.4em',
+      },
+      '*::-webkit-scrollbar-track': {
+        '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
+      },
+      '*::-webkit-scrollbar-thumb': {
+        backgroundColor: 'rgba(0,0,0,.1)',
+        borderRadius: '10px',
+      },
+      '.css-1m9da53-MuiButtonBase-root-MuiButton-root': {
+        padding: '0px !important',
+      },
+      '.tss-1fbujeu-MUIDataTableHeadCell-toolButton': {
+        fontWeight: 'bold !important',
+        fontSize: '18px !important',
+        textTransform: 'capitalize !important',
+      },
+      '.tss-tlx3x1-MUIDataTableToolbar-root': {
+        backgroundColor: `${theme.palette.secondary.main} !important`,
+        padding: '0px !important',
+        paddingLeft: '16px !important',
+      },
+      '.tss-1vsygk-MUIDataTableFilterList-root': {
+        backgroundColor: '#f6f5f7 !important',
+        margin: '0px !important',
+        paddingBottom: theme.spacing(1),
+      },
+    },
+  }))(() => null);
+
   const location: any = useLocation();
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const orgCode = props.orgCode;
   const { authState } = useOktaAuth();
   const data = useAppSelector(selectAllSites);
   const idSelected = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
-  const id = idSelected === "" ? data[0]?.id : idSelected;
+  const id = idSelected === '' ? data[0]?.id : idSelected;
 
   useEffect(() => {
-    dispatch(getSites({ orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }));
+    dispatch(
+      getSites({
+        orgCode,
+        url: platformBaseUrl,
+        token: authState?.accessToken?.accessToken,
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -79,29 +87,29 @@ export const SitesListByOrg = (props: Props) => {
     }
 
     return () => {
-      dispatch(selectedIdSite(""));
+      dispatch(selectedIdSite(''));
     };
   }, [data]);
 
   const columns = [
     {
-      name: "id",
-      label: "id",
+      name: 'id',
+      label: 'id',
       options: {
         display: false,
       },
     },
     {
-      name: "siteName",
-      label: "Sites",
+      name: 'siteName',
+      label: 'Sites',
       options: {
         filter: true,
         sort: false,
       },
     },
     {
-      name: "address",
-      label: "Address",
+      name: 'address',
+      label: 'Address',
       options: {
         filter: true,
         sort: false,
@@ -111,13 +119,13 @@ export const SitesListByOrg = (props: Props) => {
       },
     },
     {
-      name: "inactiveDate",
-      label: "Status",
+      name: 'inactiveDate',
+      label: 'Status',
       options: {
         filter: true,
         sort: false,
         customBodyRender: (value: boolean) => (
-          <div>{value ? "Not Active" : "Active"}</div>
+          <div>{value ? 'Not Active' : 'Active'}</div>
         ),
       },
     },
@@ -125,12 +133,12 @@ export const SitesListByOrg = (props: Props) => {
   const options: MUIDataTableOptions = {
     selectableRowsHideCheckboxes: true,
     pagination: false,
-    tableBodyMaxHeight: "444px",
+    tableBodyMaxHeight: '444px',
     filter: true,
     viewColumns: false,
     print: false,
     download: false,
-    filterType: "multiselect",
+    filterType: 'multiselect',
     onRowClick: (
       rowData: string[],
       rowMeta: { dataIndex: number; rowIndex: number }
@@ -141,19 +149,19 @@ export const SitesListByOrg = (props: Props) => {
       if (row[0] === id) {
         return {
           style: {
-            backgroundColor: "#d6c4f5",
+            backgroundColor: '#d6c4f5',
           },
         };
       } else {
         return {
           style: {
-            cursor: "pointer",
+            cursor: 'pointer',
           },
         };
       }
     },
     rowHover: false,
-    responsive: "vertical",
+    responsive: 'vertical',
   };
   return (
     <>
@@ -165,7 +173,7 @@ export const SitesListByOrg = (props: Props) => {
               <Box
                 sx={{
                   fontSize: theme.typography.h3.fontSize,
-                  fontWeight: "bold",
+                  fontWeight: 'bold',
                 }}
               >
                 Listed Sites
@@ -180,4 +188,3 @@ export const SitesListByOrg = (props: Props) => {
     </>
   );
 };
-

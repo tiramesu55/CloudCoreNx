@@ -1,9 +1,9 @@
-import { Box, Button, Grid } from "@mui/material";
-import Typography from "@mui/material/Typography";
-import { Card } from "./Card";
-import theme from "../themes/index";
-import CardContent from "@mui/material/CardContent";
-import { useHistory } from "react-router-dom";
+import { Box, Button, Grid } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import { Card } from './Card';
+import { useTheme } from '@mui/material';
+import CardContent from '@mui/material/CardContent';
+import { useHistory } from 'react-router-dom';
 
 interface Props {
   title: string;
@@ -16,19 +16,20 @@ interface Props {
 
 const style = {
   queueImage: {
-    height: "100%",
-    width: "51px",
+    height: '100%',
+    width: '51px',
   },
   displayFlex: {
-    display: "flex",
+    display: 'flex',
   },
 };
 
 export const InfoCard = (props: Props) => {
+  const theme = useTheme();
   const history = useHistory();
   const redirectToEditSites = () => {
-    history.push("/organization/sites", {
-      from: "/organization/editSite",
+    history.push('/organization/sites', {
+      from: '/organization/editSite',
       orgCode: props.orgCode,
       orgName: props.orgName,
     });
@@ -42,40 +43,40 @@ export const InfoCard = (props: Props) => {
           src={props.image}
           sx={{
             [theme.breakpoints.between(350, 1270)]: {
-              marginLeft: "15px",
+              marginLeft: '15px',
             },
             [theme.breakpoints.between(1270, 1470)]: {
-              marginLeft: "30px",
+              marginLeft: '30px',
             },
             [theme.breakpoints.up(1470)]: {
-              marginLeft: "40px",
+              marginLeft: '40px',
             },
           }}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
-          <CardContent sx={{ flex: "1 0 auto", width: "auto" }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+          <CardContent sx={{ flex: '1 0 auto', width: 'auto' }}>
             <Box
               sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 [theme.breakpoints.down(700)]: {
-                  width: "170px",
+                  width: '170px',
                 },
                 [theme.breakpoints.between(1350, 1430)]: {
-                  width: "190px",
+                  width: '190px',
                 },
                 [theme.breakpoints.between(1150, 1350)]: {
-                  width: "150px",
+                  width: '150px',
                 },
                 [theme.breakpoints.between(1000, 1150)]: {
-                  width: "115px",
+                  width: '115px',
                 },
               }}
             >
               <Typography
                 noWrap
                 component="span"
-                sx={{ fontSize: "18px", textAlign: "inherit" }}
+                sx={{ fontSize: '18px', textAlign: 'inherit' }}
                 align="center"
               >
                 {props.title}
@@ -84,21 +85,21 @@ export const InfoCard = (props: Props) => {
             <Typography
               component="div"
               variant="h2"
-              sx={{ fontWeight: "bold" }}
+              sx={{ fontWeight: 'bold' }}
             >
               {props.count}
             </Typography>
           </CardContent>
         </Box>
-        {(props.editSites && props.count > 0) && (
+        {props.editSites && props.count > 0 && (
           <Button
             variant="text"
             disableRipple={true}
             focusRipple={false}
             onClick={redirectToEditSites}
             sx={{
-              display: "flex",
-              alignItems: "center",
+              display: 'flex',
+              alignItems: 'center',
               paddingRight: theme.spacing(2),
             }}
           >
@@ -106,7 +107,7 @@ export const InfoCard = (props: Props) => {
               sx={{
                 color: theme.palette.primary.main,
                 fontSzie: theme.typography.subtitle1.fontSize,
-                cursor: "pointer",
+                cursor: 'pointer',
               }}
             >
               Edit Sites

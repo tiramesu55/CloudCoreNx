@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../hooks/hooks";
+import { useContext, useEffect, useState } from 'react';
+import { platformStore } from '@cloudcore/redux-store';
 import {
   Grid,
   Box,
@@ -8,54 +8,35 @@ import {
   TooltipProps,
   tooltipClasses,
   Button,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import theme from "../themes";
-import { InfoCard, Card } from "../components";
-import sites from "../images/sites.svg";
-import users from "../images/users.svg";
-import organizations from "../images/organizations.svg";
-import { useHistory } from "react-router-dom";
-import { OrganizationList } from "../features/organizations/organizationsList";
-import { OrganizationDataProfile } from "../features/organizations/organizationsProfile/organizationDataProfile";
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { useTheme } from '@mui/material';
+import { InfoCard, Card } from '@cloudcore/ui-shared';
+import sites from '../images/sites.svg';
+import users from '../images/users.svg';
+import organizations from '../images/organizations.svg';
+import { useHistory } from 'react-router-dom';
+import { OrganizationList } from '../features/organizations/organizationsList';
+import { OrganizationDataProfile } from '../features/organizations/organizationsProfile/organizationDataProfile';
 import {
   getAllOrgCount,
   getAllSitesCount,
   getAllUsersCount,
-  getDashboardStats
+  getDashboardStats,
   //selectBaseUrl
 } from '@cloudcore/redux-store';
-import { useOktaAuth } from "@okta/okta-react";
-import { ConfigCtx } from "@cloudcore/okta-and-config";
+import { useOktaAuth } from '@okta/okta-react';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
 
-const InfoTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.secondary.main,
-    color: "rgba(0, 0, 0, 0.87)",
-    maxWidth: "270px",
-    maxHeight: "191px",
-    fontSize: theme.typography.pxToRem(12),
-    padding: theme.spacing(3),
-    border: "1px solid #E0E2E5",
-    borderRadius: "5px",
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: `${theme.palette.secondary.main}`,
-    fontSize: 20,
-    "&:before": {
-      border: "1px solid #E0E2E5",
-    },
-  },
-}));
+const {useAppDispatch, useAppSelector } = platformStore
 
 export const Dashboard = () => {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
- 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const baseUrl = platformBaseUrl;
   // console.log(baseUrl)
   const orgsCount = useAppSelector(getAllOrgCount);
@@ -66,29 +47,27 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (baseUrl) {
-      dispatch(getDashboardStats({url: baseUrl, token: authState?.accessToken?.accessToken}));
+      dispatch(
+        getDashboardStats({
+          url: baseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      );
     }
   }, [dispatch, baseUrl, authState]);
 
   useEffect(() => {
-
-      const claims = authState?.accessToken?.claims as any;
-      if (claims?.admin) {
-        setNewOrgButton(
-          claims?.admin?.includes("global") 
-           
-            ? true
-            : false
-        );
-      }
-    
+    const claims = authState?.accessToken?.claims as any;
+    if (claims?.admin) {
+      setNewOrgButton(claims?.admin?.includes('global') ? true : false);
+    }
   }, [authState?.isAuthenticated]);
 
   const handleClickAddOrg = () => {
-    history.replace("/organization/addOrganization", {
-      title: "Add Organization",
-      task: "addOrganization",
-      from: "addOrganization",
+    history.replace('/organization/addOrganization', {
+      title: 'Add Organization',
+      task: 'addOrganization',
+      from: 'addOrganization',
     });
   };
 
@@ -97,9 +76,9 @@ export const Dashboard = () => {
       <Grid item xs={12}>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             paddingX: theme.spacing(3),
             paddingY: theme.spacing(2),
           }}
@@ -115,7 +94,7 @@ export const Dashboard = () => {
             <Box
               display="flex"
               alignItems="center"
-              sx={{ "&:hover": { cursor: "pointer" } }}
+              sx={{ '&:hover': { cursor: 'pointer' } }}
             >
               {/* <img src={excelLogo} alt="excelLogo" style={{ paddingRight: "10px" }} />
                             <Typography component={"span"}
@@ -152,7 +131,7 @@ export const Dashboard = () => {
           </Box>
         </Box>
       </Grid>
-      <Grid item xs={12} sx={{ paddingRight: "20px" }}>
+      <Grid item xs={12} sx={{ paddingRight: '20px' }}>
         <Grid container spacing={3} paddingLeft="20px">
           <Grid item xs={6} md={4}>
             <InfoCard
@@ -169,7 +148,7 @@ export const Dashboard = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={12} sx={{ paddingRIght: "20px" }}>
+      <Grid item xs={12} sx={{ paddingRIght: '20px' }}>
         <Card
           sx={{
             marginTop: theme.spacing(2),
@@ -192,4 +171,3 @@ export const Dashboard = () => {
     </Grid>
   );
 };
-

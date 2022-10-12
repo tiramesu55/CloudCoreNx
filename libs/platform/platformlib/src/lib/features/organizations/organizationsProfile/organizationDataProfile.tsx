@@ -1,30 +1,33 @@
-import { Grid, Box, Typography, Button } from "@mui/material";
-import { useAppSelector } from "../../../hooks/hooks";
-import theme from "../../../themes";
-import locationIcon from "../../../images/location.svg";
-import { OrgContactDetails } from "./orgContactDetails";
-import { useSelector } from "react-redux";
+import { Grid, Box, Typography, Button } from '@mui/material';
+import { platformStore } from '@cloudcore/redux-store';
+import { useTheme } from '@mui/material';
+import locationIcon from '../../../images/location.svg';
+import { OrgContactDetails } from './orgContactDetails';
+import { useSelector } from 'react-redux';
 import {
   organizationSelector,
   selectedId,
   selectOrganizations,
 } from '@cloudcore/redux-store';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
+
+const { useAppSelector } = platformStore
 
 export const OrganizationDataProfile = () => {
+  const theme = useTheme();
   const organizations = useAppSelector(selectOrganizations);
   const selectId = useAppSelector(selectedId);
-  const id = selectId === "" ? organizations[0]?.id : selectId;
+  const id = selectId === '' ? organizations[0]?.id : selectId;
   const organization = useSelector((state: any) =>
     organizationSelector.selectById(state, id)
   );
   const history = useHistory();
 
   const handleClick = () => {
-    history.replace("/organization/editOrganization", {
-      title: "Edit Organization",
-      task: "editOrganization",
-      from: "editOrganization",
+    history.replace('/organization/editOrganization', {
+      title: 'Edit Organization',
+      task: 'editOrganization',
+      from: 'editOrganization',
     });
   };
 
@@ -32,37 +35,37 @@ export const OrganizationDataProfile = () => {
     <Grid
       container
       sx={{
-        display: "flex",
-        paddingLeft: "30px",
-        paddingRight: "0px",
+        display: 'flex',
+        paddingLeft: '30px',
+        paddingRight: '0px',
         [theme.breakpoints.between(1000, 1200)]: {
-          paddingLeft: "5px",
+          paddingLeft: '5px',
         },
         [theme.breakpoints.between(1200, 1400)]: {
-          paddingLeft: "15px",
+          paddingLeft: '15px',
         },
-        paddingY: "30px",
+        paddingY: '30px',
         border: `1px solid ${theme.palette.cardBorder.main}`,
       }}
     >
       <Grid item sm={12} md={12} lg={12}>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Box sx={{ flex: "1 0 auto", width: "auto" }} component="span">
-            <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flex: '1 0 auto', width: 'auto' }} component="span">
+            <Box sx={{ display: 'flex' }}>
               <Box sx={{ mr: 2 }}>
-                <Typography component={"span"} variant="h3" fontWeight={"bold"}>
+                <Typography component={'span'} variant="h3" fontWeight={'bold'}>
                   {organization?.name}
                 </Typography>
               </Box>
               <Box>
                 <Box
-                  component={"img"}
+                  component={'img'}
                   src={locationIcon}
                   alt="location"
                   sx={{ mr: 1 }}
                   color="#808184"
                 />
-                <Typography component={"span"} variant="body2">
+                <Typography component={'span'} variant="body2">
                   {`${organization?.address?.street}, ${organization?.address?.city}`}
                 </Typography>
               </Box>
@@ -70,10 +73,10 @@ export const OrganizationDataProfile = () => {
             <OrgContactDetails />
             <Box
               sx={{
-                alignItems: "flex-end",
-                display: "flex",
+                alignItems: 'flex-end',
+                display: 'flex',
                 mx: 4.5,
-                justifyContent: "end",
+                justifyContent: 'end',
               }}
             >
               {/* <Button
@@ -104,7 +107,7 @@ export const OrganizationDataProfile = () => {
                 onClick={handleClick}
                 sx={{
                   fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: "bold",
+                  fontWeight: 'bold',
                   paddingX: theme.spacing(6),
                   paddingY: theme.spacing(1.1),
                 }}
@@ -118,4 +121,3 @@ export const OrganizationDataProfile = () => {
     </Grid>
   );
 };
-

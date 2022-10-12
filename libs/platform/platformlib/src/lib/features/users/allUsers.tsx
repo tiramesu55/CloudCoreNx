@@ -1,70 +1,38 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { useEffect, useState, useContext } from "react";
-import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { Box, Grid, Button } from "@mui/material";
-import theme from "../../themes";
-import MUIDataTable, { MUIDataTableOptions } from "mui-datatables";
-import { withStyles } from "@mui/styles";
-import { useHistory } from "react-router-dom";
-import { Snackbar, Card } from "../../components";
-import Tooltip from "@mui/material/Tooltip";
-import { applicationMapping,
-  getApplications, selectOrganizations, selectUserID, Application, fetchUsers, allUsers } from '@cloudcore/redux-store';
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { useEffect, useState, useContext } from 'react';
+import { platformStore} from '@cloudcore/redux-store';
+
+import { Box, Grid, Button } from '@mui/material';
+import { useTheme } from '@mui/material';
+import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
+import { withStyles } from '@mui/styles';
+import { useHistory } from 'react-router-dom';
+import { Snackbar } from '../../components';
+import { Card } from '@cloudcore/ui-shared';
+import Tooltip from '@mui/material/Tooltip';
+import {
+  applicationMapping,
+  getApplications,
+  selectOrganizations,
+  selectUserID,
+  Application,
+  fetchUsers,
+  allUsers,
+} from '@cloudcore/redux-store';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
+
+const {useAppDispatch, useAppSelector } = platformStore
 
 interface Props {}
 
-const CustomTableCss = withStyles(() => ({
-  "@global": {
-    ".css-1ya7byf-MuiButtonBase-root-MuiIconButton-root": {
-      color: "inherit !important",
-    },
-    ".tss-1f6q3ny-MUIDataTableToolbar-icon": {
-      color: "inherit !important",
-    },
-    "*::-webkit-scrollbar-button": {
-      height: "0px",
-    },
-    "*::-webkit-scrollbar": {
-      width: "0.4em",
-    },
-    "*::-webkit-scrollbar-track": {
-      "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.00)",
-    },
-    "*::-webkit-scrollbar-thumb": {
-      backgroundColor: "rgba(0,0,0,.1)",
-      borderRadius: "10px",
-    },
-    ".css-1m9da53-MuiButtonBase-root-MuiButton-root": {
-      padding: "0px !important",
-    },
-    ".tss-1fbujeu-MUIDataTableHeadCell-toolButton": {
-      fontWeight: "bold !important",
-      fontSize: "18px !important",
-      textTransform: "capitalize !important",
-    },
-    ".tss-tlx3x1-MUIDataTableToolbar-root": {
-      backgroundColor: "#f6f5f7 !important",
-      padding: "0px !important",
-    },
-    ".tss-1vsygk-MUIDataTableFilterList-root": {
-      backgroundColor: "#f6f5f7 !important",
-      margin: "0px !important",
-      paddingBottom: theme.spacing(1),
-    },
-    ".MuiTablePagination-selectIcon": {
-      color: "inherit !important",
-    },
-  },
-}))(() => null);
-
 export const ListUsers = (props: Props) => {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   // const baseUrl = useAppSelector(selectBaseUrl);
-  
+
   const users = useAppSelector(allUsers);
   const allApps = useAppSelector(applicationMapping);
   const orgData = useAppSelector(selectOrganizations);
@@ -80,14 +48,24 @@ export const ListUsers = (props: Props) => {
   });
   const history = useHistory();
   const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState("");
-  const [snackBarMsg, setSnackBarMsg] = useState("");
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   //const [error, setError] = useState(false);
 
   useEffect(() => {
     if (platformBaseUrl) {
-      dispatch(getApplications({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
-      dispatch(fetchUsers({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
+      dispatch(
+        getApplications({
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      );
+      dispatch(
+        fetchUsers({
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      );
     }
   }, [platformBaseUrl, dispatch, authState]);
 
@@ -95,36 +73,36 @@ export const ListUsers = (props: Props) => {
   useEffect(() => {
     if (error) {
       setSnackbar(true);
-      setSnackBarType("fetchError");
-      setSnackBarMsg("editUserFailure");
+      setSnackBarType('fetchError');
+      setSnackBarMsg('editUserFailure');
     }
   }, [error]);
 
   const columns = [
     {
-      name: "firstName",
-      label: "First Name",
+      name: 'firstName',
+      label: 'First Name',
       options: {
         display: false,
       },
     },
     {
-      name: "lastName",
-      label: "Last Name",
+      name: 'lastName',
+      label: 'Last Name',
       options: {
         display: false,
       },
     },
     {
-      name: "email",
-      label: "Email",
+      name: 'email',
+      label: 'Email',
       options: {
         display: false,
       },
     },
     {
-      name: "firstName",
-      label: "User Name",
+      name: 'firstName',
+      label: 'User Name',
       options: {
         filter: true,
         sort: true,
@@ -136,7 +114,7 @@ export const ListUsers = (props: Props) => {
             <Tooltip
               title={
                 <Box sx={{ fontSize: theme.typography.body2.fontSize }}>
-                  {" "}
+                  {' '}
                   {tableMeta.rowData[2]}
                 </Box>
               }
@@ -146,20 +124,20 @@ export const ListUsers = (props: Props) => {
                 variant="text"
                 disableRipple={true}
                 style={{
-                  textDecoration: "none",
+                  textDecoration: 'none',
                   color: theme.palette.primary.main,
-                  cursor: "pointer",
-                  fontStyle: "capitalize",
-                  fontWeight: "normal",
-                  textTransform: "capitalize",
+                  cursor: 'pointer',
+                  fontStyle: 'capitalize',
+                  fontWeight: 'normal',
+                  textTransform: 'capitalize',
                   fontSize: theme.typography.subtitle1.fontSize,
                 }}
                 onClick={() => {
                   dispatch(selectUserID(tableMeta.rowData[2]));
-                  history.replace("/user/editUser", {
-                    title: "Edit User",
-                    task: "editUser",
-                    from: "editUser",
+                  history.replace('/user/editUser', {
+                    title: 'Edit User',
+                    task: 'editUser',
+                    from: 'editUser',
                   });
                 }}
               >
@@ -171,24 +149,24 @@ export const ListUsers = (props: Props) => {
       },
     },
     {
-      name: "title",
-      label: "Title",
+      name: 'title',
+      label: 'Title',
       options: {
         filter: true,
         sort: false,
       },
     },
     {
-      name: "orgName",
-      label: "Organization",
+      name: 'orgName',
+      label: 'Organization',
       options: {
         filter: true,
         sort: false,
       },
     },
     {
-      name: "applications",
-      label: "Applications",
+      name: 'applications',
+      label: 'Applications',
       options: {
         filter: true,
         sort: false,
@@ -202,21 +180,21 @@ export const ListUsers = (props: Props) => {
 
           const apps = appCodeArray.flat();
 
-          return <>{apps && apps.length ? apps.join(", ") : "--"}</>;
+          return <>{apps && apps.length ? apps.join(', ') : '--'}</>;
         },
       },
     },
     {
-      name: "inactiveDate",
-      label: "Status",
+      name: 'inactiveDate',
+      label: 'Status',
       options: {
         filter: true,
         sort: false,
         customBodyRender: (value: Date) => (
           <div>
             {value === null || new Date(value) >= new Date()
-              ? "Active"
-              : "Not Active"}
+              ? 'Active'
+              : 'Not Active'}
           </div>
         ),
       },
@@ -226,22 +204,22 @@ export const ListUsers = (props: Props) => {
   const CustomToolbar = () => {
     return (
       <Button
-          variant="text"
-          disableRipple={true}
-          sx={{
-            textTransform: "capitalize",
-            fontWeight: "bold",
-            fontSize: "18px",
+        variant="text"
+        disableRipple={true}
+        sx={{
+          textTransform: 'capitalize',
+          fontWeight: 'bold',
+          fontSize: '18px',
 
-            textDecoration: "none",
-            color: theme.palette.primary.main,
-          }}
-          onClick={() => {
-            history.push("user/email", { title: "Add User", task: "addUser" });
-          }}
-        >
-          Add New User
-        </Button>
+          textDecoration: 'none',
+          color: theme.palette.primary.main,
+        }}
+        onClick={() => {
+          history.push('user/email', { title: 'Add User', task: 'addUser' });
+        }}
+      >
+        Add New User
+      </Button>
     );
   };
 
@@ -249,14 +227,14 @@ export const ListUsers = (props: Props) => {
     selectableRowsHideCheckboxes: true,
     selectableRowsOnClick: false,
     pagination: true,
-    tableBodyMaxHeight: "75vh",
+    tableBodyMaxHeight: '75vh',
     filter: true,
     viewColumns: false,
     print: false,
     download: false,
-    filterType: "multiselect",
+    filterType: 'multiselect',
     customToolbar: CustomToolbar,
-    enableNestedDataAccess: ".",
+    enableNestedDataAccess: '.',
     searchAlwaysOpen: true,
 
     /* onCellClick: async (
@@ -281,13 +259,57 @@ export const ListUsers = (props: Props) => {
     rowHover: false,
   };
 
+  const CustomTableCss = withStyles(() => ({
+    '@global': {
+      '.css-1ya7byf-MuiButtonBase-root-MuiIconButton-root': {
+        color: 'inherit !important',
+      },
+      '.tss-1f6q3ny-MUIDataTableToolbar-icon': {
+        color: 'inherit !important',
+      },
+      '*::-webkit-scrollbar-button': {
+        height: '0px',
+      },
+      '*::-webkit-scrollbar': {
+        width: '0.4em',
+      },
+      '*::-webkit-scrollbar-track': {
+        '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)',
+      },
+      '*::-webkit-scrollbar-thumb': {
+        backgroundColor: 'rgba(0,0,0,.1)',
+        borderRadius: '10px',
+      },
+      '.css-1m9da53-MuiButtonBase-root-MuiButton-root': {
+        padding: '0px !important',
+      },
+      '.tss-1fbujeu-MUIDataTableHeadCell-toolButton': {
+        fontWeight: 'bold !important',
+        fontSize: '18px !important',
+        textTransform: 'capitalize !important',
+      },
+      '.tss-tlx3x1-MUIDataTableToolbar-root': {
+        backgroundColor: '#f6f5f7 !important',
+        padding: '0px !important',
+      },
+      '.tss-1vsygk-MUIDataTableFilterList-root': {
+        backgroundColor: '#f6f5f7 !important',
+        margin: '0px !important',
+        paddingBottom: theme.spacing(1),
+      },
+      '.MuiTablePagination-selectIcon': {
+        color: 'inherit !important',
+      },
+    },
+  }))(() => null);
+
   return (
     <Grid container>
       <>
         {snackbar && <Snackbar type={snackbarType} content={error} />}
         <CustomTableCss />
         <Grid item xs={12} sx={{ paddingTop: theme.spacing(2) }}>
-          <Card sx={{ margin: "0px 24px", border: "none" }}>
+          <Card sx={{ margin: '0px 24px', border: 'none' }}>
             <MUIDataTable
               title={
                 <Box sx={{ fontSize: theme.typography.subtitle1.fontSize }}>
@@ -304,4 +326,3 @@ export const ListUsers = (props: Props) => {
     </Grid>
   );
 };
-

@@ -23,6 +23,7 @@ declare module "@mui/material/styles" {
     linearProgress: Palette["primary"];
     greyButton: Palette["primary"];
     blackFont: Palette["primary"];
+    menuHoverColor: Palette['primary'];
   }
   interface PaletteOptions {
     navbarBorder: PaletteOptions["primary"];
@@ -37,6 +38,7 @@ declare module "@mui/material/styles" {
     linearProgress: PaletteOptions["primary"];
     greyButton: PaletteOptions["primary"];
     blackFont: PaletteOptions["primary"];
+    menuHoverColor: PaletteOptions['primary'];
   }
 
   interface PaletteColor {
@@ -58,7 +60,7 @@ declare module "@mui/material/styles" {
   }
 }
 
-const theme = createTheme({
+export const theme = createTheme({
   breakpoints: {
     values: {
       xs: 0,
@@ -117,7 +119,7 @@ const theme = createTheme({
     divider: "rgba(0,0,0,0.38)",
 
     background: {
-      default: "#F6F5F7",
+      default: "#F8F8F8",
       paper: grey[200],
     },
     common: {
@@ -156,9 +158,6 @@ const theme = createTheme({
     linkBlue: {
       main: "#2CA1FA",
     },
-    // cardBorder: {
-    //   main: "#E0E2E5",
-    // },
     linearProgress: {
       main: "#2CA1FA",
     },
@@ -167,6 +166,9 @@ const theme = createTheme({
     },
     blackFont: {
       main: "#000000",
+    },
+    menuHoverColor: {
+      main: '#E6E8F3',
     },
   },
   typography: {
@@ -178,19 +180,19 @@ const theme = createTheme({
       fontSize: "16px",
     },
     h1: {
-      fontSize: "72px",
-      lineHeight: "72px",
-      fontWeight: "bold",
-    },
-    h2: {
       fontSize: "48px",
       lineHeight: "64px",
       fontWeight: "bold",
     },
+    h2: {
+      fontSize: "32px",
+      fontWeight: "bold",
+      lineHeight: "46px",
+    },
     h3: {
       fontSize: "24px",
-      fontWeight: "bold",
       lineHeight: "36px",
+      fontWeight: "bold",
     },
     h4: {
       fontSize: "24px",
@@ -352,4 +354,4 @@ const theme = createTheme({
   spacing: 8,
 });
 
-export default theme;
+export default theme

@@ -1,11 +1,12 @@
 import { AppBar, Toolbar, Typography, Divider, Box } from '@mui/material';
 import { useState } from 'react';
-import {ReportIssue} from './ReportIssue';
-import {UserMenu} from './UserMenu';
+import { ReportIssue } from './ReportIssue';
+import { UserMenu } from './UserMenu';
 import NavBar from './NavBar';
-import betaIcon from './assets/betaIcon.png';
 import reportIssueIcon from './assets/report-issue.svg';
 import { useTheme } from '@mui/material/styles';
+import { withStyles } from '@mui/styles';
+import AppsMenu from './AppsMenu';
 
 interface headerProps {
   title: string;
@@ -43,14 +44,14 @@ interface navLinkMenuListProps {
 
 interface subMenuListProps {
   label: string;
-  onClick: () => void;
+  route?: string;
+  onClick?: () => void;
 }
 
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const handleReportIssueDialogOpen = () => {
     setIsOpen(true);
   };
@@ -59,17 +60,8 @@ export const Header = (props: headerProps) => {
     setIsOpen(false);
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const [index, setIndex] = useState<null | number>(null);
-  const handleClose = () => {
-    setAnchorEl(null);
-    setIndex(null);
-  };
   /* End of Report Issue */
-  const open = Boolean(anchorEl);
-  
+
   const style = {
     layoutLogo: {
       width: '100%',
@@ -99,7 +91,7 @@ export const Header = (props: headerProps) => {
       color: theme.palette.primary.main,
       fontSize: theme.typography.subtitle1.fontSize,
       marginLeft: theme.spacing(3),
-      fontWeight: 600,
+      //fontWeight: 600,
     },
     appBar: {
       border: '1px',
@@ -109,6 +101,8 @@ export const Header = (props: headerProps) => {
       boxShadow: '0px 3px 6px #0000000D',
       background: theme.palette.secondary.main,
       zIndex: theme.zIndex.drawer + 1,
+      fontFamily: theme.typography.fontFamily,
+      width: '100%',
     },
   };
 
@@ -140,6 +134,7 @@ export const Header = (props: headerProps) => {
             return {
               label: item.label,
               onClick: item.onClick,
+              route: item.route,
             };
           }),
         };
@@ -157,22 +152,32 @@ export const Header = (props: headerProps) => {
               onClick: () => {
                 return null;
               },
+              route: undefined,
             },
           ],
         },
       ];
 
+  const CustomCss = withStyles((theme) => ({
+    '@global': {
+      'html, body': {
+        height: '100%',
+        fontFamily: theme.typography.fontFamily,
+        backgroundColor: theme.palette.background.default,
+        margin: '0px',
+      },
+    },
+  }))(() => null);
+
   return (
     <Box>
+      <CustomCss />
       <AppBar
         style={style.appBar}
         position="relative"
         sx={{ backgroundColor: theme.palette.secondary.main, zIndex: '2000' }}
       >
-        <Toolbar
-          style={style.Toolbar}
-          sx={{ width: '100%', p: 0, display: 'flex', alignItems: 'center' }}
-        >
+        <Toolbar style={style.Toolbar}>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
             <Typography
               variant="h6"
@@ -187,7 +192,7 @@ export const Header = (props: headerProps) => {
               />
             </Typography>
             <Divider orientation="vertical" variant="middle" flexItem />
-            <Box
+            {/* <Box
               sx={{
                 justifyContent: 'left',
                 display: { xs: 'none', md: 'flex' },
@@ -196,30 +201,10 @@ export const Header = (props: headerProps) => {
               style={style.navLinkIconActive}
             >
               {props.title}
-            </Box>
-            {props.betaIcon ? (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box
-                  component={'img'}
-                  src={betaIcon}
-                  alt="Beta version"
-                  sx={{
-                    background: '#6513f0',
-                    border: '1px solid #8141f2',
-                    padding: '5px',
-                    borderRadius: '5px',
-                    marginLeft: '13px',
-                    height: 'fit-content',
-                    marginTop: '4px',
-                    marginRight: '12px',
-                  }}
-                />
-              </Box>
-            ) : (
-              <Box component={'span'}></Box>
-            )}
+            </Box> */}
+            <AppsMenu title={props.title} betaIcon={props.betaIcon} />
+
             <NavBar navigationProps={navLinkList} />
-            {/* manu should go there and be done ad a specific library component */}
           </Box>
           <Box sx={{ display: { xs: 'inline-flex', md: 'inline-flex' } }}>
             {props.reportIssue ? (

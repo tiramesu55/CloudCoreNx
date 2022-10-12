@@ -1,5 +1,4 @@
-import { Card as MaterialCard, CardProps } from "@mui/material";
-import theme from "../themes";
+import { Card as MaterialCard, CardProps, useTheme } from '@mui/material';
 
 interface Props extends CardProps {
   variant?: any;
@@ -11,22 +10,21 @@ interface Props extends CardProps {
 }
 
 export const Card = ({
-  variant = "outlined",
-  borderRadius = `${theme.shape.borderRadius}px`,
+  variant = 'outlined',
   boxShadow = 2,
-  background = theme.palette.defaultCardBackground.main,
   ...props
 }: Props) => {
+  const theme = useTheme();
   return (
     <MaterialCard
       variant={variant}
       sx={{
-        borderRadius: { borderRadius },
-        backgroundColor: { background },
+        borderRadius: `${theme.shape.borderRadius}px`,
+        backgroundColor: theme.palette.defaultCardBackground.main,
         boxShadow: { boxShadow },
         borderColor: theme.palette.cardBorder.main,
-        height: "100%",
-        width: "100%",
+        height: '100%',
+        width: '100%',
       }}
       {...props}
     >

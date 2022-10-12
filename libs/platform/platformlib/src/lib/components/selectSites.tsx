@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Typography, Grid, Divider } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../hooks/hooks";
-import React, { useContext, useEffect, useState } from "react";
-import { CustomMultiSelectBox } from "./CustomMultiSelectBox";
-import theme from "../themes";
+import { Typography, Grid, Divider } from '@mui/material';
+import { platformStore } from '@cloudcore/redux-store';
+import React, { useContext, useEffect, useState } from 'react';
+import { CustomMultiSelectBox } from './CustomMultiSelectBox';
+import { useTheme } from '@mui/material';
 
 import {
   currentApps,
@@ -12,18 +12,20 @@ import {
   PartialApplication,
   PartialSite,
   setUserFormModified,
-  selectAllSites, getSites,
+  selectAllSites,
+  getSites,
   checkIfRootOrganization,
-  selectAppRoles
+  selectAppRoles,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
 interface Props {
   orgCode: string;
   modifiedData: (modifiedData: boolean) => void;
 }
 
+const {useAppDispatch, useAppSelector } = platformStore
 export interface Option {
   name: string;
   value: string;
@@ -35,7 +37,7 @@ export const SelectSites = (props: Props) => {
   //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
   const allApps = useAppSelector(selectAppRoles);
   //selectedApps below are from the user. for new user it is empty.  See the state.applications section of the state
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const selectedApps = useAppSelector(currentApps);
   const allSites = useAppSelector(selectAllSites);
   const root = useAppSelector((state) =>
@@ -43,7 +45,7 @@ export const SelectSites = (props: Props) => {
   );
   const [loadSite, setLoadSite] = useState(false);
   const { authState } = useOktaAuth();
- 
+
   // const { authState } = useOktaAuth();
   // const token = useMemo(() => authState?.accessToken?.accessToken, [authState]);
   //function that filters sites based on appCode and subscription
@@ -60,7 +62,7 @@ export const SelectSites = (props: Props) => {
 
   const appChange = (appCode: string, entity: string, updated: Option[]) => {
     //todo updated shouldn't be a string[]. it should be an array of objects
-    if (entity === "Roles") {
+    if (entity === 'Roles') {
       const payload: PartialApplication = {
         appCode: appCode,
         roles: updated.map((p) => ({
@@ -86,19 +88,26 @@ export const SelectSites = (props: Props) => {
   };
 
   useEffect(() => {
-      if (props.orgCode !== "") {
-        dispatch(getSites({ orgCode: props.orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }))
-          .unwrap()
-          .then(
-            () => {
-              setLoadSite(true);
-            },
-            () => {
-              setLoadSite(false);
-            }
-          );
-      }
+    if (props.orgCode !== '') {
+      dispatch(
+        getSites({
+          orgCode: props.orgCode,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
+        .unwrap()
+        .then(
+          () => {
+            setLoadSite(true);
+          },
+          () => {
+            setLoadSite(false);
+          }
+        );
+    }
   }, [platformBaseUrl, dispatch, props.orgCode]);
+  const theme = useTheme();
 
   return (
     <>
@@ -132,14 +141,14 @@ export const SelectSites = (props: Props) => {
         </Grid>
       </Grid>
       {allApps !== null &&
-        props.orgCode !== "" &&
+        props.orgCode !== '' &&
         allApps.map((appDetail) => {
           const justRoles: Option[] = [];
-          if (appDetail.appCode === "admin") {
+          if (appDetail.appCode === 'admin') {
             appDetail.roles.forEach((roles) => {
               if (
-                (!root && roles.role === "organization") ||
-                (root && roles.role === "admin")
+                (!root && roles.role === 'organization') ||
+                (root && roles.role === 'admin')
               ) {
                 justRoles.push({
                   name: roles.role,
@@ -209,7 +218,7 @@ export const SelectSites = (props: Props) => {
 
                 <Grid item xs={6}>
                   {allSites.length > 0 &&
-                    appDetail.appCode !== "admin" &&
+                    appDetail.appCode !== 'admin' &&
                     loadSite && (
                       <CustomMultiSelectBox
                         application={appDetail.appCode}
@@ -227,4 +236,3 @@ export const SelectSites = (props: Props) => {
     </>
   );
 };
-
