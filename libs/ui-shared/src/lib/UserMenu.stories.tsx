@@ -1,5 +1,5 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import UserMenu from './UserMenu';
+import { UserMenu } from './UserMenu';
 
 export default {
   component: UserMenu,

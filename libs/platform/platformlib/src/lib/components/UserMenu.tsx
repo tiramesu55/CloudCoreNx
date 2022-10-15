@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, Fragment, useEffect, useContext } from "react";
+import { useState, Fragment, useEffect, useContext } from 'react';
 import {
   Box,
   Avatar,
@@ -8,23 +8,31 @@ import {
   MenuItem,
   ListItemIcon,
   IconButton,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import theme from "../themes";
-import User from "../images/user.svg";
-import SignOut from "../images/sign-out.svg";
-import { useOktaAuth } from "@okta/okta-react";
-import { ConfigCtx, IConfig, useClaimsAndSignout } from "@cloudcore/okta-and-config";
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+import { useTheme } from '@mui/material';
+import User from '../images/user.svg';
+import SignOut from '../images/sign-out.svg';
+import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 export const UserMenu = () => {
-  const [userName, setUserName] = useState("");
-  const [userInitials, setUserInitials] = useState("");
-  const { oktaAuth, authState } = useOktaAuth();   // needs to be removed and replaced with getClaims
- 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
-  const {signOut, names, initials } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
+  const theme = useTheme();
+  const [userName, setUserName] = useState('');
+  const [userInitials, setUserInitials] = useState('');
+  const { oktaAuth, authState } = useOktaAuth(); // needs to be removed and replaced with getClaims
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { signOut, names, initials } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -39,14 +47,14 @@ export const UserMenu = () => {
     MenuItem: {
       color: theme.palette.userMenuColor.main,
       hover: {
-        "&:hover": {
-          background: "red",
+        '&:hover': {
+          background: 'red',
         },
       },
     },
     IconButton: {
-      "&:click": {
-        backgroundColor: "transparent",
+      '&:click': {
+        backgroundColor: 'transparent',
       },
     },
   };
@@ -60,25 +68,23 @@ export const UserMenu = () => {
       fontSize: theme.typography.subtitle1.fontSize,
     },
   }));
-//@alec: needs to use login from app
+  //@alec: needs to use login from app
   useEffect(() => {
     if (!authState?.isAuthenticated) {
       oktaAuth.signInWithRedirect();
     } else {
-      if(names){
-        setUserName(names.join(" "));
+      if (names) {
+        setUserName(names.join(' '));
       }
       if (initials) {
-        setUserInitials(
-          initials
-        );
+        setUserInitials(initials);
       }
     }
   }, []);
 
   return (
     <Fragment>
-      <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
         <IconButton onClick={handleClick} size="small">
           <UserTooltip title={userName} placement="top">
             <Avatar
@@ -102,33 +108,33 @@ export const UserMenu = () => {
         PaperProps={{
           elevation: 0,
           sx: {
-            overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
             mt: 0,
             backgroundColor: theme.palette.userMenuBackground.main,
-            "& .MuiAvatar-root": {
+            '& .MuiAvatar-root': {
               width: 32,
               height: 32,
               ml: -0.5,
               mr: 1,
             },
-            "&:before": {
+            '&:before': {
               content: '""',
-              display: "block",
-              position: "absolute",
+              display: 'block',
+              position: 'absolute',
               top: 0,
               right: 14,
               width: 10,
               height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
               backgroundColor: theme.palette.userMenuBackground.main,
               zIndex: 0,
             },
           },
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem disabled style={style.MenuItem}>
           <ListItemIcon>
@@ -145,4 +151,4 @@ export const UserMenu = () => {
       </Menu>
     </Fragment>
   );
-}
+};

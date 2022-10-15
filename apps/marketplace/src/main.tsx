@@ -1,6 +1,7 @@
-
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { marketplaceStore } from '@cloudcore/redux-store';
 import App from './app/app';
 import { BrowserRouter } from 'react-router-dom';
 import { ConfigContext } from '@cloudcore/okta-and-config';
@@ -12,7 +13,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ConfigContext>
-    {/* <Provider store={store}> */}
+    <Provider store={marketplaceStore.store}> 
     <StrictMode>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
@@ -20,5 +21,6 @@ root.render(
         </BrowserRouter>
       </ThemeProvider>
     </StrictMode>
+    </Provider>
   </ConfigContext>
 );

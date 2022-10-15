@@ -1,25 +1,37 @@
-import React, { useEffect } from "react";
-import { Grid, Box, Typography, IconButton, Button } from "@mui/material";
-import theme from "../../themes";
-import { useSelector } from "react-redux";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import CloseIcon from "@mui/icons-material/Close";
-import { useHistory, useLocation } from "react-router-dom";
-import { Card } from "../../components";
-import { SitesListByOrg } from "./sitesListByOrg";
-import { SiteDetailByOrg } from "./siteDetailByOrg";
-import { setOrganization, selectOrgByOrgCode, resetSite, selectSelectedId, setSite, siteSelector } from '@cloudcore/redux-store';
+import { useEffect } from 'react';
+import { Grid, Box, Typography, IconButton, Button } from '@mui/material';
+import { useTheme } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { platformStore } from '@cloudcore/redux-store';
+import CloseIcon from '@mui/icons-material/Close';
+import { useHistory, useLocation } from 'react-router-dom';
+import { Card } from '@cloudcore/ui-shared';
+import { List } from '@cloudcore/ui-shared';
+import { SiteDetailByOrg } from './siteDetailByOrg';
+import {
+  setOrganization,
+  selectOrgByOrgCode,
+  resetSite,
+  selectSelectedId,
+  setSite,
+  siteSelector,
+  selectedIdSite,
+  selectAllSites,
+} from '@cloudcore/redux-store';
 
+const { useAppDispatch, useAppSelector } = platformStore;
 export const Sites = () => {
-  const selectedSiteId = useAppSelector(selectSelectedId)
+  const theme = useTheme();
+  const selectedSiteId = useAppSelector(selectSelectedId);
   const selectSiteByID = useSelector((state: any) =>
     siteSelector.selectById(state, selectedSiteId)
   );
+  const siteList = useAppSelector(selectAllSites);
   const dispatch = useAppDispatch();
   const history = useHistory();
   const location: any = useLocation();
   const getOrgData = () => {
-    const retrieveData = window.localStorage.getItem("orgData");
+    const retrieveData = window.localStorage.getItem('orgData');
     const updatedorgData = JSON.parse(retrieveData as any);
     return updatedorgData;
   };
@@ -34,27 +46,31 @@ export const Sites = () => {
     selectOrgByOrgCode(state, orgData.orgCode)
   );
 
-  useEffect(()=>{
-    if(selectSiteByID !== undefined){
-      dispatch(setSite(selectSiteByID))
+  const setSelectedId = (id: string) => {
+    dispatch(selectedIdSite(id));
+  };
+
+  useEffect(() => {
+    if (selectSiteByID !== undefined) {
+      dispatch(setSite(selectSiteByID));
     }
-  },[selectSiteByID])
+  }, [selectSiteByID]);
 
   useEffect(() => {
     if (
       location.state !== undefined &&
       location?.state?.orgCode !== undefined
     ) {
-      window.localStorage.removeItem("orgData");
-      window.localStorage.removeItem("orgCode");
-      window.localStorage.setItem("orgData", JSON.stringify(orgData));
+      window.localStorage.removeItem('orgData');
+      window.localStorage.removeItem('orgCode');
+      window.localStorage.setItem('orgData', JSON.stringify(orgData));
     }
   }, []);
   const closeSites = () => {
-    history.push("/organization/editOrganization", {
-      title: "Edit Organization",
-      task: "editOrganization",
-      from: "editOrganization",
+    history.push('/organization/editOrganization', {
+      title: 'Edit Organization',
+      task: 'editOrganization',
+      from: 'editOrganization',
       orgCode: storedOrgData.orgCode,
       orgName: storedOrgData.orgName,
     });
@@ -62,18 +78,18 @@ export const Sites = () => {
     dispatch(setOrganization(organization));
   };
   const storedOrgData = JSON.parse(
-    window.localStorage.getItem("orgData") as any
+    window.localStorage.getItem('orgData') as any
   );
 
   const addNewSite = () => {
-    history.push("/organization/addSite", {
-      title: "Add Site",
-      task: "addSite",
-      from: "addSite",
+    history.push('/organization/addSite', {
+      title: 'Add Site',
+      task: 'addSite',
+      from: 'addSite',
       orgCode: orgData.orgCode,
       orgName: orgData.orgName,
     });
-    dispatch(resetSite())
+    dispatch(resetSite());
   };
 
   return (
@@ -82,19 +98,19 @@ export const Sites = () => {
         <Grid xs={12} item>
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               paddingX: theme.spacing(3),
               paddingY: theme.spacing(2),
             }}
           >
             <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
               <>
-                {" "}
+                {' '}
                 DASHBOARD / {storedOrgData?.orgName?.toUpperCase()} ORG / ORG /
-                <Typography component={"span"} fontWeight="bold">
-                  {" "}
+                <Typography component={'span'} fontWeight="bold">
+                  {' '}
                   EDIT SITES
                 </Typography>
               </>
@@ -107,28 +123,34 @@ export const Sites = () => {
               >
                 Add New Site
               </Button>
-              <IconButton sx={{ color: "#000000" }} onClick={closeSites}>
+              <IconButton sx={{ color: '#000000' }} onClick={closeSites}>
                 <CloseIcon fontSize="large" />
               </IconButton>
             </Box>
           </Box>
         </Grid>
-        <Grid item xs={12} sx={{ paddingRIght: "20px" }}>
+        <Grid item xs={12} sx={{ paddingRIght: '20px' }}>
           <Card
             sx={{
               marginBottom: theme.spacing(3),
               marginLeft: theme.spacing(2.5),
               marginRight: theme.spacing(3),
               borderColor: theme.palette.cardBorder.main,
-              minHeight: "75vh",
+              minHeight: '75vh',
             }}
           >
             <Grid container direction="row">
               <Grid item xs={12} md={6}>
-                <SitesListByOrg orgCode={orgData.orgCode} />
+                <List
+                  label="Sites"
+                  name="siteName"
+                  idSelected={selectedSiteId}
+                  data={siteList}
+                  changeSelectedId={setSelectedId}
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <SiteDetailByOrg />
+                {siteList.length > 0 && <SiteDetailByOrg />}
               </Grid>
             </Grid>
           </Card>

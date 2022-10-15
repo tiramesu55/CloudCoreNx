@@ -9,7 +9,7 @@ import {
   isFulfilled,
   isRejected,
 } from "@reduxjs/toolkit";
-import { RootState } from "../../store";
+import { RootState } from "../../store-platform";
 import {
   getSitesByOrganizationApi,
   updateSiteApi,
@@ -223,6 +223,7 @@ export const siteSlice = createSlice({
       .addCase(getSites.fulfilled, (state, action) => {
 
         state.sites = action.payload.data;
+        state.selectedId = action.payload.data[0]?.id
         siteAdapter.upsertMany(state, action?.payload?.data!);
         state.status = "idle";
       })

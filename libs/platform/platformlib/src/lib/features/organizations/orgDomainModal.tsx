@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,11 +10,11 @@ import {
   Box,
   InputAdornment,
   DialogActions,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { InputTextWithLabel, Tooltip } from "../../components";
-import theme from "../../themes";
-import { DeleteOrgDomain } from "./delete-org-domain";
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { InputTextWithLabel, Tooltip } from '../../components';
+import { useTheme } from '@mui/material';
+import { DeleteOrgDomain } from './delete-org-domain';
 
 interface Props {
   open: boolean;
@@ -27,8 +27,9 @@ interface Props {
 }
 
 export const OrgDomainModal = (props: Props) => {
+  const theme = useTheme();
   const [fullWidth, setFullWidth] = useState(true);
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState<string>('');
   const [allOrgDomains, setAllOrgDomains] = useState<string[]>([]);
   const [orgDomainInvalid, setOrgDomainInvalid] = useState(false);
   const [orgDomainExits, setOrgDomainExist] = useState(false);
@@ -36,7 +37,7 @@ export const OrgDomainModal = (props: Props) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
 
   const handleDialogClose = () => {
-    setInputValue("");
+    setInputValue('');
     setOrgDomainInvalid(false);
     setOrgDomainExist(false);
     props.handleDialog(false);
@@ -48,7 +49,7 @@ export const OrgDomainModal = (props: Props) => {
 
   //disable button
   const disableButton =
-    inputValue.trim() === "" || orgDomainInvalid || orgDomainExits
+    inputValue.trim() === '' || orgDomainInvalid || orgDomainExits
       ? true
       : false;
 
@@ -60,16 +61,16 @@ export const OrgDomainModal = (props: Props) => {
         ? allOrgDomains.filter((domain) => domain !== orgDomain)
         : [];
     setAllOrgDomains(updateAllorgDomains);
-    setInputValue("");
+    setInputValue('');
     setOrgDomainInvalid(false);
     setOrgDomainExist(false);
   };
 
   const handleAdd = () => {
-    if (inputValue !== "" && !orgDomainInvalid && !orgDomainExits) {
+    if (inputValue !== '' && !orgDomainInvalid && !orgDomainExits) {
       props.addOrgDomain(inputValue);
       allOrgDomains.push(inputValue);
-      setInputValue("");
+      setInputValue('');
     }
   };
 
@@ -90,13 +91,13 @@ export const OrgDomainModal = (props: Props) => {
   const title = (
     <>
       <Typography
-        fontWeight={"bold"}
+        fontWeight={'bold'}
         fontSize={12}
-        sx={{ textAlign: "center" }}
+        sx={{ textAlign: 'center' }}
       >
         Can't Delete
       </Typography>
-      <Typography fontSize={12} sx={{ textAlign: "center" }}>
+      <Typography fontSize={12} sx={{ textAlign: 'center' }}>
         this domain is being used by users
       </Typography>
     </>
@@ -104,143 +105,142 @@ export const OrgDomainModal = (props: Props) => {
 
   const styles = {
     tooltip: {
-      maxWidth: "221px",
-      maxHeight: "91px",
+      maxWidth: '221px',
+      maxHeight: '91px',
     },
   };
 
   return (
     <Dialog
-        open={props.open}
-        maxWidth={"md"}
-        fullWidth={fullWidth}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        sx={{
-          "& .MuiDialog-paper": {
-            width: "40%",
-            maxHeight: 435,
-            backgroundColor: theme.palette.secondary.main,
-          },
-        }}
-      >
-        <DialogTitle>
-          <Typography
-            fontSize={theme.typography.h3.fontSize}
-            sx={{ color: theme.breadcrumLink.primary }}
-          >
-            Organization Domains
-          </Typography>
-          <IconButton
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 4,
-              color: "#000000",
-            }}
-            onClick={handleDialogClose}
-          >
-            <CloseIcon fontSize="large" />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <DeleteOrgDomain
-              open={deleteDialogOpen}
-              handleDeleteDialog={handleDeleteDialog}
-              handleDelete={handleDelete}
-              orgDomain={props.orgDomains[index]}
-            />
-            <Grid item xs={12}>
-              <InputTextWithLabel
-                fieldName="orgDomain"
-                value={inputValue}
-                error={orgDomainInvalid || orgDomainExits}
-                helperText={
-                  orgDomainExits
-                    ? "Organization Domain already exist"
-                    : orgDomainInvalid
-                    ? "Invalid Organization Domain"
-                    : ""
-                }
-                changeHandler={handleChangeInputValue}
-                formWidth="100%"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {
-                        <Button disabled={disableButton} onClick={handleAdd}>
-                          Add
-                        </Button>
-                      }
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            {props.orgDomains.map((domain, indx) => {
-              return (
-                <Grid item xs={12} key={indx}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      backgroundColor: "#ffffff",
-                      borderRadius: "5px",
-                      height: "50px",
-                      paddingX: theme.spacing(1),
-                      border: `0.1px solid ${theme.palette.primary.main} `,
-                    }}
-                  >
-                    <Typography
-                      fontSize={theme.typography.h5.fontSize}
-                      fontWeight="bold"
-                    >
-                      {domain}
-                    </Typography>
-                    {!props.usedDomains?.includes(domain) ? (
-                      <Button
-                        color="error"
-                        onClick={() => {
-                          handleDeleteDialog(true);
-                          setIndex(indx);
-                        }}
-                      >
-                        Delete
+      open={props.open}
+      maxWidth={'md'}
+      fullWidth={fullWidth}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      sx={{
+        '& .MuiDialog-paper': {
+          width: '40%',
+          maxHeight: 435,
+          backgroundColor: theme.palette.secondary.main,
+        },
+      }}
+    >
+      <DialogTitle>
+        <Typography
+          fontSize={theme.typography.h3.fontSize}
+          sx={{ color: theme.breadcrumLink.primary }}
+        >
+          Organization Domains
+        </Typography>
+        <IconButton
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 4,
+            color: '#000000',
+          }}
+          onClick={handleDialogClose}
+        >
+          <CloseIcon fontSize="large" />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2}>
+          <DeleteOrgDomain
+            open={deleteDialogOpen}
+            handleDeleteDialog={handleDeleteDialog}
+            handleDelete={handleDelete}
+            orgDomain={props.orgDomains[index]}
+          />
+          <Grid item xs={12}>
+            <InputTextWithLabel
+              fieldName="orgDomain"
+              value={inputValue}
+              error={orgDomainInvalid || orgDomainExits}
+              helperText={
+                orgDomainExits
+                  ? 'Organization Domain already exist'
+                  : orgDomainInvalid
+                  ? 'Invalid Organization Domain'
+                  : ''
+              }
+              changeHandler={handleChangeInputValue}
+              formWidth="100%"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {
+                      <Button disabled={disableButton} onClick={handleAdd}>
+                        Add
                       </Button>
-                    ) : (
-                      <Tooltip
-                        title={title}
-                        placement={"right"}
-                        styles={styles.tooltip}
-                      />
-                    )}
-                  </Box>
-                </Grid>
-              );
-            })}
+                    }
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              paddingTop: theme.spacing(1),
-              paddingBottom: theme.spacing(2),
-            }}
+          {props.orgDomains.map((domain, indx) => {
+            return (
+              <Grid item xs={12} key={indx}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '5px',
+                    height: '50px',
+                    paddingX: theme.spacing(1),
+                    border: `0.1px solid ${theme.palette.primary.main} `,
+                  }}
+                >
+                  <Typography
+                    fontSize={theme.typography.h5.fontSize}
+                    fontWeight="bold"
+                  >
+                    {domain}
+                  </Typography>
+                  {!props.usedDomains?.includes(domain) ? (
+                    <Button
+                      color="error"
+                      onClick={() => {
+                        handleDeleteDialog(true);
+                        setIndex(indx);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  ) : (
+                    <Tooltip
+                      title={title}
+                      placement={'right'}
+                      styles={styles.tooltip}
+                    />
+                  )}
+                </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            paddingTop: theme.spacing(1),
+            paddingBottom: theme.spacing(2),
+          }}
+        >
+          <Button
+            variant="outlined"
+            onClick={handleDialogClose}
+            sx={{ marginRight: theme.spacing(1) }}
           >
-            <Button
-              variant="outlined"
-              onClick={handleDialogClose}
-              sx={{ marginRight: theme.spacing(1) }}
-            >
-              Close
-            </Button>
-          </Box>
-        </DialogActions>
-      </Dialog>
+            Close
+          </Button>
+        </Box>
+      </DialogActions>
+    </Dialog>
   );
 };
-

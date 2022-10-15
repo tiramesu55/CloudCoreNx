@@ -1,5 +1,5 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import ReportIssue from './ReportIssue';
+import { ReportIssue } from './ReportIssue';
 
 export default {
   component: ReportIssue,

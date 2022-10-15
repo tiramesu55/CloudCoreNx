@@ -4,23 +4,24 @@ import {
   useMediaQuery,
   CssBaseline,
   Container,
-} from "@mui/material";
-import theme from "../themes";
-import { ResponsiveToolBar } from "./ResponsiveToolbar";
+} from '@mui/material';
+import { useTheme } from '@mui/material';
+import { ResponsiveToolBar } from './ResponsiveToolbar';
 
 export const NavBar = () => {
+  const theme = useTheme();
   const style = {
     appBar: {
-      border: "1px",
+      border: '1px',
       borderColor: theme.palette.navbarBorder.main,
       borderBottom: `1px solid ${theme.palette.navbarBorder.main}`,
-      margin: "0px",
-      boxShadow: "0px 3px 6px #0000000D",
+      margin: '0px',
+      boxShadow: '0px 3px 6px #0000000D',
       background: theme.palette.secondary.main,
       zIndex: theme.zIndex.drawer + 1,
     },
   };
-  const isLargeDevice = useMediaQuery(theme.breakpoints.up("xl"));
+  const isLargeDevice = useMediaQuery(theme.breakpoints.up('xl'));
 
   return (
     <Box sx={{ m: 0 }}>
@@ -32,7 +33,7 @@ export const NavBar = () => {
             sx={{
               margin: 0,
               padding: 0,
-              [theme.breakpoints.up("sm")]: {
+              [theme.breakpoints.up('sm')]: {
                 paddingLeft: 0,
                 paddingRight: 0,
               },

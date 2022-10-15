@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useContext, useState } from "react";
+import React, { useContext, useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -7,19 +7,19 @@ import {
   Button,
   Box,
   Typography,
-} from "@mui/material";
-import theme from "../../themes";
-import warningImg from "../../images/warning.png";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+} from '@mui/material';
+import { useTheme } from '@mui/material';
+import warningImg from '../../images/warning.png';
+import { platformStore } from '@cloudcore/redux-store';
 import {
   deleteOrganizationAsync,
   selectedOrganization,
   Organization,
   updateOrganizationAsync,
 } from '@cloudcore/redux-store';
-import { useHistory } from "react-router-dom";
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { useHistory } from 'react-router-dom';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
 interface Props {
   orgDomain: string;
@@ -28,12 +28,15 @@ interface Props {
   setSnackBarMsg: (value: string) => void;
 }
 
+const {useAppDispatch, useAppSelector } = platformStore
+
 export const ActivateDeactivateOrg = (props: Props) => {
+  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const organization = useAppSelector(selectedOrganization);
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const { authState } = useOktaAuth();
- 
+
   const history = useHistory();
   const dispatch = useAppDispatch();
 
@@ -71,50 +74,62 @@ export const ActivateDeactivateOrg = (props: Props) => {
         modifiedBy: null,
         childOrgs: [],
       };
-      dispatch(updateOrganizationAsync({organization: updatedOrganization, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+      dispatch(
+        updateOrganizationAsync({
+          organization: updatedOrganization,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
         .unwrap()
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editOrganizationSuccess");
-            props.setSnackBarType("success");
+            props.setSnackBarMsg('editOrganizationSuccess');
+            props.setSnackBarType('success');
             setTimeout(() => {
-              history.push("/");
+              history.push('/');
             }, 1000);
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editOrganizationFailure");
-            props.setSnackBarType("failure");
+            props.setSnackBarMsg('editOrganizationFailure');
+            props.setSnackBarType('failure');
           }
         );
     } catch (err) {
-      console.log("failed to activate organization", err);
+      console.log('failed to activate organization', err);
     }
   };
 
   const handleDeactivate = () => {
     setOpen(false);
     try {
-      dispatch(deleteOrganizationAsync({orgCode: organization?.orgCode, url: platformBaseUrl, token: authState?.accessToken?.accessToken }))
+      dispatch(
+        deleteOrganizationAsync({
+          orgCode: organization?.orgCode,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
         .unwrap()
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editOrganizationSuccess");
-            props.setSnackBarType("success");
+            props.setSnackBarMsg('editOrganizationSuccess');
+            props.setSnackBarType('success');
             setTimeout(() => {
-              history.push("/");
+              history.push('/');
             }, 1000);
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editOrganizationFailure");
-            props.setSnackBarType("failure");
+            props.setSnackBarMsg('editOrganizationFailure');
+            props.setSnackBarType('failure');
           }
         );
     } catch (err) {
-      console.log("faild to deactivate organization", err);
+      console.log('faild to deactivate organization', err);
     }
   };
 
@@ -125,9 +140,9 @@ export const ActivateDeactivateOrg = (props: Props) => {
         disableRipple={true}
         sx={{
           color: theme.palette.primary.main,
-          textTransform: "capitalize",
+          textTransform: 'capitalize',
           fontSize: theme.typography.subtitle1.fontSize,
-          fontWeight: "bold",
+          fontWeight: 'bold',
         }}
         onClick={handleClickOpen}
       >
@@ -139,8 +154,8 @@ export const ActivateDeactivateOrg = (props: Props) => {
       </Button>
       <Dialog
         sx={{
-          "& .MuiDialog-paper": {
-            width: "20%",
+          '& .MuiDialog-paper': {
+            width: '20%',
             maxHeight: 435,
             border: `2px solid red`,
             borderTop: `10px solid red`,
@@ -151,33 +166,33 @@ export const ActivateDeactivateOrg = (props: Props) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent sx={{ paddingTop: "40px", paddingX: "0px" }}>
-          <Box alignItems={"center"} display={"flex"} justifyContent={"center"}>
+        <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
+          <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
             <img src={warningImg} alt="warning" />
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="h5"
-              fontWeight={"bold"}
+              fontWeight={'bold'}
               sx={{
-                color: "red",
-                paddingTop: "20px",
-                display: "flex",
-                justifyContent: "center",
+                color: 'red',
+                paddingTop: '20px',
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
-              {"Warning"}
+              {'Warning'}
             </Typography>
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="subtitle2"
               color={theme.palette.blackFont.main}
               fontSize={theme.typography.subtitle1.fontSize}
               paddingX="40px"
-              paddingTop={"20px"}
+              paddingTop={'20px'}
               display="flex"
               align="center"
             >
@@ -193,10 +208,10 @@ export const ActivateDeactivateOrg = (props: Props) => {
         </DialogContent>
         <DialogActions
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "40px",
-            paddingX: "0px",
+            display: 'flex',
+            justifyContent: 'center',
+            paddingBottom: '40px',
+            paddingX: '0px',
           }}
         >
           <Button
@@ -205,7 +220,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
             sx={{
               color: `${theme.palette.greyButton.main} !important`,
               border: `1px solid ${theme.palette.greyButton.main} !important`,
-              "&:hover": {
+              '&:hover': {
                 color: `${theme.palette.greyButton.main} !important`,
                 border: `1px solid ${theme.palette.greyButton.main} !important`,
               },
@@ -221,7 +236,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
             }
             variant="contained"
             color="error"
-            sx={{ color: "white", borderRadius: "5px" }}
+            sx={{ color: 'white', borderRadius: '5px' }}
             autoFocus
           >
             {organization?.inactiveDate === null ? (

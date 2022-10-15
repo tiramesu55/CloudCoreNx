@@ -6,16 +6,23 @@ interface oidcConfig {
     pkce: boolean,
 }
 
+interface mpReports{
+    dashboard: string,
+    ownerresults?: string,
+    partnerResults?: string
+}
 export interface IConfig {
     oidcConfig?: oidcConfig,
     instrumentationKey: string,
     logoutSSO: string,
     postLogoutRedirectUri: string,
+    homeBaseUrl?: string,
     platformBaseUrl: string,
     powerbiBaseUrl?: string,
     marketBaseUrl?: string,
     REACT_APP_SUITES_URL?: string,
-    REACT_APP_POWERBI_URL?: string
+    REACT_APP_POWERBI_URL?: string,
+    mpReports?: mpReports
 }
 
 export interface IdleConfigReducerState {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   MenuItem,
@@ -9,14 +9,14 @@ import {
   ListItemIcon,
   InputBase,
   Select,
-} from "@mui/material";
-import { SelectChangeEvent } from "@mui/material/Select";
-import theme from "../themes";
-import { withStyles, makeStyles } from "@mui/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import { Theme } from "@mui/system";
-import { styled } from "@mui/material/styles";
-import { Option } from "../components/selectSites";
+} from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
+import { useTheme } from '@mui/material';
+import { withStyles, makeStyles } from '@mui/styles';
+import CloseIcon from '@mui/icons-material/Close';
+import { styled } from '@mui/material/styles';
+import { Option } from '../components/selectSites';
+import { Theme } from '@mui/material/styles';
 
 interface Props {
   application: string;
@@ -27,77 +27,78 @@ interface Props {
   title?: any;
 }
 
-const SelectInput = styled(InputBase)(() => ({
-  "label + &": {
-    marginTop: theme.spacing(3),
-  },
-  "& .MuiInputBase-input": {
-    borderRadius: 4,
-    position: "relative",
-    backgroundColor: theme.palette.secondary.main,
-    border: `1px solid ${theme.palette.inputBorder.main}`,
-    fontSize: 16,
-    padding: "10px 26px 10px 12px",
-    transition: theme.transitions.create(["border-color", "box-shadow"]),
-    // Use the system font instead of the default Roboto font.
-    "&:focus": {
-      /* borderRadius: 4,
-        borderColor: "#80bdff",
-        boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
-    },
-  },
-}));
-
-const CustomSelectCss = withStyles(() => ({
-  "@global": {
-    ".css-dtoucc-MuiSvgIcon-root-MuiSelect-icon": {
-      color: `${theme.palette.common.black} !important`,
-    },
-    ".css-og9e4b-MuiSvgIcon-root-MuiSelect-icon": {
-      color: `${theme.palette.common.black} !important`,
-    },
-  },
-}))(() => null);
-
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: Theme) => ({
   formControl: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
-    width: "94% !important",
+    width: '94% !important',
   },
   indeterminateColor: {
-    color: "#fffff",
+    color: '#fffff',
   },
   selectAllText: {
     fontWeight: 500,
   },
   selectedAll: {
     //backgroundColor: "rgba(0, 0, 0, 0.08)",
-    "&:hover": {
+    '&:hover': {
       //backgroundColor: "rgba(0, 0, 0, 0.08)",
     },
   },
   dropdownStyle: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
   },
   initialChip: {
-    color: `${theme.palette["chipYellow"].main} !important`,
-    border: `1px solid ${theme.palette["chipYellow"].main} !important`,
+    color: `${theme.palette['chipYellow'].main} !important`,
+    border: `1px solid ${theme.palette['chipYellow'].main} !important`,
     marginRight: `${theme.spacing(1)} !important`,
     marginBottom: `${theme.spacing(1)} !important`,
   },
   newChip: {
-    color: `${theme.palette["linkBlue"].main} !important`,
-    border: `1px solid ${theme.palette["linkBlue"].main} !important`,
+    color: `${theme.palette['linkBlue'].main} !important`,
+    border: `1px solid ${theme.palette['linkBlue'].main} !important`,
     marginRight: `${theme.spacing(1)} !important`,
     marginBottom: `${theme.spacing(1)} !important`,
   },
   yellowCloseIcon: {
-    color: `1px solid ${theme.palette["chipYellow"].main} !important`,
+    color: `1px solid ${theme.palette['chipYellow'].main} !important`,
   },
 }));
 
 export const CustomMultiSelectBox = (props: Props) => {
+  const theme = useTheme();
+  const SelectInput = styled(InputBase)(() => ({
+    'label + &': {
+      marginTop: theme.spacing(3),
+    },
+    '& .MuiInputBase-input': {
+      borderRadius: 4,
+      position: 'relative',
+      backgroundColor: theme.palette.secondary.main,
+      border: `1px solid ${theme.palette.inputBorder.main}`,
+      fontSize: 16,
+      padding: '10px 26px 10px 12px',
+      transition: theme.transitions.create(['border-color', 'box-shadow']),
+      // Use the system font instead of the default Roboto font.
+      '&:focus': {
+        /* borderRadius: 4,
+          borderColor: "#80bdff",
+          boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
+      },
+    },
+  }));
+
+  const CustomSelectCss = withStyles(() => ({
+    '@global': {
+      '.css-dtoucc-MuiSvgIcon-root-MuiSelect-icon': {
+        color: `${theme.palette.common.black} !important`,
+      },
+      '.css-og9e4b-MuiSvgIcon-root-MuiSelect-icon': {
+        color: `${theme.palette.common.black} !important`,
+      },
+    },
+  }))(() => null);
+
   const classes = useStyles();
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -106,7 +107,7 @@ export const CustomMultiSelectBox = (props: Props) => {
       style: {
         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
         width: 250,
-        backgroundColor: "#fffff !important",
+        backgroundColor: '#fffff !important',
       },
     },
     classes: { paper: classes.dropdownStyle },
@@ -114,7 +115,7 @@ export const CustomMultiSelectBox = (props: Props) => {
 
   const [currentList, setCurrentList] = useState<string[]>(
     props.inputList.map((el) => {
-      return el["name"];
+      return el['name'];
     })
   );
 
@@ -124,9 +125,9 @@ export const CustomMultiSelectBox = (props: Props) => {
     props.totalList.map((el) => {
       permissions.set(
         el.name,
-        el.permissions === undefined ? "" : el.permissions.toString()
+        el.permissions === undefined ? '' : el.permissions.toString()
       );
-      return el["name"];
+      return el['name'];
     })
   );
 
@@ -135,7 +136,7 @@ export const CustomMultiSelectBox = (props: Props) => {
 
   const handleChange = (event: SelectChangeEvent<typeof currentList>) => {
     const onChangeList = event.target.value;
-    if (onChangeList[onChangeList.length - 1] === "all") {
+    if (onChangeList[onChangeList.length - 1] === 'all') {
       setCurrentList(currentList.length === totalList.length ? [] : totalList);
 
       props.handleChange(
@@ -146,7 +147,7 @@ export const CustomMultiSelectBox = (props: Props) => {
       return;
     }
     setCurrentList(
-      typeof onChangeList === "string" ? onChangeList.split(",") : onChangeList
+      typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
     );
     props.handleChange(
       props.application,
@@ -190,7 +191,7 @@ export const CustomMultiSelectBox = (props: Props) => {
               selectedArr.push(ele);
             });
             return selectedArr.length
-              ? selectedArr.join(", ")
+              ? selectedArr.join(', ')
               : props.customSelectLabel;
           }}
           MenuProps={MenuProps}
@@ -199,7 +200,7 @@ export const CustomMultiSelectBox = (props: Props) => {
           <MenuItem
             value="all"
             classes={{
-              root: isAllSelected ? classes.selectedAll : "",
+              root: isAllSelected ? classes.selectedAll : '',
             }}
           >
             <ListItemIcon>
@@ -272,4 +273,3 @@ export const CustomMultiSelectBox = (props: Props) => {
     </>
   );
 };
-

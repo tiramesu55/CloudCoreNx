@@ -9,13 +9,12 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Header } from '@cloudcore/ui-shared';
 import { BackdropPowerBi } from './components/BackDrop/Backdrop';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import { Box } from '@mui/system';
-import service from './service/service';
+import {requests} from '@cloudcore/common-lib';
 import { NotAuthorized } from '@cloudcore/ui-shared';
 import { IdlePopUp } from '@cloudcore/ui-shared';
 import { useIdleTimer } from 'react-idle-timer';
@@ -30,19 +29,14 @@ export interface AnalyticsPowerbiProps {}
 
 export const AnalyticsPowerbi = () => {
   const { useAppDispatch, useAppSelector } = analyticsStore;
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const dispatch = useAppDispatch();
-  const { signOut, getClaims } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userInitials, setUserInitials] = useState('');
-  const [authorizedState, setAuthorizedState] = useState<boolean>(true);
+
+ // const [userName, setUserName] = useState('');
+ // const [userEmail, setUserEmail] = useState('');
+ // const [userInitials, setUserInitials] = useState('');
+
   const [listReportLoading, setListReportLoading] = useState<boolean>(false);
   const [activityModal, setActivityModal] = useState<boolean>(false);
-  const { authState, oktaAuth } = useOktaAuth();
 
   const sessionTimeoutRef: any = useRef(null);
   const {
@@ -53,6 +47,9 @@ export const AnalyticsPowerbi = () => {
     selectReport,
   } = reportsActions;
 
+  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const {signOut,token, initials, names, permissions,email } = useClaimsAndSignout( config.logoutSSO,config.postLogoutRedirectUri);
+
   const handleOpenAlert = (message: string, status: number) =>
     dispatch(openAlert(message, status));
   const handleLoadingReportSingle = (data: boolean) =>
@@ -62,13 +59,14 @@ export const AnalyticsPowerbi = () => {
 
   const { loadingSingleReport, selectedReportId, reportFilter, reports } =
     useAppSelector((state) => state.report);
-  const { HandleUserEvent } = useAppInsightHook();
 
+  const { HandleUserEvent } = useAppInsightHook();
+  const anltPermissions =   permissions.analytics?.length > 0;
   const handleErrorResponse = (err: IErrorTypeResponse) => {
     HandleUserEvent(
       {
-        name: userName,
-        email: userEmail,
+        name: names? names[0] : "",
+        email: email,
       },
       err?.message,
       err?.type
@@ -82,25 +80,17 @@ export const AnalyticsPowerbi = () => {
   };
 
   useEffect(() => {
-    if (!authState?.isAuthenticated) {
-      oktaAuth.signInWithRedirect();
-    } else {
-      if (!authState.accessToken?.claims['analytics']) {
-        setAuthorizedState(false);
-      } else {
-        setAuthorizedState(true);
-        // const payload = authState.accessToken?.claims['analytics'];
+    if (token) {
+        debugger;
         if (config?.REACT_APP_SUITES_URL) {
-          setListReportLoading(true);
-          service.requests
+         // setListReportLoading(true);  //  too quick. No point running spinner
+          requests
             .get(config?.REACT_APP_SUITES_URL, {
               'Content-Type': 'application/json',
-              Authorization: authState?.accessToken?.accessToken
-                ? `Bearer ${authState?.accessToken?.accessToken}`
-                : '',
+              Authorization: `Bearer ${token}`
             })
             .then((response) => {
-              setListReportLoading(false);
+           //   setListReportLoading(false);
               dispatch(loadReports(response.suites));
             })
             .catch((error) => {
@@ -115,19 +105,7 @@ export const AnalyticsPowerbi = () => {
             });
         }
       }
-      const claims = getClaims() as any;
-      if (claims?.['initials']) {
-        setUserName(claims?.['initials'].join(' '));
-        setUserInitials(
-          claims?.['initials']
-            .map((name: string) => name[0].toUpperCase())
-            .join('')
-        );
-      }
-      if (claims?.sub) {
-        setUserEmail(claims?.sub);
-      }
-    }
+
   }, []);
 
   const logOut = () => {
@@ -163,62 +141,39 @@ export const AnalyticsPowerbi = () => {
   });
 
   const handleReportClick = (reportId: string) => {
-    oktaAuth.session.exists().then(function (exists) {
-      if (exists) {
-        console.log('session is there');
         dispatch(selectReport(reportId));
         HandleUserEvent(
           {
-            name: userName,
-            email: userEmail,
+            name: names? names[0] : "",
+            email: email,
           },
           reportId,
           'SelectReportId'
         );
-      } else {
-        console.log('Session Expired');
-          oktaAuth.signOut({
-            postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-            revokeAccessToken: true,
-          });
-      }
-    });
+     
   };
+
 
   useEffect(() => {
-    openSlaDashboard();
+
+      openSlaDashboard();
+    
   }, [reports]);
 
-  const openSlaDashboard = () => {
-    reports?.map((item: { reports: any[] }, index: any) => {
-      item.reports.map((sub: { reportName: string; reportId: any }, i: any) => {
-        if (sub.reportName === 'SLA Dashboard') {
-          oktaAuth
-            .getUser()
-            .then((info) => {
-              dispatch(selectReport(sub.reportId));
-              HandleUserEvent(
-                {
-                  name: info
-                    ? info.family_name + ' ' + info.given_name
-                    : 'unknownUser',
-                  email: info ? info.email : 'unknownEmail',
-                },
-                sub.reportId,
-                'SelectReportId'
-              );
-            })
-            .catch((e) => {
-              console.log('Session Expired');
-              // oktaAuth.signOut({
-              //   postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-              //   revokeAccessToken: true,
-              // });
-            });
-        }
-      });
-    });
-  };
+  const openSlaDashboard = useCallback(() => {
+    if(!reports)
+        return;
+    for( const x of reports!){
+
+      const slaDashId = x.reports?.find( p => p.reportName === "SLA Dashboard" )?.reportId;
+      
+      if(slaDashId) { 
+       dispatch(selectReport(slaDashId));
+       break;
+      }
+    }
+  },[reports]);
+
   const navLinkMenuList = useMemo(() => {
     return reports?.map((item) => ({
       label: item.name,
@@ -231,7 +186,7 @@ export const AnalyticsPowerbi = () => {
 
   return (
     <>
-      {authorizedState ? (
+      {anltPermissions ? (
         <>
           <IdlePopUp
             open={activityModal}
@@ -248,8 +203,8 @@ export const AnalyticsPowerbi = () => {
             reportIssue={false}
             navLinkMenuList={navLinkMenuList}
             userMenu={{
-              userName: userName,
-              userInitials: userInitials,
+              userName: names? names[0] : "",
+              userInitials: initials!,
             }}
             userMenuList={[
               {
@@ -263,8 +218,8 @@ export const AnalyticsPowerbi = () => {
             {selectedReportId && (
               <>
                 <ReportBiClientComponent
-                  userName={userName}
-                  userEmail={userEmail}
+                  userName={names? names[0] : ""}
+                  userEmail={email ?? ""}
                   reset={reset}
                   openAlert={handleOpenAlert}
                   loadingReportSingle={handleLoadingReportSingle}

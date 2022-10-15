@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useState, useContext } from "react";
-import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { useHistory } from "react-router-dom";
+import { useState, useContext } from 'react';
+import { platformStore } from '@cloudcore/redux-store';
+import { useHistory } from 'react-router-dom';
 import {
   Button,
   Dialog,
@@ -9,9 +9,9 @@ import {
   Typography,
   DialogActions,
   DialogContent,
-} from "@mui/material";
-import theme from "../../themes";
-import warningImg from "../../images/warning.png";
+} from '@mui/material';
+import { useTheme } from '@mui/material';
+import warningImg from '../../images/warning.png';
 import {
   selectedUserEmail,
   selectUserByIdEntity,
@@ -19,8 +19,8 @@ import {
   updateUser,
   User,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
 interface Props {
   user: User | undefined;
@@ -30,15 +30,17 @@ interface Props {
   setSnackBarMsg: (value: string) => void;
 }
 
-export const DeactivateUser = (props: Props) => {  
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+const {useAppDispatch, useAppSelector } = platformStore
+export const DeactivateUser = (props: Props) => {
+  const theme = useTheme();
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const dispatch = useAppDispatch();
-  
+
   const { authState } = useOktaAuth();
   const history = useHistory();
   const selectedId: string = useAppSelector(selectedUserEmail);
   const [open, setOpen] = useState(false);
-  const [addRequestStatus, setAddRequestStatus] = useState("idle");
+  const [addRequestStatus, setAddRequestStatus] = useState('idle');
   const user = useAppSelector(selectUserByIdEntity(selectedId));
 
   const handleClickOpen = () => {
@@ -53,59 +55,71 @@ export const DeactivateUser = (props: Props) => {
     setOpen(false);
 
     try {
-      setAddRequestStatus("pending");
-      dispatch(deleteUser({user: user!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+      setAddRequestStatus('pending');
+      dispatch(
+        deleteUser({
+          user: user!,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
         .unwrap()
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editUserSuccess");
-            props.setSnackBarType("success");
+            props.setSnackBarMsg('editUserSuccess');
+            props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push("/user");
+              history.push('/user');
             }, 1000);
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editUserFailure");
-            props.setSnackBarType("failure");
+            props.setSnackBarMsg('editUserFailure');
+            props.setSnackBarType('failure');
           }
         );
     } catch (err) {
-      console.error("Failed to save the user", err);
+      console.error('Failed to save the user', err);
     } finally {
-      setAddRequestStatus("idle");
+      setAddRequestStatus('idle');
     }
   };
 
   const handleActivate = () => {
     setOpen(false);
     try {
-      setAddRequestStatus("pending");
+      setAddRequestStatus('pending');
       props.setActiveDate(null);
-      dispatch(updateUser({user: props.user!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+      dispatch(
+        updateUser({
+          user: props.user!,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
         .unwrap()
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editUserSuccess");
-            props.setSnackBarType("success");
+            props.setSnackBarMsg('editUserSuccess');
+            props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push("/user");
+              history.push('/user');
             }, 1000);
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg("editUserFailure");
-            props.setSnackBarType("failure");
+            props.setSnackBarMsg('editUserFailure');
+            props.setSnackBarType('failure');
           }
         );
     } catch (err) {
-      console.error("Failed to save the user", err);
+      console.error('Failed to save the user', err);
     } finally {
-      setAddRequestStatus("idle");
+      setAddRequestStatus('idle');
     }
   };
 
@@ -116,9 +130,9 @@ export const DeactivateUser = (props: Props) => {
         disableRipple={true}
         sx={{
           color: theme.palette.primary.main,
-          textTransform: "capitalize",
+          textTransform: 'capitalize',
           fontSize: theme.typography.subtitle1.fontSize,
-          fontWeight: "bold",
+          fontWeight: 'bold',
         }}
         onClick={handleClickOpen}
       >
@@ -130,8 +144,8 @@ export const DeactivateUser = (props: Props) => {
       </Button>
       <Dialog
         sx={{
-          "& .MuiDialog-paper": {
-            width: "20%",
+          '& .MuiDialog-paper': {
+            width: '20%',
             maxHeight: 435,
             border: `2px solid red`,
             borderTop: `10px solid red`,
@@ -142,33 +156,33 @@ export const DeactivateUser = (props: Props) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent sx={{ paddingTop: "40px", paddingX: "0px" }}>
-          <Box alignItems={"center"} display={"flex"} justifyContent={"center"}>
+        <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
+          <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
             <img src={warningImg} alt="warning" />
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="h5"
-              fontWeight={"bold"}
+              fontWeight={'bold'}
               sx={{
-                color: "red",
-                paddingTop: "20px",
-                display: "flex",
-                justifyContent: "center",
+                color: 'red',
+                paddingTop: '20px',
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
-              {"Warning"}
+              {'Warning'}
             </Typography>
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="subtitle2"
               color={theme.palette.blackFont.main}
               fontSize={theme.typography.subtitle1.fontSize}
               paddingX="40px"
-              paddingTop={"20px"}
+              paddingTop={'20px'}
               display="flex"
               align="center"
             >
@@ -186,10 +200,10 @@ export const DeactivateUser = (props: Props) => {
         </DialogContent>
         <DialogActions
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "40px",
-            paddingX: "0px",
+            display: 'flex',
+            justifyContent: 'center',
+            paddingBottom: '40px',
+            paddingX: '0px',
           }}
         >
           <Button
@@ -198,7 +212,7 @@ export const DeactivateUser = (props: Props) => {
             sx={{
               color: `${theme.palette.greyButton.main} !important`,
               border: `1px solid ${theme.palette.greyButton.main} !important`,
-              "&:hover": {
+              '&:hover': {
                 color: `${theme.palette.greyButton.main} !important`,
                 border: `1px solid ${theme.palette.greyButton.main} !important`,
               },
@@ -214,7 +228,7 @@ export const DeactivateUser = (props: Props) => {
             }
             variant="contained"
             color="error"
-            sx={{ color: "white", borderRadius: "5px" }}
+            sx={{ color: 'white', borderRadius: '5px' }}
             autoFocus
           >
             {props.user?.inactiveDate === null ? (
@@ -228,4 +242,3 @@ export const DeactivateUser = (props: Props) => {
     </div>
   );
 };
-

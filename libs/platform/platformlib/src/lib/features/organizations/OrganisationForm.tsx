@@ -8,17 +8,23 @@ import {
   Button,
   Stack,
   Autocomplete,
-} from "@mui/material";
-import { useEffect, useState, useContext } from "react";
-import theme from "../../themes";
-import CloseIcon from "@mui/icons-material/Close";
-import {InputTextWithLabel, Card, InfoCard, PhoneInput as CustomPhoneNumber, UnsavedData, Snackbar} from "../../components";
-import sites from "../../images/sites.svg";
-import users from "../../images/users.svg";
-import "react-phone-number-input/style.css";
-import PhoneInput from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
-import { isPossiblePhoneNumber } from "react-phone-number-input";
+} from '@mui/material';
+import { useEffect, useState, useContext } from 'react';
+import { useTheme } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+  InputTextWithLabel,
+  PhoneInput as CustomPhoneNumber,
+  UnsavedData,
+  Snackbar,
+} from '../../components';
+import { InfoCard, Card } from '@cloudcore/ui-shared';
+import sites from '../../images/sites.svg';
+import users from '../../images/users.svg';
+import 'react-phone-number-input/style.css';
+import PhoneInput from 'react-phone-number-input';
+import flags from 'react-phone-number-input/flags';
+import { isPossiblePhoneNumber } from 'react-phone-number-input';
 import {
   createOrganizationAsync,
   organizationSelector,
@@ -37,37 +43,42 @@ import {
   selectOrgByOrgCode,
   getOrgFormModified,
   setOrgFormModified,
-  fetchUsers, usersDomain, resetSite
+  fetchUsers,
+  usersDomain,
+  resetSite,
+  getSites,
 } from '@cloudcore/redux-store';
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { useHistory, useLocation } from "react-router-dom";
-import locationIcon from "../../images/location.svg";
-import { useSelector } from "react-redux";
-import { ActivateDeactivateOrg } from "./activate-deactivate-org";
-import { withStyles } from "@mui/styles";
-import { OrgDomainModal } from "./orgDomainModal";
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { platformStore } from '@cloudcore/redux-store';
+import { useHistory, useLocation } from 'react-router-dom';
+import locationIcon from '../../images/location.svg';
+import { useSelector } from 'react-redux';
+import { ActivateDeactivateOrg } from './activate-deactivate-org';
+import { withStyles } from '@mui/styles';
+import { OrgDomainModal } from './orgDomainModal';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
+const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
-  "@global": {
-    ".PhoneInputCountry": {
-      alignItems: "normal",
-      marginTop: "32px",
+  '@global': {
+    '.PhoneInputCountry': {
+      alignItems: 'normal',
+      marginTop: '32px',
     },
   },
 }))(() => null);
 
 export const OrganizationForm = () => {
-  const organization = useAppSelector(selectedOrganization);  
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const theme = useTheme();
+  const organization = useAppSelector(selectedOrganization);
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const { authState } = useOktaAuth();
- 
+
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
   const history = useHistory();
   const location: any = useLocation();
-  const [orgDomain, setOrgDomain] = useState("");
+  const [orgDomain, setOrgDomain] = useState('');
   const [orgCodeInvalid, setOrgCodeInvalid] = useState(false);
   const [orgNameInvalid, setOrgNameInvalid] = useState(false);
   const [orgDescriptionInvalid, setOrgDescriptionInvalid] = useState(false);
@@ -82,8 +93,9 @@ export const OrganizationForm = () => {
     organizationSelector.selectById(state, selected)
   );
   const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState("");
-  const [snackBarMsg, setSnackBarMsg] = useState("");
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
+  const [errorReason, setErrorReason] = useState('');
   const selectedOrgStats = useAppSelector(organizationStats);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const orgFormModified = useAppSelector(getOrgFormModified);
@@ -92,12 +104,12 @@ export const OrganizationForm = () => {
   const [orgDomainDialogOpen, setOrgDomainDialogOpen] = useState(false);
   const [orgDomainList, setOrgDomainList] = useState<string[]>([]);
 
-  const isAddOrganization = location.state?.from === "addOrganization";
+  const isAddOrganization = location.state?.from === 'addOrganization';
   const isEditOrganization =
-    location.state?.from === "editOrganization" ||
-    location.state?.from === "siteForm";
+    location.state?.from === 'editOrganization' ||
+    location.state?.from === 'siteForm';
 
-  const isEditOrganizationRedirect = location.state?.from === "siteFormEdit";
+  const isEditOrganizationRedirect = location.state?.from === 'siteFormEdit';
 
   useEffect(() => {
     if (isEditOrganization) {
@@ -107,7 +119,7 @@ export const OrganizationForm = () => {
     }
   }, [organization?.orgDomains]);
 
-  const retrieveData = window.localStorage.getItem("orgData");
+  const retrieveData = window.localStorage.getItem('orgData');
   const orgData = JSON.parse(retrieveData as any);
   const getOrganization = useAppSelector((state: any) =>
     selectOrgByOrgCode(state, orgData?.orgCode)
@@ -115,7 +127,7 @@ export const OrganizationForm = () => {
 
   useEffect(() => {
     if (
-      location.state?.from === "siteFormEdit" &&
+      location.state?.from === 'siteFormEdit' &&
       getOrganization !== undefined
     ) {
       dispatch(setOrganization(getOrganization));
@@ -127,39 +139,70 @@ export const OrganizationForm = () => {
   useEffect(() => {
     if (isAddOrganization) {
       dispatch(resetOrganization());
-      dispatch(getAllOrganizationsDomains({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
-      setOrgDomain("");
+      dispatch(
+        getAllOrganizationsDomains({
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      );
+      setOrgDomain('');
     }
   }, []);
 
   useEffect(() => {
-    dispatch(fetchUsers({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
+    dispatch(
+      fetchUsers({
+        url: platformBaseUrl,
+        token: authState?.accessToken?.accessToken,
+      })
+    );
   }, []);
 
   useEffect(() => {
     const storedOrgData = JSON.parse(
-      window.localStorage.getItem("orgData") as any
+      window.localStorage.getItem('orgData') as any
     );
     if (isEditOrganization || isEditOrganizationRedirect) {
       dispatch(
         getOrganizationStatsAsync({
-            orgCode: selectOrgByID?.orgCode
-              ? selectOrgByID?.orgCode
-              : storedOrgData?.orgCode,
-            url: platformBaseUrl, token: authState?.accessToken?.accessToken
-          }
-        )
+          orgCode: selectOrgByID?.orgCode
+            ? selectOrgByID?.orgCode
+            : storedOrgData?.orgCode,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
       );
-      dispatch(getAllOrganizationsDomains({url: platformBaseUrl, token: authState?.accessToken?.accessToken}));
+      dispatch(
+        getAllOrganizationsDomains({
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      );
+      dispatch(
+        getSites({
+          orgCode: selectOrgByID?.orgCode
+            ? selectOrgByID?.orgCode
+            : storedOrgData?.orgCode,
+          url: platformBaseUrl,
+          token: authState?.accessToken?.accessToken,
+        })
+      )
+        .unwrap()
+        .then((reason: any) => {
+          setSnackbar(true);
+          setSnackBarType('failure');
+          setErrorReason(reason.message);
+          setSnackBarMsg('getSitesFailure');
+        });
     }
   }, []);
 
   const validOrgCode =
-    organization.orgCode === null || organization.orgCode === "" ? false : true;
+    organization.orgCode === null || organization.orgCode === '' ? false : true;
   const validOrgName =
-    organization.name === null || organization.name === "" ? false : true;
+    organization.name === null || organization.name === '' ? false : true;
   const validDescription =
-    organization.description === null || organization.description === ""
+    organization.description === null || organization.description === ''
       ? false
       : true;
   const validEmail = organization?.officeEmail
@@ -171,25 +214,25 @@ export const OrganizationForm = () => {
     : false;
   const validDomain = orgDomainList.length > 0 ? true : false;
   const validPhone =
-    organization.officePhone === null || organization.officePhone === ""
+    organization.officePhone === null || organization.officePhone === ''
       ? false
       : true;
   const validStreet =
-    organization.address["street"] === null ||
-    organization.address["street"] === ""
+    organization.address['street'] === null ||
+    organization.address['street'] === ''
       ? false
       : true;
   const validCity =
-    organization.address["city"] === null || organization.address["city"] === ""
+    organization.address['city'] === null || organization.address['city'] === ''
       ? false
       : true;
   const validState =
-    organization.address["state"] === null ||
-    organization.address["state"] === ""
+    organization.address['state'] === null ||
+    organization.address['state'] === ''
       ? false
       : true;
   const validZipCode =
-    organization.address["zip"] === null || organization.address["zip"] === ""
+    organization.address['zip'] === null || organization.address['zip'] === ''
       ? false
       : true;
 
@@ -255,29 +298,29 @@ export const OrganizationForm = () => {
   /* Code to provide popup on reload of Add/edit org page */
   window.onbeforeunload = function () {
     if (isAddOrganization || isEditOrganization || isEditOrganizationRedirect) {
-      return "Do you want to reload the page?";
+      return 'Do you want to reload the page?';
     }
     return null;
   };
 
-  window.history.replaceState({ from: "userForm" }, document.title);
+  window.history.replaceState({ from: 'userForm' }, document.title);
 
   useEffect(() => {
     if (
       location.state === undefined &&
-      location.pathname.includes("editOrganization")
+      location.pathname.includes('editOrganization')
     ) {
-      history.replace("/", {
-        from: "editOrganization",
-        task: "navigateToDashboard",
+      history.replace('/', {
+        from: 'editOrganization',
+        task: 'navigateToDashboard',
       });
     } else if (
       location.state === undefined &&
-      location.pathname.includes("addOrganization")
+      location.pathname.includes('addOrganization')
     ) {
-      history.replace("/", {
-        from: "addOrganization",
-        task: "navigateToDashboard",
+      history.replace('/', {
+        from: 'addOrganization',
+        task: 'navigateToDashboard',
       });
     }
   }, [location.state, location.pathname, history]);
@@ -288,7 +331,7 @@ export const OrganizationForm = () => {
   };
 
   const closeOrganizationForm = () => {
-    orgFormModified ? setDialogBoxOpen(true) : history.push("/");
+    orgFormModified ? setDialogBoxOpen(true) : history.push('/');
   };
 
   const handleOfficeEmailChange = (key: string, event: any) => {
@@ -414,84 +457,84 @@ export const OrganizationForm = () => {
             .then(
               () => {
                 setSnackbar(true);
-                setSnackBarMsg("addOrganizationSuccess");
-                setSnackBarType("success");
+                setSnackBarMsg('addOrganizationSuccess');
+                setSnackBarType('success');
                 setTimeout(() => {
-                  history.push("/");
+                  history.push('/');
                 }, 1000);
               },
               () => {
                 setSnackbar(true);
-                setSnackBarMsg("addOrganizationFailure");
-                setSnackBarType("failure");
+                setSnackBarMsg('addOrganizationFailure');
+                setSnackBarType('failure');
               }
             );
         } else {
           event.preventDefault();
           if (
             organization.orgCode === null ||
-            organization.orgCode.trim() === ""
+            organization.orgCode.trim() === ''
           ) {
             setOrgCodeInvalid(true);
-            document.getElementById("orgCode")?.focus();
+            document.getElementById('orgCode')?.focus();
           }
-          if (organization.name === null || organization.name.trim() === "") {
+          if (organization.name === null || organization.name.trim() === '') {
             setOrgNameInvalid(true);
-            document.getElementById("organizationName")?.focus();
+            document.getElementById('organizationName')?.focus();
           }
           if (
             organization.description === null ||
-            organization.description?.trim() === ""
+            organization.description?.trim() === ''
           ) {
             setOrgDescriptionInvalid(true);
-            document.getElementById("description")?.focus();
+            document.getElementById('description')?.focus();
           }
           if (
             organization.officePhone === null ||
-            organization.officePhone?.trim() === ""
+            organization.officePhone?.trim() === ''
           ) {
             setPhoneNumberInValid(true);
-            document.getElementById("officePhone")?.focus();
+            document.getElementById('officePhone')?.focus();
           }
           if (validEmail === false) {
             setEmailInvalid(true);
-            document.getElementById("officeEmail")?.focus();
+            document.getElementById('officeEmail')?.focus();
           }
           if (validDomain !== true) {
             setOrgDomainInvalid(true);
-            document.getElementById("orgDomains")?.focus();
+            document.getElementById('orgDomains')?.focus();
           }
           if (
-            organization.address["street"] === null ||
-            organization.address["street"] === ""
+            organization.address['street'] === null ||
+            organization.address['street'] === ''
           ) {
             setStreetInvalid(true);
-            document.getElementById("street")?.focus();
+            document.getElementById('street')?.focus();
           }
           if (
-            organization.address["city"] === null ||
-            organization.address["city"] === ""
+            organization.address['city'] === null ||
+            organization.address['city'] === ''
           ) {
             setCityInvalid(true);
-            document.getElementById("city")?.focus();
+            document.getElementById('city')?.focus();
           }
           if (
-            organization.address["state"] === null ||
-            organization.address["state"] === ""
+            organization.address['state'] === null ||
+            organization.address['state'] === ''
           ) {
             setStateInvalid(true);
-            document.getElementById("State/Prov")?.focus();
+            document.getElementById('State/Prov')?.focus();
           }
           if (
-            organization.address["zip"] === null ||
-            organization.address["zip"] === ""
+            organization.address['zip'] === null ||
+            organization.address['zip'] === ''
           ) {
             setZipInvalid(true);
-            document.getElementById("Zip/Postal")?.focus();
+            document.getElementById('Zip/Postal')?.focus();
           }
         }
       } catch (err) {
-        console.log("Failed to save the Organization", err);
+        console.log('Failed to save the Organization', err);
       }
     }
     if (isEditOrganization || isEditOrganizationRedirect) {
@@ -539,566 +582,566 @@ export const OrganizationForm = () => {
           validState &&
           validZipCode
         ) {
-          dispatch(updateOrganizationAsync({organization: updatedOrganization, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+          dispatch(
+            updateOrganizationAsync({
+              organization: updatedOrganization,
+              url: platformBaseUrl,
+              token: authState?.accessToken?.accessToken,
+            })
+          )
             .unwrap()
             .then(
               () => {
                 setSnackbar(true);
-                setSnackBarMsg("editOrganizationSuccess");
-                setSnackBarType("success");
+                setSnackBarMsg('editOrganizationSuccess');
+                setSnackBarType('success');
                 setTimeout(() => {
-                  history.push("/");
+                  history.push('/');
                 }, 1000);
               },
               () => {
                 setSnackbar(true);
-                setSnackBarMsg("editOrganizationFailure");
-                setSnackBarType("failure");
+                setSnackBarMsg('editOrganizationFailure');
+                setSnackBarType('failure');
               }
             );
         } else {
           event.preventDefault();
           if (
             organization.orgCode === null ||
-            organization.orgCode.trim() === ""
+            organization.orgCode.trim() === ''
           ) {
             setOrgCodeInvalid(true);
-            document.getElementById("orgCode")?.focus();
+            document.getElementById('orgCode')?.focus();
           }
-          if (organization.name === null || organization.name.trim() === "") {
+          if (organization.name === null || organization.name.trim() === '') {
             setOrgNameInvalid(true);
-            document.getElementById("organizationName")?.focus();
+            document.getElementById('organizationName')?.focus();
           }
           if (
             organization.description === null ||
-            organization.description?.trim() === ""
+            organization.description?.trim() === ''
           ) {
             setOrgDescriptionInvalid(true);
-            document.getElementById("description")?.focus();
+            document.getElementById('description')?.focus();
           }
           if (
             organization.officePhone === null ||
-            organization.officePhone?.trim() === ""
+            organization.officePhone?.trim() === ''
           ) {
             setPhoneNumberInValid(true);
-            document.getElementById("officePhone")?.focus();
+            document.getElementById('officePhone')?.focus();
           }
           if (validEmail === false) {
             setEmailInvalid(true);
-            document.getElementById("officeEmail")?.focus();
+            document.getElementById('officeEmail')?.focus();
           }
           if (validDomain !== true) {
             setOrgDomainInvalid(true);
-            document.getElementById("orgDomains")?.focus();
+            document.getElementById('orgDomains')?.focus();
           }
           if (
-            organization.address["street"] === null ||
-            organization.address["street"] === ""
+            organization.address['street'] === null ||
+            organization.address['street'] === ''
           ) {
             setStreetInvalid(true);
-            document.getElementById("street")?.focus();
+            document.getElementById('street')?.focus();
           }
           if (
-            organization.address["city"] === null ||
-            organization.address["city"] === ""
+            organization.address['city'] === null ||
+            organization.address['city'] === ''
           ) {
             setCityInvalid(true);
-            document.getElementById("city")?.focus();
+            document.getElementById('city')?.focus();
           }
           if (
-            organization.address["state"] === null ||
-            organization.address["state"] === ""
+            organization.address['state'] === null ||
+            organization.address['state'] === ''
           ) {
             setStateInvalid(true);
-            document.getElementById("State/Prov")?.focus();
+            document.getElementById('State/Prov')?.focus();
           }
           if (
-            organization.address["zip"] === null ||
-            organization.address["zip"] === ""
+            organization.address['zip'] === null ||
+            organization.address['zip'] === ''
           ) {
             setZipInvalid(true);
-            document.getElementById("Zip/Postal")?.focus();
+            document.getElementById('Zip/Postal')?.focus();
           }
         }
       } catch (err) {
-        console.log("Failed to save the organization", err);
+        console.log('Failed to save the organization', err);
       }
     }
   };
 
   const addNewSite = () => {
-    history.push("/organization/editOrg/addSite", {
-      title: "Add Site",
-      task: "addSite",
-      from: "organizationForm",
+    history.push('/organization/editOrg/addSite', {
+      title: 'Add Site',
+      task: 'addSite',
+      from: 'organizationForm',
       orgCode: organization.orgCode,
-      orgName: organization["name"],
+      orgName: organization['name'],
     });
     dispatch(resetSite());
   };
 
   return (
     <Grid container spacing={1}>
-        <CustomCss />
-        {
-          <UnsavedData
-            open={dialogBoxOpen}
-            handleLeave={handleDialogBox}
-            location="organization"
-          />
-        }
-        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
-        {
-          <OrgDomainModal
-            open={orgDomainDialogOpen}
-            handleDialog={handleOrgDomainDialog}
-            orgDomains={orgDomainList}
-            addOrgDomain={onOrgDomainAdd}
-            deleteOrgDomain={onOrgDomainDelete}
-            allOrganizationDomain={allOrganizationDomains}
-            usedDomains={usedDomains}
-          />
-        }
-        <Grid xs={12} item>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingX: theme.spacing(3),
-              paddingY: theme.spacing(2),
+      <CustomCss />
+      {
+        <UnsavedData
+          open={dialogBoxOpen}
+          handleLeave={handleDialogBox}
+          location="organization"
+        />
+      }
+      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      {
+        <OrgDomainModal
+          open={orgDomainDialogOpen}
+          handleDialog={handleOrgDomainDialog}
+          orgDomains={orgDomainList}
+          addOrgDomain={onOrgDomainAdd}
+          deleteOrgDomain={onOrgDomainDelete}
+          allOrganizationDomain={allOrganizationDomains}
+          usedDomains={usedDomains}
+        />
+      }
+      <Grid xs={12} item>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingX: theme.spacing(3),
+            paddingY: theme.spacing(2),
+          }}
+        >
+          {isAddOrganization ? (
+            <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
+              ADD NEW ORGANIZATIONS
+            </Typography>
+          ) : (
+            <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
+              Dashboard / {organization['name']?.toUpperCase()} /
+              <Typography component={'span'} fontWeight="bold">
+                EDIT ORG
+              </Typography>
+            </Typography>
+          )}
+          <Box>
+            {!isAddOrganization && (
+              <Button
+                variant="contained"
+                sx={{ marginRight: theme.spacing(2) }}
+                onClick={addNewSite}
+              >
+                Add New Site
+              </Button>
+            )}
+            <IconButton
+              sx={{ color: '#000000' }}
+              onClick={closeOrganizationForm}
+            >
+              <CloseIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Grid container paddingX={3}>
+          <Card
+            style={{
+              paddingLeft: '30px',
+              paddingRight: '30px',
+              paddingTop: '30px',
+              paddingBottom: '74px',
             }}
           >
-            {isAddOrganization ? (
+            <Grid item xs={12}>
               <Typography
-                variant="subtitle1"
-                color={theme.breadcrumLink.primary}
+                sx={{ paddingBottom: theme.spacing(2.5) }}
+                fontSize={theme.typography.h3.fontSize}
+                fontWeight="bold"
+                color="#000000"
               >
-                ADD NEW ORGANIZATIONS
+                {isAddOrganization
+                  ? 'New Organization Details'
+                  : 'Edit Organization Details'}
               </Typography>
-            ) : (
-              <Typography
-                variant="subtitle1"
-                color={theme.breadcrumLink.primary}
-              >
-                Dashboard / {organization["name"]?.toUpperCase()} /
-                <Typography component={"span"} fontWeight="bold">
-                  EDIT ORG
-                </Typography>
-              </Typography>
-            )}
-            <Box>
-              {!isAddOrganization && (
-                <Button
-                  variant="contained"
-                  sx={{ marginRight: theme.spacing(2) }}
-                  onClick={addNewSite}
+            </Grid>
+            {(isEditOrganization || isEditOrganizationRedirect) && (
+              <Grid item xs={12} sx={{ paddingBottom: theme.spacing(3) }}>
+                <Stack
+                  direction="row"
+                  sx={{ alignItems: 'center' }}
+                  spacing={2.5}
                 >
-                  Add New Site
-                </Button>
-              )}
-              <IconButton
-                sx={{ color: "#000000" }}
-                onClick={closeOrganizationForm}
-              >
-                <CloseIcon fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container paddingX={3}>
-            <Card
-              style={{
-                paddingLeft: "30px",
-                paddingRight: "30px",
-                paddingTop: "30px",
-                paddingBottom: "74px",
-              }}
-            >
-              <Grid item xs={12}>
+                  <Typography
+                    sx={{
+                      fontSize: theme.typography.h3.fontSize,
+                      fontWeight: 'bold',
+                      color: '#333333',
+                    }}
+                  >
+                    {organization['name']?.toUpperCase()}
+                  </Typography>
+                  <Box>
+                    <Box
+                      component={'img'}
+                      src={locationIcon}
+                      alt="location"
+                      sx={{ mr: 1 }}
+                      color="#808184"
+                    />
+                    <Typography component={'span'} variant="body2">
+                      {`${organization['address']?.street}, ${organization['address']?.city}`}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Grid container spacing={2}>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Organization Code"
+                    id="orgCode"
+                    value={organization['orgCode']}
+                    formWidth="90%"
+                    fieldName="orgCode"
+                    orgChangeHandler={handleOrgCodeChange}
+                    error={orgCodeInvalid}
+                    required={true}
+                    helperText={
+                      orgCodeInvalid ? 'Organization Code is Required' : ''
+                    }
+                    focusHandler={onOrgCodeFocused}
+                    disabled={isEditOrganization ? true : false}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Organization Name"
+                    id="organizationName"
+                    value={organization['name']}
+                    formWidth="90%"
+                    fieldName="name"
+                    orgChangeHandler={handleOrgNameChange}
+                    error={orgNameInvalid}
+                    required={true}
+                    helperText={
+                      orgNameInvalid ? 'Organization Name is Required' : ''
+                    }
+                    focusHandler={onOrgNameFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Description"
+                    id="description"
+                    value={organization['description']}
+                    formWidth="90%"
+                    fieldName="description"
+                    orgChangeHandler={handleOrgDescriptionChange}
+                    error={orgDescriptionInvalid}
+                    required={true}
+                    helperText={
+                      orgDescriptionInvalid
+                        ? 'Organization Description is Required'
+                        : ''
+                    }
+                    focusHandler={onOrgDescriptionFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <Autocomplete
+                    multiple
+                    id="OrgDomains"
+                    options={orgDomainList}
+                    limitTags={1}
+                    value={[...orgDomainList]}
+                    size="small"
+                    sx={{ width: '93%' }}
+                    readOnly
+                    freeSolo
+                    renderInput={(params) => (
+                      <Box sx={{ display: 'flex' }}>
+                        <InputTextWithLabel
+                          params={{ ...params }}
+                          fieldName={'orgDomain'}
+                          label="Org Domains"
+                          formWidth="90%"
+                          required={true}
+                          error={
+                            orgDomainInvalid && orgDomainList.length <= 0
+                              ? true
+                              : false
+                          }
+                          helperText={
+                            orgDomainInvalid && orgDomainList.length <= 0
+                              ? 'Atleast one domain required'
+                              : ''
+                          }
+                        />
+                        <Button
+                          size="small"
+                          onClick={() => handleOrgDomainDialog(true)}
+                          sx={{ height: '45px', marginTop: '20px' }}
+                        >
+                          {isAddOrganization ? 'Add' : 'Edit'}
+                        </Button>
+                      </Box>
+                    )}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Office Email"
+                    id="officeEmail"
+                    value={
+                      organization['officeEmail'] === null
+                        ? ''
+                        : organization['officeEmail']
+                    }
+                    formWidth="90%"
+                    fieldName="officeEmail"
+                    orgChangeHandler={handleOfficeEmailChange}
+                    required={true}
+                    error={emailInvalid}
+                    helperText={
+                      emailInvalid && organization.officeEmail === ''
+                        ? 'Email is Required'
+                        : emailInvalid
+                        ? 'Invalid Email'
+                        : ''
+                    }
+                    focusHandler={onEmailFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <PhoneInput
+                    style={{ alignItems: 'normal' }}
+                    defaultCountry="US"
+                    id="officePhone"
+                    value={organization.officePhone}
+                    onChange={(value: any) => {
+                      if (value) {
+                        const isValid = isPossiblePhoneNumber(value);
+                        isValid
+                          ? setPhoneNumberInValid(false)
+                          : setPhoneNumberInValid(true);
+                      }
+                      if (value === undefined) {
+                        dispatch(
+                          updateField({
+                            key: 'officePhone',
+                            value: '',
+                            id: selected,
+                          })
+                        );
+                      } else {
+                        dispatch(
+                          updateField({
+                            key: 'officePhone',
+                            value: value,
+                            id: selected,
+                          })
+                        );
+                        dispatch(setOrgFormModified(true));
+                      }
+                    }}
+                    onFocus={() => {
+                      const isValid = isPossiblePhoneNumber(
+                        organization.officePhone
+                      );
+                      isValid
+                        ? setPhoneNumberInValid(false)
+                        : setPhoneNumberInValid(true);
+                    }}
+                    inputComponent={CustomPhoneNumber}
+                    flags={flags}
+                    rules={{
+                      validate: (phone: any) => handleValidate(phone),
+                    }}
+                    inputProps={{
+                      error: phoneNumberInValid.toString(),
+                      label:
+                        organization?.officePhone === '' ||
+                        organization?.officePhone === null
+                          ? 'Phone Number is Required '
+                          : 'Enter valid phone number',
+                      width: '81.5%',
+                      name: 'Phone',
+                      required: true,
+                    }}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Street"
+                    id="street"
+                    value={organization['address']?.street}
+                    formWidth="90%"
+                    fieldName="street"
+                    orgChangeHandler={handleChangeStreet}
+                    error={streetInvalid}
+                    required={true}
+                    helperText={streetInvalid ? 'Street is Required' : ''}
+                    focusHandler={onStreetFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="City"
+                    id="city"
+                    value={organization['address']?.city}
+                    formWidth="90%"
+                    fieldName="city"
+                    orgChangeHandler={handleChangeCity}
+                    error={cityInvalid}
+                    required={true}
+                    helperText={cityInvalid ? 'City is Required' : ''}
+                    focusHandler={onCityFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="State/Prov"
+                    id="State/Prov"
+                    value={
+                      organization['address']?.state === null
+                        ? ''
+                        : organization['address']?.state
+                    }
+                    formWidth="90%"
+                    fieldName="state"
+                    orgChangeHandler={handleChangeState}
+                    error={stateInvalid}
+                    required={true}
+                    helperText={stateInvalid ? 'State is Required' : ''}
+                    focusHandler={onStateFocused}
+                  />
+                </Grid>
+                <Grid xs={3} item>
+                  <InputTextWithLabel
+                    label="Zip/Postal"
+                    id="Zip/Postal"
+                    value={organization['address']?.zip}
+                    formWidth="90%"
+                    fieldName="zip"
+                    orgChangeHandler={handleChangeZip}
+                    error={zipInvalid}
+                    required={true}
+                    helperText={zipInvalid ? 'Zip is Required' : ''}
+                    focusHandler={onZipFocused}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            {(isEditOrganization || isEditOrganizationRedirect) && (
+              <Grid xs={12} item>
                 <Typography
-                  sx={{ paddingBottom: theme.spacing(2.5) }}
+                  sx={{ paddingY: theme.spacing(3.7) }}
                   fontSize={theme.typography.h3.fontSize}
                   fontWeight="bold"
                   color="#000000"
                 >
-                  {isAddOrganization
-                    ? "New Organization Details"
-                    : "Edit Organization Details"}
+                  Organization Details
                 </Typography>
               </Grid>
-              {(isEditOrganization || isEditOrganizationRedirect) && (
-                <Grid item xs={12} sx={{ paddingBottom: theme.spacing(3) }}>
-                  <Stack
-                    direction="row"
-                    sx={{ alignItems: "center" }}
-                    spacing={2.5}
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: theme.typography.h3.fontSize,
-                        fontWeight: "bold",
-                        color: "#333333",
-                      }}
-                    >
-                      {organization["name"]?.toUpperCase()}
-                    </Typography>
-                    <Box>
-                      <Box
-                        component={"img"}
-                        src={locationIcon}
-                        alt="location"
-                        sx={{ mr: 1 }}
-                        color="#808184"
-                      />
-                      <Typography component={"span"} variant="body2">
-                        {`${organization["address"]?.street}, ${organization["address"]?.city}`}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Grid>
-              )}
-              <Grid item xs={12}>
+            )}
+            {(isEditOrganization || isEditOrganizationRedirect) && (
+              <Grid xs={12} item sx={{ paddingBottom: theme.spacing(3.7) }}>
                 <Grid container spacing={2}>
                   <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Organization Code"
-                      id="orgCode"
-                      value={organization["orgCode"]}
-                      formWidth="90%"
-                      fieldName="orgCode"
-                      orgChangeHandler={handleOrgCodeChange}
-                      error={orgCodeInvalid}
-                      required={true}
-                      helperText={
-                        orgCodeInvalid ? "Organization Code is Required" : ""
-                      }
-                      focusHandler={onOrgCodeFocused}
-                      disabled={isEditOrganization ? true : false}
+                    <InfoCard
+                      image={sites}
+                      title="Sites"
+                      count={selectedOrgStats?.sites}
+                      editSites={true}
+                      orgCode={organization.orgCode}
+                      orgName={organization.name}
                     />
                   </Grid>
                   <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Organization Name"
-                      id="organizationName"
-                      value={organization["name"]}
-                      formWidth="90%"
-                      fieldName="name"
-                      orgChangeHandler={handleOrgNameChange}
-                      error={orgNameInvalid}
-                      required={true}
-                      helperText={
-                        orgNameInvalid ? "Organization Name is Required" : ""
-                      }
-                      focusHandler={onOrgNameFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Description"
-                      id="description"
-                      value={organization["description"]}
-                      formWidth="90%"
-                      fieldName="description"
-                      orgChangeHandler={handleOrgDescriptionChange}
-                      error={orgDescriptionInvalid}
-                      required={true}
-                      helperText={
-                        orgDescriptionInvalid
-                          ? "Organization Description is Required"
-                          : ""
-                      }
-                      focusHandler={onOrgDescriptionFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <Autocomplete
-                      multiple
-                      id="OrgDomains"
-                      options={orgDomainList}
-                      limitTags={1}
-                      value={[...orgDomainList]}
-                      size="small"
-                      sx={{ width: "93%" }}
-                      readOnly
-                      freeSolo
-                      renderInput={(params) => (
-                        <Box sx={{ display: "flex" }}>
-                          <InputTextWithLabel
-                            params={{ ...params }}
-                            fieldName={"orgDomain"}
-                            label="Org Domains"
-                            formWidth="90%"
-                            required={true}
-                            error={
-                              orgDomainInvalid && orgDomainList.length <= 0
-                                ? true
-                                : false
-                            }
-                            helperText={
-                              orgDomainInvalid && orgDomainList.length <= 0
-                                ? "Atleast one domain required"
-                                : ""
-                            }
-                          />
-                          <Button
-                            size="small"
-                            onClick={() => handleOrgDomainDialog(true)}
-                            sx={{ height: "45px", marginTop: "20px" }}
-                          >
-                            {isAddOrganization ? "Add" : "Edit"}
-                          </Button>
-                        </Box>
-                      )}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Office Email"
-                      id="officeEmail"
-                      value={
-                        organization["officeEmail"] === null
-                          ? ""
-                          : organization["officeEmail"]
-                      }
-                      formWidth="90%"
-                      fieldName="officeEmail"
-                      orgChangeHandler={handleOfficeEmailChange}
-                      required={true}
-                      error={emailInvalid}
-                      helperText={
-                        emailInvalid && organization.officeEmail === ""
-                          ? "Email is Required"
-                          : emailInvalid
-                          ? "Invalid Email"
-                          : ""
-                      }
-                      focusHandler={onEmailFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <PhoneInput
-                      style={{ alignItems: "normal" }}
-                      defaultCountry="US"
-                      id="officePhone"
-                      value={organization.officePhone}
-                      onChange={(value: any) => {
-                        if (value) {
-                          const isValid = isPossiblePhoneNumber(value);
-                          isValid
-                            ? setPhoneNumberInValid(false)
-                            : setPhoneNumberInValid(true);
-                        }
-                        if (value === undefined) {
-                          dispatch(
-                            updateField({
-                              key: "officePhone",
-                              value: "",
-                              id: selected,
-                            })
-                          );
-                        } else {
-                          dispatch(
-                            updateField({
-                              key: "officePhone",
-                              value: value,
-                              id: selected,
-                            })
-                          );
-                          dispatch(setOrgFormModified(true));
-                        }
-                      }}
-                      onFocus={() => {
-                        const isValid = isPossiblePhoneNumber(
-                          organization.officePhone
-                        );
-                        isValid
-                          ? setPhoneNumberInValid(false)
-                          : setPhoneNumberInValid(true);
-                      }}
-                      inputComponent={CustomPhoneNumber}
-                      flags={flags}
-                      rules={{
-                        validate: (phone: any) => handleValidate(phone),
-                      }}
-                      inputProps={{
-                        error: phoneNumberInValid.toString(),
-                        label:
-                          organization?.officePhone === "" ||
-                          organization?.officePhone === null
-                            ? "Phone Number is Required "
-                            : "Enter valid phone number",
-                        width: "81.5%",
-                        name: "Phone",
-                        required: true,
-                      }}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Street"
-                      id="street"
-                      value={organization["address"]?.street}
-                      formWidth="90%"
-                      fieldName="street"
-                      orgChangeHandler={handleChangeStreet}
-                      error={streetInvalid}
-                      required={true}
-                      helperText={streetInvalid ? "Street is Required" : ""}
-                      focusHandler={onStreetFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="City"
-                      id="city"
-                      value={organization["address"]?.city}
-                      formWidth="90%"
-                      fieldName="city"
-                      orgChangeHandler={handleChangeCity}
-                      error={cityInvalid}
-                      required={true}
-                      helperText={cityInvalid ? "City is Required" : ""}
-                      focusHandler={onCityFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="State/Prov"
-                      id="State/Prov"
-                      value={
-                        organization["address"]?.state === null
-                          ? ""
-                          : organization["address"]?.state
-                      }
-                      formWidth="90%"
-                      fieldName="state"
-                      orgChangeHandler={handleChangeState}
-                      error={stateInvalid}
-                      required={true}
-                      helperText={stateInvalid ? "State is Required" : ""}
-                      focusHandler={onStateFocused}
-                    />
-                  </Grid>
-                  <Grid xs={3} item>
-                    <InputTextWithLabel
-                      label="Zip/Postal"
-                      id="Zip/Postal"
-                      value={organization["address"]?.zip}
-                      formWidth="90%"
-                      fieldName="zip"
-                      orgChangeHandler={handleChangeZip}
-                      error={zipInvalid}
-                      required={true}
-                      helperText={zipInvalid ? "Zip is Required" : ""}
-                      focusHandler={onZipFocused}
+                    <InfoCard
+                      image={users}
+                      title="Users"
+                      count={selectedOrgStats?.users}
                     />
                   </Grid>
                 </Grid>
               </Grid>
-              {(isEditOrganization || isEditOrganizationRedirect) && (
-                <Grid xs={12} item>
-                  <Typography
-                    sx={{ paddingY: theme.spacing(3.7) }}
-                    fontSize={theme.typography.h3.fontSize}
-                    fontWeight="bold"
-                    color="#000000"
-                  >
-                    Organization Details
-                  </Typography>
-                </Grid>
-              )}
-              {(isEditOrganization || isEditOrganizationRedirect) && (
-                <Grid xs={12} item sx={{ paddingBottom: theme.spacing(3.7) }}>
-                  <Grid container spacing={2}>
-                    <Grid xs={3} item>
-                      <InfoCard
-                        image={sites}
-                        title="Sites"
-                        count={selectedOrgStats?.sites}
-                        editSites={true}
-                        orgCode={organization.orgCode}
-                        orgName={organization.name}
-                      />
-                    </Grid>
-                    <Grid xs={3} item>
-                      <InfoCard
-                        image={users}
-                        title="Users"
-                        count={selectedOrgStats?.users}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              )}
-            </Card>
-          </Grid>
-        </Grid>
-        <Grid xs={12} item my={2}>
-          <Box
-            sx={{
-              alignItems: "flex-end",
-              display: "flex",
-              justifyContent: isAddOrganization ? "end" : "space-between",
-              paddingX: theme.spacing(3),
-            }}
-          >
-            {(isEditOrganization || isEditOrganizationRedirect) && (
-              <Box>
-                <ActivateDeactivateOrg
-                  orgDomain={orgDomain}
-                  setSnackbar={handleSnackbar}
-                  setSnackBarType={handleSnackbarType}
-                  setSnackBarMsg={handleSnackbarMsg}
-                />
-              </Box>
             )}
-            <Box>
-              <Button
-                variant="outlined"
-                onClick={closeOrganizationForm}
-                sx={{
-                  fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: "bold",
-                  paddingX: theme.spacing(6),
-                  paddingY: theme.spacing(1.1),
-                  marginRight: theme.spacing(3),
-                }}
-              >
-                BACK
-              </Button>
-              {isAddOrganization ? (
-                <Button
-                  onClick={handleSubmit}
-                  variant="outlined"
-                  sx={{
-                    fontSize: theme.typography.subtitle1.fontSize,
-                    fontWeight: "bold",
-                    paddingX: theme.spacing(4),
-                    paddingY: theme.spacing(1.1),
-                  }}
-                >
-                  ADD ORGANIZATION
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  onClick={handleSubmit}
-                  disabled={!orgFormModified}
-                  sx={{
-                    fontSize: theme.typography.subtitle1.fontSize,
-                    fontWeight: "bold",
-                    paddingX: theme.spacing(4),
-                    paddingY: theme.spacing(1.1),
-                  }}
-                >
-                  UPDATE ORGANIZATION
-                </Button>
-              )}
-            </Box>
-          </Box>
+          </Card>
         </Grid>
       </Grid>
+      <Grid xs={12} item my={2}>
+        <Box
+          sx={{
+            alignItems: 'flex-end',
+            display: 'flex',
+            justifyContent: isAddOrganization ? 'end' : 'space-between',
+            paddingX: theme.spacing(3),
+          }}
+        >
+          {(isEditOrganization || isEditOrganizationRedirect) && (
+            <Box>
+              <ActivateDeactivateOrg
+                orgDomain={orgDomain}
+                setSnackbar={handleSnackbar}
+                setSnackBarType={handleSnackbarType}
+                setSnackBarMsg={handleSnackbarMsg}
+              />
+            </Box>
+          )}
+          <Box>
+            <Button
+              variant="outlined"
+              onClick={closeOrganizationForm}
+              sx={{
+                fontSize: theme.typography.subtitle1.fontSize,
+                fontWeight: 'bold',
+                paddingX: theme.spacing(6),
+                paddingY: theme.spacing(1.1),
+                marginRight: theme.spacing(3),
+              }}
+            >
+              BACK
+            </Button>
+            {isAddOrganization ? (
+              <Button
+                onClick={handleSubmit}
+                variant="outlined"
+                sx={{
+                  fontSize: theme.typography.subtitle1.fontSize,
+                  fontWeight: 'bold',
+                  paddingX: theme.spacing(4),
+                  paddingY: theme.spacing(1.1),
+                }}
+              >
+                ADD ORGANIZATION
+              </Button>
+            ) : (
+              <Button
+                variant="outlined"
+                onClick={handleSubmit}
+                disabled={!orgFormModified}
+                sx={{
+                  fontSize: theme.typography.subtitle1.fontSize,
+                  fontWeight: 'bold',
+                  paddingX: theme.spacing(4),
+                  paddingY: theme.spacing(1.1),
+                }}
+              >
+                UPDATE ORGANIZATION
+              </Button>
+            )}
+          </Box>
+        </Box>
+      </Grid>
+    </Grid>
   );
 };

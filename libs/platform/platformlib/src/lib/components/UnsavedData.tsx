@@ -1,4 +1,4 @@
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   DialogActions,
   DialogContent,
@@ -6,10 +6,15 @@ import {
   Dialog,
   Box,
   Typography,
-} from "@mui/material";
-import theme from "../themes";
-import warningImg from "../images/warning.png";
-import { setOrgFormModified, setSiteFormModified, setUserFormModified, platformStore } from '@cloudcore/redux-store';
+} from '@mui/material';
+import { useTheme } from '@mui/material';
+import warningImg from '../images/warning.png';
+import {
+  setOrgFormModified,
+  setSiteFormModified,
+  setUserFormModified,
+  platformStore,
+} from '@cloudcore/redux-store';
 
 interface Props {
   open: boolean;
@@ -18,10 +23,11 @@ interface Props {
 }
 
 export const UnsavedData = (props: Props) => {
+  const theme = useTheme();
   const { useAppDispatch } = platformStore;
   const history = useHistory();
-  const location : any = useLocation();
-  const dispatch = useAppDispatch()
+  const location: any = useLocation();
+  const dispatch = useAppDispatch();
 
   const handleStay = () => {
     props.handleLeave(false);
@@ -34,36 +40,34 @@ export const UnsavedData = (props: Props) => {
 
   const handleLeave = () => {
     props.handleLeave(false);
-    if (props.location === "users") {
-      history.push("/user");
+    if (props.location === 'users') {
+      history.push('/user');
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false))
-    } else if (props.location === "dashboard") {
-      history.push("/");
+      dispatch(setUserFormModified(false));
+    } else if (props.location === 'dashboard') {
+      history.push('/');
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false))
-    } else if (props.location === "organization") {
-      history.push("/");
+      dispatch(setUserFormModified(false));
+    } else if (props.location === 'organization') {
+      history.push('/');
       dispatch(setOrgFormModified(false));
-    } else if (props.location === "site") {
-      history.push("/organization/sites", {
-        from: "siteForm",
+    } else if (props.location === 'site') {
+      history.push('/organization/sites', {
+        from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
-    }
-    else if (props.location === "organizationForm") {
-      history.push("/organization/editOrganization", {
-        from: "siteForm",
+    } else if (props.location === 'organizationForm') {
+      history.push('/organization/editOrganization', {
+        from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
-    }
-    else {
+    } else {
       history.goBack();
     }
   };
@@ -72,8 +76,8 @@ export const UnsavedData = (props: Props) => {
     <div>
       <Dialog
         sx={{
-          "& .MuiDialog-paper": {
-            width: "20%",
+          '& .MuiDialog-paper': {
+            width: '20%',
             maxHeight: 435,
             border: `2px solid red`,
             borderTop: `10px solid red`,
@@ -84,33 +88,33 @@ export const UnsavedData = (props: Props) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent sx={{ paddingTop: "40px", paddingX: "0px" }}>
-          <Box alignItems={"center"} display={"flex"} justifyContent={"center"}>
+        <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
+          <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
             <img src={warningImg} alt="warning" />
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="h5"
-              fontWeight={"bold"}
+              fontWeight={'bold'}
               sx={{
-                color: "red",
-                paddingTop: "20px",
-                display: "flex",
-                justifyContent: "center",
+                color: 'red',
+                paddingTop: '20px',
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
-              {"Warning"}
+              {'Warning'}
             </Typography>
           </Box>
           <Box>
             <Typography
-              component={"span"}
+              component={'span'}
               variant="subtitle2"
               color={theme.palette.blackFont.main}
               fontSize={theme.typography.subtitle1.fontSize}
               paddingX="40px"
-              paddingTop={"20px"}
+              paddingTop={'20px'}
               display="flex"
               align="center"
             >
@@ -120,10 +124,10 @@ export const UnsavedData = (props: Props) => {
         </DialogContent>
         <DialogActions
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "40px",
-            paddingX: "0px",
+            display: 'flex',
+            justifyContent: 'center',
+            paddingBottom: '40px',
+            paddingX: '0px',
           }}
         >
           <Button
@@ -137,7 +141,7 @@ export const UnsavedData = (props: Props) => {
             onClick={handleLeave}
             variant="contained"
             color="error"
-            sx={{ color: "white", borderRadius: "5px" }}
+            sx={{ color: 'white', borderRadius: '5px' }}
             autoFocus
           >
             Leave
@@ -147,4 +151,3 @@ export const UnsavedData = (props: Props) => {
     </div>
   );
 };
-

@@ -36,4 +36,4 @@ const requests = {
 
 const GetConfig = () => requests.get("/assets/config.json", {});
 
-export default { GetConfig, requests };
+export  { GetConfig, requests };

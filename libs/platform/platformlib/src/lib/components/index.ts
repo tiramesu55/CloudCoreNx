@@ -1,10 +1,8 @@
 import { Breadcrumb } from './Breadcrumb'
-import { Card } from './Card'
 import { CircularProgressWithLabel } from './CircularProgressWithLabel'
 import { CustomMultiSelectBox } from './CustomMultiSelectBox'
 import { DateInput } from './DateInput'
 import { Header } from './Header'
-import { InfoCard } from './InfoCard'
 import { InputTextWithLabel } from './InputTextWithLabel'
 import { MiniDrawer } from './LeftNavBarNavigation'
 import { NavBar } from './Navbar'
@@ -21,12 +19,10 @@ import { Tooltip } from './tooltip'
 
 export {
     Breadcrumb,
-    Card,
     CircularProgressWithLabel,
     CustomMultiSelectBox,
     DateInput,
     Header,
-    InfoCard,
     InputTextWithLabel,
     MiniDrawer,
     NavBar,

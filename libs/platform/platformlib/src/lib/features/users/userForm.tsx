@@ -1,15 +1,22 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useState, useEffect, useContext } from "react";
-import "react-phone-number-input/style.css";
-import { useHistory, useLocation } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { Grid, Typography, Button, Box, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import theme from "../../themes";
-import { InputTextWithLabel, Card, SelectSites, Snackbar, UnsavedData, PhoneInput as CustomPhoneNumber  } from "../../components";
-import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
-import { DeactivateUser as ActivateOrDeactiveUser } from "./ActivateOrDeactivateUser";
+import { useState, useEffect, useContext } from 'react';
+import 'react-phone-number-input/style.css';
+import { useHistory, useLocation } from 'react-router-dom';
+import { platformStore} from "@cloudcore/redux-store";
+import { Grid, Typography, Button, Box, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useTheme } from '@mui/material';
+import {
+  InputTextWithLabel,
+  SelectSites,
+  Snackbar,
+  UnsavedData,
+  PhoneInput as CustomPhoneNumber,
+} from '../../components';
+import { Card } from '@cloudcore/ui-shared';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
+import flags from 'react-phone-number-input/flags';
+import { DeactivateUser as ActivateOrDeactiveUser } from './ActivateOrDeactivateUser';
 import {
   selectedUserEmail,
   selectUserByIdEntity,
@@ -19,56 +26,59 @@ import {
   addNewUser,
   setUserFormModified,
   getUserFormModified,
-  selectOrganizationByDomain
+  selectOrganizationByDomain,
 } from '@cloudcore/redux-store';
-import { withStyles } from "@mui/styles";
-import { ConfigCtx } from "@cloudcore/okta-and-config";
-import { useOktaAuth } from "@okta/okta-react";
+import { withStyles } from '@mui/styles';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { useOktaAuth } from '@okta/okta-react';
 
 const CustomCss = withStyles(() => ({
-  "@global": {
-    ".PhoneInputCountry": {
-      alignItems: "normal",
-      marginTop: "32px",
+  '@global': {
+    '.PhoneInputCountry': {
+      alignItems: 'normal',
+      marginTop: '32px',
     },
   },
 }))(() => null);
 
+const {useAppDispatch, useAppSelector } = platformStore
+
 export const UserForm = () => {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
-  const {platformBaseUrl} = useContext(ConfigCtx)!;   // at this point config is not null (see app)
- 
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const { oktaAuth, authState } = useOktaAuth();
   const location: any = useLocation();
   const selectedApps = useAppSelector(currentApps);
 
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
 
-  const isAddUser = location.state?.from === "addUser";
-  const isEditUser = location.state?.from === "editUser";
+  const isAddUser = location.state?.from === 'addUser';
+  const isEditUser = location.state?.from === 'editUser';
 
   const headerTitle = location.state?.title;
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [street, setStreet] = useState("");
-  const [city, setCity] = useState("");
-  const [zip, setZip] = useState("");
-  const [phone, setPhone] = useState("");
-  const [title, setTitle] = useState("");
-  const [email, setEmail] = useState("");
-  const [orgCode, setOrgCode] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [zip, setZip] = useState('');
+  const [phone, setPhone] = useState('');
+  const [title, setTitle] = useState('');
+  const [email, setEmail] = useState('');
+  const [orgCode, setOrgCode] = useState('');
   const selectedId: string = useAppSelector(selectedUserEmail);
   const user = useAppSelector(selectUserByIdEntity(selectedId)); //selectUserByIdEntity(selectedId));
   const updatedUserInfo = structuredClone(user);
-  const [addRequestStatus, setAddRequestStatus] = useState("idle");
+  const [addRequestStatus, setAddRequestStatus] = useState('idle');
   const org = useAppSelector((state) =>
     selectOrganizationByDomain(state, selectedId)
   );
   const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState("");
-  const [snackBarMsg, setSnackBarMsg] = useState("");
-  const [phoneLabelColor, setPhoneLabelColor] = useState("#616161");
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
+  const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
   const [firstNameInvalid, setFirstNameInvalid] = useState(false);
   const [lastNameInvalid, setLastNameInvalid] = useState(false);
   const [phoneNumberInValid, setPhoneNumberInValid] = useState(false);
@@ -93,19 +103,19 @@ export const UserForm = () => {
     dispatch(setUserFormModified(true));
   };
   // replace location state to show the reload and redirect page
-  window.history.replaceState({ from: "userForm" }, document.title);
+  window.history.replaceState({ from: 'userForm' }, document.title);
 
   useEffect(() => {
     if (
       location.state === undefined &&
-      location.pathname.includes("editUser")
+      location.pathname.includes('editUser')
     ) {
-      history.push("/user", { from: "editUser", task: "navigateToUser" });
+      history.push('/user', { from: 'editUser', task: 'navigateToUser' });
     } else if (
       location.state === undefined &&
-      location.pathname.includes("addUser")
+      location.pathname.includes('addUser')
     ) {
-      history.push("/user/email", { from: "addUser", task: "navigateToAdd" });
+      history.push('/user/email', { from: 'addUser', task: 'navigateToAdd' });
     }
   }, []);
 
@@ -172,7 +182,7 @@ export const UserForm = () => {
 
   const updateUserClick = () => {
     try {
-      setAddRequestStatus("pending");
+      setAddRequestStatus('pending');
       if (updatedUserInfo) {
         updatedUserInfo.firstName = firstName;
         updatedUserInfo.lastName = lastName;
@@ -186,41 +196,47 @@ export const UserForm = () => {
         updatedUserInfo.modifiedDate = new Date();
       }
       if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(updateUser({user: updatedUserInfo!, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+        dispatch(
+          updateUser({
+            user: updatedUserInfo!,
+            url: platformBaseUrl,
+            token: authState?.accessToken?.accessToken,
+          })
+        )
           .unwrap()
           .then(
             (value) => {
               setSnackbar(true);
-              setSnackBarMsg("editUserSuccess");
-              setSnackBarType("success");
+              setSnackBarMsg('editUserSuccess');
+              setSnackBarType('success');
               setTimeout(() => {
-                history.push("/user");
+                history.push('/user');
               }, 1000);
             },
             (reason) => {
               setSnackbar(true);
-              setSnackBarMsg("editUserFailure");
-              setSnackBarType("failure");
+              setSnackBarMsg('editUserFailure');
+              setSnackBarType('failure');
             }
           );
       } else {
-        if (firstName === "") {
+        if (firstName === '') {
           setFirstNameInvalid(true);
-          document.getElementById("firstName")?.focus();
+          document.getElementById('firstName')?.focus();
         }
-        if (lastName === "") {
+        if (lastName === '') {
           setLastNameInvalid(true);
-          document.getElementById("lastName")?.focus();
+          document.getElementById('lastName')?.focus();
         }
         if (phoneNumberInValid) {
-          document.getElementById("phoneInput")?.focus();
+          document.getElementById('phoneInput')?.focus();
         }
       }
       // dispatch(selectUserID(""));
     } catch (err) {
-      console.error("Failed to save the user", err);
+      console.error('Failed to save the user', err);
     } finally {
-      setAddRequestStatus("idle");
+      setAddRequestStatus('idle');
     }
   };
 
@@ -245,54 +261,60 @@ export const UserForm = () => {
         modifiedDate: new Date(),
       };
       if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(addNewUser({user : newUser, url: platformBaseUrl, token: authState?.accessToken?.accessToken}))
+        dispatch(
+          addNewUser({
+            user: newUser,
+            url: platformBaseUrl,
+            token: authState?.accessToken?.accessToken,
+          })
+        )
           .unwrap()
           .then(
             (value) => {
               setSnackbar(true);
-              setSnackBarMsg("addUserSuccess");
-              setSnackBarType("success");
+              setSnackBarMsg('addUserSuccess');
+              setSnackBarType('success');
               setTimeout(() => {
-                history.push("/user");
+                history.push('/user');
               }, 1000);
             },
             (reason) => {
               setSnackbar(true);
-              setSnackBarMsg("addUserFailure");
-              setSnackBarType("failure");
+              setSnackBarMsg('addUserFailure');
+              setSnackBarType('failure');
             }
           );
       } else {
-        if (firstName === "") {
+        if (firstName === '') {
           setFirstNameInvalid(true);
-          document.getElementById("firstName")?.focus();
+          document.getElementById('firstName')?.focus();
         }
-        if (lastName === "") {
+        if (lastName === '') {
           setLastNameInvalid(true);
-          document.getElementById("lastName")?.focus();
+          document.getElementById('lastName')?.focus();
         }
         if (phoneNumberInValid) {
-          document.getElementById("phoneInput")?.focus();
+          document.getElementById('phoneInput')?.focus();
         }
       }
     } catch (err) {
-      console.error("Failed to save the user", err);
+      console.error('Failed to save the user', err);
     } finally {
-      setAddRequestStatus("idle");
+      setAddRequestStatus('idle');
     }
   };
 
   const closeEditUser = () => {
     userFormModified
       ? setDialogBoxOpen(true)
-      : location.pathname.includes("editUser")
-      ? history.push("/user")
-      : history.push("/user/email");
+      : location.pathname.includes('editUser')
+      ? history.push('/user')
+      : history.push('/user/email');
   };
 
   useEffect(() => {
     setEmail(selectedId);
-    setOrgCode(org ? org : user?.orgCode ? user?.orgCode : "");
+    setOrgCode(org ? org : user?.orgCode ? user?.orgCode : '');
     if (user !== undefined && isEditUser) {
       setFirstName(user.firstName);
       setLastName(user.lastName);
@@ -307,7 +329,7 @@ export const UserForm = () => {
 
   window.onbeforeunload = function () {
     if (isAddUser || isEditUser) {
-      return "Do you want to reload the page?";
+      return 'Do you want to reload the page?';
     }
     return null;
   };
@@ -332,9 +354,9 @@ export const UserForm = () => {
       <Grid item xs={12}>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             paddingX: theme.spacing(3),
             paddingY: theme.spacing(1),
           }}
@@ -353,13 +375,13 @@ export const UserForm = () => {
               fontSize="18px"
               color={theme.breadcrumLink.primary}
             >
-              ALL USERS/{" "}
-              <Box component={"span"} sx={{ fontWeight: "bold" }}>
+              ALL USERS/{' '}
+              <Box component={'span'} sx={{ fontWeight: 'bold' }}>
                 {headerTitle}
               </Box>
             </Typography>
           )}
-          <IconButton sx={{ color: "#000000" }} onClick={closeEditUser}>
+          <IconButton sx={{ color: '#000000' }} onClick={closeEditUser}>
             <CloseIcon fontSize="large" />
           </IconButton>
         </Box>
@@ -371,7 +393,7 @@ export const UserForm = () => {
               <Grid item xs={12} display="flex" pb={2}>
                 <Box
                   component="span"
-                  sx={{ alignSelf: "self-end", textTransform: "capitalize" }}
+                  sx={{ alignSelf: 'self-end', textTransform: 'capitalize' }}
                 >
                   <Typography
                     fontSize={theme.typography.h3.fontSize}
@@ -406,7 +428,7 @@ export const UserForm = () => {
                 </Grid>
                 <Grid item xs={3}>
                   <PhoneInput
-                    style={{ alignItems: "normal" }}
+                    style={{ alignItems: 'normal' }}
                     defaultCountry="US"
                     value={phone}
                     id="phoneInput"
@@ -415,14 +437,14 @@ export const UserForm = () => {
                     onFocus={() =>
                       setPhoneLabelColor(theme.palette.primary.main)
                     }
-                    onBlur={() => setPhoneLabelColor("#616161")}
+                    onBlur={() => setPhoneLabelColor('#616161')}
                     flags={flags}
                     rules={{ validate: (phone: any) => handleValidate(phone) }}
                     inputProps={{
                       error: phoneNumberInValid.toString(),
-                      label: "Enter valid phone number",
-                      name: "Phone",
-                      width: "81.5%",
+                      label: 'Enter valid phone number',
+                      name: 'Phone',
+                      width: '81.5%',
                     }}
                   />
                 </Grid>
@@ -449,7 +471,7 @@ export const UserForm = () => {
                     error={firstNameInvalid}
                     required={true}
                     helperText={
-                      firstNameInvalid ? "First Name is Required" : ""
+                      firstNameInvalid ? 'First Name is Required' : ''
                     }
                     focusHandler={onFirstNameFocused}
                   />
@@ -464,7 +486,7 @@ export const UserForm = () => {
                     changeHandler={onLastNameChanged}
                     error={lastNameInvalid}
                     required={true}
-                    helperText={lastNameInvalid ? "Last Name is Required" : ""}
+                    helperText={lastNameInvalid ? 'Last Name is Required' : ''}
                     focusHandler={onLastNameFocused}
                   />
                 </Grid>
@@ -495,9 +517,9 @@ export const UserForm = () => {
           <Grid item xs={12} my={2}>
             <Box
               sx={{
-                alignItems: "flex-end",
-                display: "flex",
-                justifyContent: isAddUser ? "end" : "space-between",
+                alignItems: 'flex-end',
+                display: 'flex',
+                justifyContent: isAddUser ? 'end' : 'space-between',
                 paddingX: theme.spacing(0),
               }}
             >
@@ -541,4 +563,3 @@ export const UserForm = () => {
     </Grid>
   );
 };
-

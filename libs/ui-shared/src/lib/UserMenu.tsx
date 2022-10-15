@@ -1,4 +1,4 @@
-import { useState, Fragment, useEffect } from 'react';
+import { useState, Fragment } from 'react';
 import {
   Box,
   Avatar,
@@ -9,7 +9,35 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import { theme } from '../themes';
+import { useTheme } from '@mui/material';
+import React from 'react';
+import theme from './themes';
+
+const UserTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.primary.main,
+    boxShadow: theme.shadows[1],
+    fontSize: theme.typography.subtitle1.fontSize,
+  },
+}));
+
+const style = {
+  MenuItem: {
+    color: theme.palette.userMenuColor.main,
+    hover: {
+      '&:hover': {
+        background: 'red',
+      },
+    },
+  },
+  IconButton: {
+    '&:click': {
+      backgroundColor: 'transparent',
+    },
+  },
+};
 
 interface userMenuProps {
   userMenuProps: userMenu;
@@ -29,55 +57,30 @@ interface userMenuList {
 }
 
 export const UserMenu = (props: userMenuProps) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  //const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: any) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const style = {
-    MenuItem: {
-      color: theme.palette.userMenuColor.main,
-      hover: {
-        '&:hover': {
-          background: 'red',
-        },
-      },
-    },
-    IconButton: {
-      '&:click': {
-        backgroundColor: 'transparent',
-      },
-    },
-  };
-
-  const UserTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.primary.main,
-      boxShadow: theme.shadows[1],
-      fontSize: theme.typography.subtitle1.fontSize,
-    },
-  }));
-
   return (
     <Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
         <IconButton onClick={handleClick} size="small">
-          <UserTooltip title={props.userMenuProps.userName} placement="top">
+          <UserTooltip title={props.userMenuProps?.userName} placement="top">
             <Avatar
-              alt={props.userMenuProps.userName}
+              alt={props.userMenuProps?.userName}
               sx={{
                 width: 32,
                 height: 32,
                 backgroundColor: theme.palette.primary.main,
               }}
             >
-              {props.userMenuProps.userInitials}
+              {props.userMenuProps?.userInitials}
             </Avatar>
           </UserTooltip>
         </IconButton>
@@ -118,7 +121,7 @@ export const UserMenu = (props: userMenuProps) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {props.userMenuProps.userMenuList.map((item: userMenuList, ind) => {
+        {props.userMenuProps?.userMenuList.map((item: userMenuList, ind) => {
           return (
             <MenuItem
               disabled={item.disabled}
@@ -136,4 +139,4 @@ export const UserMenu = (props: userMenuProps) => {
       </Menu>
     </Fragment>
   );
-}
+};
