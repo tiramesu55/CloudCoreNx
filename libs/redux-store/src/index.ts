@@ -10,3 +10,4 @@ export * as reportReducer from "./lib/PowerBI/reducers/reportReducer"
 export * as analyticsStore from "./lib/store-analytics";
 export * as platformStore from "./lib/store-platform";
 export * as marketplaceStore from "./lib/store-marketplace";
+export * as mainStore from "./lib/store-main";

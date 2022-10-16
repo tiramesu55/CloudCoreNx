@@ -22,7 +22,8 @@ export interface IConfig {
     marketBaseUrl?: string,
     REACT_APP_SUITES_URL?: string,
     REACT_APP_POWERBI_URL?: string,
-    mpReports?: mpReports
+    mpReports?: mpReports,
+    isMainApp: boolean
 }
 
 export interface IdleConfigReducerState {

@@ -16,13 +16,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <ConfigContext>
     <Provider store={analyticsStore.store}>
-      
         <ThemeProvider theme={theme}>
           <BrowserRouter>
             <App />
           </BrowserRouter>
         </ThemeProvider>
-
     </Provider>
   </ConfigContext>
 );

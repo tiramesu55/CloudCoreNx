@@ -6,7 +6,7 @@ const ConfigCtx = createContext<IConfig | null>(null);
 
 // Provider in your app
 
-const ConfigContext = ({ children }: any) => {
+const ConfigContext = ({ children, isMainApp }: any) => {
   const [config, setConfig] = useState<IConfig | null>(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ const ConfigContext = ({ children }: any) => {
       try {
         const configData = await service.GetConfig();
 
-        setConfig(configData);
+        setConfig({...configData, isMainApp});
       } catch (err) {
         console.log(err);
       }

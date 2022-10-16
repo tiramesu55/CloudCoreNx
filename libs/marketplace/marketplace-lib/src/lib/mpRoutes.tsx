@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { Switch, Route, Link } from 'react-router-dom';
+import { useContext, useMemo } from 'react';
+import { Switch, Route } from 'react-router-dom';
 
 import {
   ConfigCtx,
@@ -24,62 +24,82 @@ export const MpRoutes = () => {
   );
 
   const mpPermissions = permissions.marketplace?.length > 0;
-  console.log(mpPermissions);
   const history = useHistory();
+
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/marketplace' : ''}`;
+  }, [config.isMainApp]);
+  const ComponentLayout = (Component: any) => {
+    return (
+      <>
+        {HeaderMerketplace}
+        <Component />
+      </>
+    );
+  };
+  const HeaderMerketplace = useMemo(
+    () => (
+      <Header
+        title={'MARKETPLACE'}
+        logo={{ img: logo, path: `${path}/` }}
+        betaIcon={true}
+        reportIssue={false}
+        navLinkMenuList={[
+          { label: 'Component1', route: `${path}/component1` },
+
+          // submenu
+          {
+            label: 'More Components',
+            subMenuList: [
+              {
+                label: 'Component2',
+                onClick: () => history.push(`${path}/component2`),
+              },
+              { label: 'Go back', route: `${path}/` },
+            ],
+          },
+          {
+            label: 'Partner Reports',
+            subMenuList: [
+              {
+                label: 'Partner 1',
+                route: `${path}/partnerReport/1`,
+              },
+              { label: 'Partner 2', route: `${path}/partnerReport/2` },
+            ],
+          },
+        ]}
+        userMenu={{
+          userName: names ? names[0] : '',
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          userInitials: initials!,
+        }}
+        userMenuList={[
+          {
+            icon: logOutIcon,
+            label: 'Logout',
+            onClick: signOut,
+          },
+        ]}
+      />
+    ),
+    [history, initials, names, path, signOut]
+  );
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {mpPermissions ? (
-        <>
-          <Header
-            title={'MARKETPLACE'}
-            logo={{ img: logo, path: '/' }}
-            betaIcon={true}
-            reportIssue={false}
-            navLinkMenuList={[
-              { label: 'Component1', route: '/marketplace/component1' },
-
-              // submenu
-              {
-                label: 'More Components',
-                subMenuList: [
-                  {
-                    label: 'Component2',
-                    onClick: () => history.push('/component2'),
-                  },
-                  { label: 'Go back', route: '/' },
-                ],
-              },
-              {
-                label: 'Partner Reports',
-                subMenuList: [
-                  {
-                    label: 'Partner 1', route:'/partnerReport/1',
-                  },
-                  { label: 'Partner 2', route: '/partnerReport/2' },
-                ],
-              },
-            ]}
-            userMenu={{
-              userName: names ? names[0] : '',
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              userInitials: initials!,
-            }}
-            userMenuList={[
-              {
-                icon: logOutIcon,
-                label: 'Logout',
-                onClick: signOut,
-              },
-            ]}
-          />
-
-          <Switch>
-            <Route path="/marketplace/component1" component={Component1} />
-            <Route path="/component2" component={Component2} />
-            <Route path="/partnerReport/:id" component={PowerbiReport} />
-          </Switch>
-        </>
+        <Switch>
+          <Route path={`${path}/component1`}>
+            {ComponentLayout(Component1)}
+          </Route>
+          <Route path={`${path}/component2`}>
+            {ComponentLayout(Component2)}
+          </Route>
+          <Route path={`${path}/partnerReport/:id`}>
+            {ComponentLayout(PowerbiReport)}
+          </Route>
+        </Switch>
       ) : (
         <NotAuthorized signOut={signOut} />
       )}

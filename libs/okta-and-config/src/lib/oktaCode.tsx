@@ -67,8 +67,7 @@ export function OktaCode(props: OktaAndConfigProps) {
       path="/"
       component={props.router}
     />
-
-   
+  
   </Security>
   );
 }
