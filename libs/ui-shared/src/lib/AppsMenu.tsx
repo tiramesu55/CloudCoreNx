@@ -1,5 +1,5 @@
 import { Box, Typography, Menu, MenuItem } from '@mui/material';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTheme } from '@mui/material';
 import { useContext } from 'react';
@@ -9,6 +9,7 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import betaIcon from './assets/betaIcon.png';
+import { useHistory } from "react-router-dom";
 
 interface AppsMenuProps {
   title: string;
@@ -18,6 +19,7 @@ interface AppsMenuProps {
 const AppsMenu = (props: AppsMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [index, setIndex] = useState<null | number>(null);
+  const history = useHistory();
   const openMenu = Boolean(anchorEl);
   const theme = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -26,25 +28,21 @@ const AppsMenu = (props: AppsMenuProps) => {
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
-  
-  const isDev = useMemo(() => {
-    return process.env['NODE_ENV'] !== 'production'
-  }, [])
 
   const apps = [
     {
       name: 'ANALYTICS',
-      url: isDev? config.isMainApp? 'http://localhost:3000/analytics' : "http://localhost:3000" : 'https://powerbi.dev.nexia.app',
+      url: config.isMainApp? '/analytics' : "/",
       permission: permissions?.analytics && permissions?.analytics.length > 0,
     },
     {
       name: 'PLATFORM MANAGEMENT',
-      url: isDev? config.isMainApp? 'http://localhost:3000/platform' : "http://localhost:3000" : 'https://platform8ui.dev.nexia.app',
+      url: config.isMainApp? '/platform' : "/",
       permission: permissions?.admin && permissions?.admin.length > 0,
     },
     {
       name: 'MARKETPLACE',
-      url: isDev? config.isMainApp? 'http://localhost:3000/marketplace' : "http://localhost:3000" : "",
+      url: config.isMainApp? '/marketplace' : "/",
       permisssion:
         permissions?.marketplace && permissions?.marketplace.length > 0,
     },
@@ -131,7 +129,7 @@ const AppsMenu = (props: AppsMenuProps) => {
             {availableApps.map((app, indx) => (
               <MenuItem
                 onClick={() => {
-                  window.location.replace(app.url ? app.url : '');
+                  history.push(app.url);
                 }}
                 key={indx}
                 disabled={!app.permission}

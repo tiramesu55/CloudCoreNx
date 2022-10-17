@@ -89,7 +89,7 @@ export const MpRoutes = () => {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {mpPermissions ? (
-        <Switch>
+        <>
           <Route path={`${path}/component1`}>
             {ComponentLayout(Component1)}
           </Route>
@@ -99,7 +99,7 @@ export const MpRoutes = () => {
           <Route path={`${path}/partnerReport/:id`}>
             {ComponentLayout(PowerbiReport)}
           </Route>
-        </Switch>
+        </>
       ) : (
         <NotAuthorized signOut={signOut} />
       )}
