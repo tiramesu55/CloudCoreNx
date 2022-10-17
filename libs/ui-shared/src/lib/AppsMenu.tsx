@@ -1,5 +1,5 @@
 import { Box, Typography, Menu, MenuItem } from '@mui/material';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTheme } from '@mui/material';
 import { useContext } from 'react';
@@ -26,20 +26,25 @@ const AppsMenu = (props: AppsMenuProps) => {
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
+  
+  const isDev = useMemo(() => {
+    return process.env['NODE_ENV'] !== 'production'
+  }, [])
+
   const apps = [
     {
       name: 'ANALYTICS',
-      url: 'https://powerbi.dev.nexia.app',
+      url: isDev? config.isMainApp? 'http://localhost:3000/analytics' : "http://localhost:3000" : 'https://powerbi.dev.nexia.app',
       permission: permissions?.analytics && permissions?.analytics.length > 0,
     },
     {
       name: 'PLATFORM MANAGEMENT',
-      url: 'https://platform8ui.dev.nexia.app',
+      url: isDev? config.isMainApp? 'http://localhost:3000/platform' : "http://localhost:3000" : 'https://platform8ui.dev.nexia.app',
       permission: permissions?.admin && permissions?.admin.length > 0,
     },
     {
       name: 'MARKETPLACE',
-      url: '',
+      url: isDev? config.isMainApp? 'http://localhost:3000/marketplace' : "http://localhost:3000" : "",
       permisssion:
         permissions?.marketplace && permissions?.marketplace.length > 0,
     },
