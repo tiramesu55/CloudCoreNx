@@ -34,10 +34,13 @@ import {
   getApplications,
 } from '@cloudcore/redux-store';
 import { ActivateDeactivateSite } from './activate-deactivate-site';
-import { useOktaAuth } from '@okta/okta-react';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 interface Application {
   appCode: string;
   subscriptionStart: Date | null;
@@ -53,6 +56,12 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const SiteForm = () => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token, permissions } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+
   const theme = useTheme();
   const site = useAppSelector(selectedSite);
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -66,7 +75,8 @@ export const SiteForm = () => {
   const isEditSite = location.state?.from === 'editSite';
   const history = useHistory();
   const selected = useAppSelector(selectedId);
-  const [disableEditApp, setDisableEditApp] = useState(true);
+  const disableEditApp =
+    permissions.admin && permissions.admin.includes('global') ? false : true;
   const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
 
   const [siteApplications, setSiteApplications] = useState<Application[]>(
@@ -85,7 +95,6 @@ export const SiteForm = () => {
   const [sitCode, setSiteCode] = useState('');
   const [siteIdentifier, setSiteIdentifier] = useState('');
   const [state, setState] = useState('');
-  const { oktaAuth, authState } = useOktaAuth();
   const [siteNameInvalid, setSiteNameInvalid] = useState(false);
   const [emailInvalid, setEmailInvalid] = useState(false);
   const [phoneNumberInValid, setPhoneNumberInValid] = useState(false);
@@ -104,7 +113,7 @@ export const SiteForm = () => {
       dispatch(
         getApplications({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
     }
@@ -113,23 +122,6 @@ export const SiteForm = () => {
   useEffect(() => {
     setSiteApplications(site.applications);
   }, [site.applications]);
-
-  useEffect(() => {
-    if (!authState?.isAuthenticated) {
-      oktaAuth.signInWithRedirect();
-    } else {
-      const claims = authState.accessToken?.claims as any;
-      if (claims?.admin) {
-        setDisableEditApp(
-          claims?.admin.includes('global') &&
-            claims?.admin &&
-            claims?.admin.length > 0
-            ? false
-            : true
-        );
-      }
-    }
-  }, []);
 
   const handleSiteApplicationChange = (value: any) => {
     setSiteApplications(value);
@@ -365,7 +357,7 @@ export const SiteForm = () => {
             createSite({
               site: newSite,
               url: platformBaseUrl,
-              token: authState?.accessToken?.accessToken,
+              token: token,
             })
           )
             .unwrap()
@@ -464,7 +456,7 @@ export const SiteForm = () => {
             updateSite({
               site: updatedSite,
               url: platformBaseUrl,
-              token: authState?.accessToken?.accessToken,
+              token: token,
             })
           )
             .unwrap()

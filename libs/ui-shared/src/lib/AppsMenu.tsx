@@ -28,7 +28,7 @@ const AppsMenu = (props: AppsMenuProps) => {
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
-
+console.log('')
   const apps = [
     {
       name: 'ANALYTICS',
@@ -36,23 +36,24 @@ const AppsMenu = (props: AppsMenuProps) => {
       permission: permissions?.analytics && permissions?.analytics.length > 0,
     },
     {
-      name: 'PLATFORM MANAGEMENT',
+      name: 'MARKETPLACE',
+      url: config.isMainApp? '/marketplace/' : "/",
+      permisssion: permissions?.marketplace && permissions?.marketplace.length > 0,
+    },
+    {
+      name: 'PLATFORM',
       url: config.isMainApp? '/platform' : "/",
       permission: permissions?.admin && permissions?.admin.length > 0,
     },
-    {
-      name: 'MARKETPLACE',
-      url: config.isMainApp? '/marketplace' : "/",
-      permisssion:
-        permissions?.marketplace && permissions?.marketplace.length > 0,
-    },
+
   ];
+
+  //this filters out current app from AppsMenuChoices, But the title needs to match a name of the app
   const availableApps = apps.filter(
     (app) => app.name.toLowerCase() !== props.title.toLowerCase()
   );
 
-  console.log(permissions, 'permi');
-
+  
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box
@@ -64,11 +65,11 @@ const AppsMenu = (props: AppsMenuProps) => {
         }}
         onMouseEnter={(e) => {
           setAnchorEl(e.currentTarget);
-          setIndex(1);
+         // setIndex(1);
         }}
         onMouseLeave={(e) => {
           setAnchorEl(null);
-          setIndex(null);
+          //setIndex(null);
         }}
       >
         <Typography
@@ -108,7 +109,7 @@ const AppsMenu = (props: AppsMenuProps) => {
             <KeyboardArrowDownIcon sx={{ mt: 1 }} />
           </Box>
         </Typography>
-        {index === 1 && (
+        
           <Menu
             anchorEl={anchorEl}
             open={openMenu}
@@ -126,13 +127,15 @@ const AppsMenu = (props: AppsMenuProps) => {
               },
             }}
           >
-            {availableApps.map((app, indx) => (
+            {availableApps.map((app) => {
+        
+              return(
               <MenuItem
                 onClick={() => {
                   history.push(app.url);
                 }}
-                key={indx}
-                disabled={!app.permission}
+                key={app.name}
+               // disabled={!app.permission}
                 sx={{
                   width: '252px',
                   '&:hover': {
@@ -146,9 +149,9 @@ const AppsMenu = (props: AppsMenuProps) => {
               >
                 {app.name}
               </MenuItem>
-            ))}
+            )})}
           </Menu>
-        )}
+
       </Box>
     </Box>
   );

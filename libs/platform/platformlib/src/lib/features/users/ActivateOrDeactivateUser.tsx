@@ -19,8 +19,11 @@ import {
   updateUser,
   User,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   user: User | undefined;
@@ -30,13 +33,18 @@ interface Props {
   setSnackBarMsg: (value: string) => void;
 }
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 export const DeactivateUser = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+
   const theme = useTheme();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const dispatch = useAppDispatch();
 
-  const { authState } = useOktaAuth();
   const history = useHistory();
   const selectedId: string = useAppSelector(selectedUserEmail);
   const [open, setOpen] = useState(false);
@@ -60,7 +68,7 @@ export const DeactivateUser = (props: Props) => {
         deleteUser({
           user: user!,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()
@@ -96,7 +104,7 @@ export const DeactivateUser = (props: Props) => {
         updateUser({
           user: props.user!,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()

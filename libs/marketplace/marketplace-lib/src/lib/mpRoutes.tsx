@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import {  Route } from 'react-router-dom';
 
 import {
   ConfigCtx,
@@ -10,7 +10,7 @@ import { Header, NotAuthorized } from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import Component1 from './components/component1/component1';
 import Component2 from './components/component2/component2';
-
+import Landing from './landing/landing'
 import logo from './images/Nexia-Logo2.png';
 import logOutIcon from './images/sign-out.svg';
 import PowerbiReport from './powerbi-report/powerbi-report';
@@ -27,7 +27,8 @@ export const MpRoutes = () => {
   const history = useHistory();
 
   const path = useMemo(() => {
-    return `${config.isMainApp ? '/marketplace' : ''}`;
+    console.log('config.ismain', config.isMainApp)
+    return `${config.isMainApp!== undefined ? '/marketplace/' : '/'}`;
   }, [config.isMainApp]);
   const ComponentLayout = (Component: any) => {
     return (
@@ -41,11 +42,11 @@ export const MpRoutes = () => {
     () => (
       <Header
         title={'MARKETPLACE'}
-        logo={{ img: logo, path: `${path}/` }}
+        logo={{ img: logo, path: `${path}` }}
         betaIcon={true}
         reportIssue={false}
         navLinkMenuList={[
-          { label: 'Component1', route: `${path}/component1` },
+          { label: 'Component1', route: `${path}component1` },
 
           // submenu
           {
@@ -53,9 +54,9 @@ export const MpRoutes = () => {
             subMenuList: [
               {
                 label: 'Component2',
-                onClick: () => history.push(`${path}/component2`),
+                onClick: () => history.push(`${path}component2`),
               },
-              { label: 'Go back', route: `${path}/` },
+              { label: 'Go back', route: `${path}` },
             ],
           },
           {
@@ -85,15 +86,19 @@ export const MpRoutes = () => {
     ),
     [history, initials, names, path, signOut]
   );
+  console.log('path', path)
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {mpPermissions ? (
         <>
-          <Route path={`${path}/component1`}>
+          <Route exact  path={`${path}`}>
+            {ComponentLayout(Landing)}
+          </Route>
+          <Route  path={`${path}component1`}>
             {ComponentLayout(Component1)}
           </Route>
-          <Route path={`${path}/component2`}>
+          <Route path={`${path}component2`}>
             {ComponentLayout(Component2)}
           </Route>
           <Route path={`${path}/partnerReport/:id`}>

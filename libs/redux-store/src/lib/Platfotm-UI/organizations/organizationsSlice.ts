@@ -8,7 +8,6 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from '../../store-platform';
 import axios from "axios";
-import { useOktaAuth } from "@okta/okta-react";
 
 export interface Organization {
   name: string;
@@ -441,4 +440,15 @@ export const checkIfRootOrganization = (state: RootState, orgCode: string) => {
   const root = org?.root;
   return root;
 }
+
+export const organizationList = (state: RootState) =>
+state.organizations.organizations.map( function(organization) {
+  return organization['name'];
+})
+
+export const getOrgCodeFromName = (state: RootState) => {
+  const org = state.organizations.organizations;
+  return org;
+}
+
 export const organizationsReducer = organizationsSlice.reducer;

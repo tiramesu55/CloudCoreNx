@@ -18,8 +18,11 @@ import {
   Site,
   updateSite,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   setSnackbar: (value: boolean) => void;
@@ -31,12 +34,16 @@ interface Props {
   };
   disableEditApp: boolean;
 }
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 export const ActivateDeactivateSite = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const theme = useTheme();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const [open, setOpen] = useState(false);
-  const { authState } = useOktaAuth();
   const site = useAppSelector(selectedSite);
   const history = useHistory();
   const location: any = useLocation();
@@ -83,7 +90,7 @@ export const ActivateDeactivateSite = (props: Props) => {
         updateSite({
           site: updatedSite,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()
@@ -118,7 +125,7 @@ export const ActivateDeactivateSite = (props: Props) => {
         deleteSite({
           id: site?.id,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()

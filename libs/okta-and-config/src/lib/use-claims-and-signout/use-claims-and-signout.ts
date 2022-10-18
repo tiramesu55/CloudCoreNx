@@ -48,8 +48,8 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
   permissions.analytics = (authState?.accessToken?.claims as UserClaims<OktaClaims>).analytics;
   permissions.admin = (authState?.accessToken?.claims as UserClaims<OktaClaims>).admin;
 
-  const names = (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials;
-  const initials = names[0][0] + names[1][0];
+  const names = (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials ? (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials : [];
+  const initials = (names && names.length>0) ? (names[0][0] + names[1][0]) : "";
   const email = authState?.accessToken?.claims.sub;
   const token = authState?.accessToken?.accessToken;
 

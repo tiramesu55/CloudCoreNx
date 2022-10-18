@@ -55,8 +55,11 @@ import { useSelector } from 'react-redux';
 import { ActivateDeactivateOrg } from './activate-deactivate-org';
 import { withStyles } from '@mui/styles';
 import { OrgDomainModal } from './orgDomainModal';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
@@ -69,10 +72,14 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const OrganizationForm = () => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { authState } = useOktaAuth();
 
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
@@ -142,7 +149,7 @@ export const OrganizationForm = () => {
       dispatch(
         getAllOrganizationsDomains({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
       setOrgDomain('');
@@ -153,7 +160,7 @@ export const OrganizationForm = () => {
     dispatch(
       fetchUsers({
         url: platformBaseUrl,
-        token: authState?.accessToken?.accessToken,
+        token: token,
       })
     );
   }, []);
@@ -169,13 +176,13 @@ export const OrganizationForm = () => {
             ? selectOrgByID?.orgCode
             : storedOrgData?.orgCode,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
       dispatch(
         getAllOrganizationsDomains({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
       dispatch(
@@ -184,7 +191,7 @@ export const OrganizationForm = () => {
             ? selectOrgByID?.orgCode
             : storedOrgData?.orgCode,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()
@@ -586,7 +593,7 @@ export const OrganizationForm = () => {
             updateOrganizationAsync({
               organization: updatedOrganization,
               url: platformBaseUrl,
-              token: authState?.accessToken?.accessToken,
+              token: token,
             })
           )
             .unwrap()

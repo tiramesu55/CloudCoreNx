@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { useEffect, useState, useContext } from 'react';
-import { platformStore} from '@cloudcore/redux-store';
+import { platformStore } from '@cloudcore/redux-store';
 
 import { Box, Grid, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
@@ -20,14 +20,22 @@ import {
   fetchUsers,
   allUsers,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 
 interface Props {}
 
 export const ListUsers = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -36,7 +44,6 @@ export const ListUsers = (props: Props) => {
   const users = useAppSelector(allUsers);
   const allApps = useAppSelector(applicationMapping);
   const orgData = useAppSelector(selectOrganizations);
-  const { authState } = useOktaAuth();
   const usersWithOrg = users.map((user) => {
     const orgName = orgData.find((org) => {
       return user.orgCode === org.orgCode;
@@ -57,17 +64,17 @@ export const ListUsers = (props: Props) => {
       dispatch(
         getApplications({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
       dispatch(
         fetchUsers({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
     }
-  }, [platformBaseUrl, dispatch, authState]);
+  }, [platformBaseUrl, dispatch]);
 
   const { error } = useAppSelector((state) => state.user);
   useEffect(() => {
@@ -203,7 +210,8 @@ export const ListUsers = (props: Props) => {
 
   const CustomToolbar = () => {
     return (
-      <Button
+    <>
+              <Button
         variant="text"
         disableRipple={true}
         sx={{
@@ -220,6 +228,24 @@ export const ListUsers = (props: Props) => {
       >
         Add New User
       </Button>
+      <Button
+          variant="text"
+          disableRipple={true}
+          sx={{
+            textTransform: "capitalize",
+            fontWeight: "bold",
+            fontSize: "18px",
+
+            textDecoration: "none",
+            color: theme.palette.primary.main,
+          }}
+          onClick={() => {
+            history.push("user/onboardingInstructions");
+          }}
+        >
+          Import Users
+        </Button>
+      </>
     );
   };
 

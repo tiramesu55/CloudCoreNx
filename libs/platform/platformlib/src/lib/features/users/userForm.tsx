@@ -2,7 +2,7 @@
 import { useState, useEffect, useContext } from 'react';
 import 'react-phone-number-input/style.css';
 import { useHistory, useLocation } from 'react-router-dom';
-import { platformStore} from "@cloudcore/redux-store";
+import { platformStore } from '@cloudcore/redux-store';
 import { Grid, Typography, Button, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material';
@@ -29,8 +29,11 @@ import {
   selectOrganizationByDomain,
 } from '@cloudcore/redux-store';
 import { withStyles } from '@mui/styles';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -41,15 +44,20 @@ const CustomCss = withStyles(() => ({
   },
 }))(() => null);
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 
 export const UserForm = () => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
-  const { oktaAuth, authState } = useOktaAuth();
   const location: any = useLocation();
   const selectedApps = useAppSelector(currentApps);
 
@@ -200,7 +208,7 @@ export const UserForm = () => {
           updateUser({
             user: updatedUserInfo!,
             url: platformBaseUrl,
-            token: authState?.accessToken?.accessToken,
+            token: token,
           })
         )
           .unwrap()
@@ -265,7 +273,7 @@ export const UserForm = () => {
           addNewUser({
             user: newUser,
             url: platformBaseUrl,
-            token: authState?.accessToken?.accessToken,
+            token: token,
           })
         )
           .unwrap()

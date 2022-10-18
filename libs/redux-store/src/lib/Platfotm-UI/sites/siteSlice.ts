@@ -16,7 +16,6 @@ import {
   addSiteApi,
   deleteSiteApi,
 } from "./sitesAPI";
-import { useOktaAuth } from "@okta/okta-react";
 
 interface SitesGetAction {
   data: Site[];

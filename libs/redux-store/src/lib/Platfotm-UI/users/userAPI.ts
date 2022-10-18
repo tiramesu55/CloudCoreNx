@@ -28,6 +28,13 @@ export const deleteUserApi = (url : string, token: string, userID: string) => ax
         }
     }
     );
+    
+export const addMultipleUsers = (url:string, token:string, file:FormData) => axios.post(`${url}/Platform/BulkUserUpload`, file,{
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+    );
 
 
 

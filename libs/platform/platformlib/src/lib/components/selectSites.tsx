@@ -17,15 +17,18 @@ import {
   checkIfRootOrganization,
   selectAppRoles,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   orgCode: string;
   modifiedData: (modifiedData: boolean) => void;
 }
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 export interface Option {
   name: string;
   value: string;
@@ -33,6 +36,11 @@ export interface Option {
 }
 
 export const SelectSites = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const dispatch = useAppDispatch();
   //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
   const allApps = useAppSelector(selectAppRoles);
@@ -44,10 +52,7 @@ export const SelectSites = (props: Props) => {
     checkIfRootOrganization(state, props.orgCode)
   );
   const [loadSite, setLoadSite] = useState(false);
-  const { authState } = useOktaAuth();
 
-  // const { authState } = useOktaAuth();
-  // const token = useMemo(() => authState?.accessToken?.accessToken, [authState]);
   //function that filters sites based on appCode and subscription
   const appSites = (app: string): { name: string; value: string }[] => {
     const rawSites =
@@ -93,7 +98,7 @@ export const SelectSites = (props: Props) => {
         getSites({
           orgCode: props.orgCode,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()

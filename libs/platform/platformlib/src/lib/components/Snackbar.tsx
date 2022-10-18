@@ -40,6 +40,7 @@ export const Snackbar = (props: Props) => {
           {props.content === 'editSiteSuccess' &&
             'Changes were updated successfully'}
           {props.content === 'addSiteSuccess' && 'Site added successfully'}
+          {props.content === "uploadUsersSuccess" && "Users uploaded successfully"}
         </Alert>
       ) : props.type === 'failure' ? (
         <Alert severity="error">
@@ -54,6 +55,7 @@ export const Snackbar = (props: Props) => {
             'Error while updating the changes'}
           {props.content === 'addSiteFailure' && 'Error while adding Site'}
           {props.content === 'getSitesFailure' && props.errorReason}
+          {props.content === "uploadUsersError" && "Error while uploading Users"}
         </Alert>
       ) : props.type === 'fetchError' ? (
         <Alert severity="error">

@@ -7,7 +7,6 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from "../../store-platform";
 import axios from "axios";
-import { useOktaAuth } from "@okta/okta-react";
 
 interface DashboardStats {
   users: number;

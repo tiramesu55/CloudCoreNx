@@ -18,8 +18,11 @@ import {
   updateOrganizationAsync,
 } from '@cloudcore/redux-store';
 import { useHistory } from 'react-router-dom';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   orgDomain: string;
@@ -28,14 +31,19 @@ interface Props {
   setSnackBarMsg: (value: string) => void;
 }
 
-const {useAppDispatch, useAppSelector } = platformStore
+const { useAppDispatch, useAppSelector } = platformStore;
 
 export const ActivateDeactivateOrg = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const organization = useAppSelector(selectedOrganization);
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { authState } = useOktaAuth();
 
   const history = useHistory();
   const dispatch = useAppDispatch();
@@ -78,7 +86,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         updateOrganizationAsync({
           organization: updatedOrganization,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()
@@ -109,7 +117,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         deleteOrganizationAsync({
           orgCode: organization?.orgCode,
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       )
         .unwrap()

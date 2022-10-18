@@ -13,9 +13,9 @@ import {
   getUsersApi,
   updateUserApi,
   addUserApi,
-  deleteUserApi
+  deleteUserApi,
+  addMultipleUsers
 } from "./userAPI";
-import { useOktaAuth } from "@okta/okta-react";
 
 interface UsersGetAction{
   data: User[];
@@ -25,6 +25,17 @@ interface UsersGetAction{
 interface UserAction{
   data: User;
   type: string;
+}
+
+interface UserFile{
+  file: File;
+  name:string;
+  organization:string;
+}
+
+interface UserFileUploadAction{
+  data:UserFile;
+  type:string;
 }
 
 interface Iaddress {
@@ -114,6 +125,23 @@ export const fetchUsers = createAsyncThunk<UsersGetAction, any, {state:RootState
   }
 );
 
+export const importUserFile = createAsyncThunk<UserFileUploadAction, any, {state:RootState}>(
+  "users/importUserFile",
+  async ({ upload, url, token } : {upload:FormData, url: string, token: string}, {getState}) => {
+  //async (upload:FormData, {getState}) => {
+    // const state = getState();
+    // const token = state.config.authToken;
+    // const url = state.config.baseUrl;
+    if(!token)
+    return {data: [],  type: "getAll"}
+    const response = await addMultipleUsers(url, token, upload );
+        // The value we return becomes the `fulfilled` action payload      
+        return {
+          data: response.data,
+          type: "getAll",
+        };
+  }
+);
 
 export const updateUser = createAsyncThunk<UserAction,any, {state:RootState}>(
   "users/updateUser",
@@ -232,20 +260,54 @@ const usersSlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(fetchUsers.pending, (state, action) => {
+        state.status = "loading"
+      })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.users = action.payload.data;
         userAdapter.upsertMany(state, action.payload.data as User[]);
-      })
-      .addMatcher(isPending, (state, action) => {
-        state.status = "loading";
-      })
-      .addMatcher(isFulfilled, (state, action) => {
         state.status = "idle";
       })
-      .addMatcher(isRejected, (state, action) => {
+      .addCase(fetchUsers.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message!;
-      });
+      })
+      .addCase(updateUser.pending, (state, action) => {
+        state.status = "loading"
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.status = "idle";
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.status = "failed";
+      })
+      .addCase(addNewUser.pending, (state, action) => {
+        state.status = "loading"
+      })
+      .addCase(addNewUser.fulfilled, (state, action) => {
+        state.status = "idle";
+      })
+      .addCase(addNewUser.rejected, (state, action) => {
+        state.status = "failed";
+      })
+      .addCase(deleteUser.pending, (state, action) => {
+        state.status = "loading"
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.status = "idle";
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.status = "failed";
+      })
+      .addCase(importUserFile.pending, (state, action) => {
+        state.status = "loading"
+      })
+      .addCase(importUserFile.fulfilled, (state, action) => {
+        state.status = "idle";
+      })
+      .addCase(importUserFile.rejected, (state, action) => {
+        state.status = "failed";
+      })
   },
 });
 
@@ -256,7 +318,7 @@ const { selectById } = userAdapter.getSelectors();
 
 export const selectUserByIdState = (state: RootState) => state.user;
 
-export const getUserFormModified = (state : RootState) => state.user.userFormModified;
+export const getUserFormModified = (state: RootState) => state.user.userFormModified;
 
 export const selectUserByIdEntity = (id: string) => {
   return createSelector(selectUserByIdState, (state) => selectById(state, id));
@@ -264,11 +326,11 @@ export const selectUserByIdEntity = (id: string) => {
 
 export const selectedUserEmail = (state: RootState) => state.user.selectedId;
 
-export const usersDomain = (state: RootState)=>{
+export const usersDomain = (state: RootState) => {
   const domains = state.user.users.map(user => user.email.split("@")[1])
   return domains.filter((d, index) => {
     return domains.indexOf(d) === index;
-});
+  });
 }
 
 export const { selectUserID, updatePartialApp, updatePartialSite, setUserFormModified } =
@@ -277,3 +339,4 @@ export const { selectUserID, updatePartialApp, updatePartialSite, setUserFormMod
 export const currentApps = (state: RootState) => state.user.applications;
 
 export const userReducer = usersSlice.reducer;
+//export default usersSlice.reducer;

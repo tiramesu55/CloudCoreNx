@@ -18,11 +18,19 @@ import {
   selectedIdOrganization,
   selectOrganizations,
 } from '@cloudcore/redux-store';
-import { useOktaAuth } from '@okta/okta-react';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Dashboard = () => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const { token, permissions } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -36,8 +44,8 @@ export const Dashboard = () => {
   const usersCount = useAppSelector(getAllUsersCount);
   const orgsList = useAppSelector(selectOrganizations);
   const idSelected = useAppSelector(selectedId);
-  const { authState } = useOktaAuth();
-  const [newOrgButton, setNewOrgButton] = useState(false);
+  const newOrgButton =
+    permissions.admin && permissions.admin?.includes('global') ? true : false;
 
   const setSelectedId = (id: string) => {
     dispatch(selectedIdOrganization(id));
@@ -48,18 +56,11 @@ export const Dashboard = () => {
       dispatch(
         getDashboardStats({
           url: baseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
     }
-  }, [dispatch, baseUrl, authState]);
-
-  useEffect(() => {
-    const claims = authState?.accessToken?.claims as any;
-    if (claims?.admin) {
-      setNewOrgButton(claims?.admin?.includes('global') ? true : false);
-    }
-  }, [authState?.isAuthenticated]);
+  }, [dispatch, baseUrl, token]);
 
   const handleClickAddOrg = () => {
     history.replace('/organization/addOrganization', {

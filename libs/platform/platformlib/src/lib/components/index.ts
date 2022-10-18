@@ -6,7 +6,6 @@ import { Header } from './Header'
 import { InputTextWithLabel } from './InputTextWithLabel'
 import { MiniDrawer } from './LeftNavBarNavigation'
 import { NavBar } from './Navbar'
-import { NotAuthorized } from './NotAuthorized'
 import { PhoneInput } from './PhoneInput'
 import { ResponsiveToolBar } from './ResponsiveToolbar'
 import { SearchFilter } from './SearchFilter'
@@ -26,7 +25,6 @@ export {
     InputTextWithLabel,
     MiniDrawer,
     NavBar,
-    NotAuthorized,
     PhoneInput,
     ResponsiveToolBar,
     SearchFilter,

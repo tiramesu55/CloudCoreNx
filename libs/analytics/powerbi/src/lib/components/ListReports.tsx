@@ -1,67 +1,68 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  // Drawer,
   List,
   Collapse,
   ListItem,
   ListItemIcon,
   ListItemText,
   Tooltip,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { styled, Theme, CSSObject } from "@mui/material/styles";
-import MuiDrawer from "@mui/material/Drawer";
-import { useAppSelector } from "../hooks/hooks";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import SettingsIcon from "@mui/icons-material/Settings";
-import TimelineIcon from "@mui/icons-material/Timeline";
-import { useEffect, useState, useContext } from "react";
-import { reportsActions } from "@cloudcore/redux-store";
-import { useOktaAuth } from "@okta/okta-react";
-import { Box } from "@mui/system";
-import {useAppInsightHook} from "@cloudcore/common-lib";
-import { BackdropPowerBi } from "./BackDrop/Backdrop";
-import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { styled, Theme, CSSObject } from '@mui/material/styles';
+import MuiDrawer from '@mui/material/Drawer';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import { useEffect, useState, useContext } from 'react';
+import { reportsActions, analyticsStore } from '@cloudcore/redux-store';
+import { Box } from '@mui/system';
+import { useAppInsightHook } from '@cloudcore/common-lib';
+import { BackdropPowerBi } from './BackDrop/Backdrop';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 const drawerWidth = 310;
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
-  transition: theme.transitions.create("width", {
+  transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.easeOut,
     duration: theme.transitions.duration.enteringScreen,
   }),
-  overflowX: "hidden",
+  overflowX: 'hidden',
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create("width", {
+  transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.easeIn,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  overflowX: "hidden",
+  overflowX: 'hidden',
   width: `calc(${theme.spacing(2)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(0)} + 1px)`,
   },
 });
 
 const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
+  shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
   width: drawerWidth,
   flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
   ...(open && {
     ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
   }),
   ...(!open && {
     ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
   }),
 }));
 
@@ -74,12 +75,15 @@ export const ListReports = ({
   userName: string;
   userEmail: string;
 }) => {
-  const config: IConfig  = useContext(ConfigCtx)!;   // at this point config is not null (see app)
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { email, names } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+  const { useAppSelector } = analyticsStore;
   const { selectReport } = reportsActions;
   const { HandleUserEvent } = useAppInsightHook();
-  const { reports, selectedReportId } = useAppSelector(
-    (state) => state.report
-  );
+  const { reports, selectedReportId } = useAppSelector((state) => state.report);
 
   const [selectedIndexSet, setSelectedIndexSet] = useState(new Set<number>());
   const [open, setOpen] = useState(true);
@@ -106,33 +110,20 @@ export const ListReports = ({
       }
     }
   };
-  const { oktaAuth } = useOktaAuth();
 
   const handleReportClick = (e: any, reportId: string) => {
     //debugger;
     e.stopPropagation();
-
-    oktaAuth.session.exists().then(function (exists) {
-      if (exists) {
-        console.log("session is there");
-        selectReport(reportId);
-        HandleUserEvent(
-          {
-            name: userName,
-            email: userEmail,
-          },
-          reportId,
-          "SelectReportId"
-        );
-        setOpen(true);
-      } else {
-        console.log("Session Expired");
-        oktaAuth.signOut({
-          postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-          revokeAccessToken: true,
-        });
-      }
-    });
+    selectReport(reportId);
+    HandleUserEvent(
+      {
+        name: userName,
+        email: userEmail,
+      },
+      reportId,
+      'SelectReportId'
+    );
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -142,42 +133,29 @@ export const ListReports = ({
   const openSlaDashboard = () => {
     reports?.map((item, index) => {
       item.reports.map((sub, i) => {
-        if (sub.reportName === "SLA Dashboard") {
-          oktaAuth
-            .getUser()
-            .then((info) => {
-              selectReport(sub.reportId);
-              HandleUserEvent(
-                {
-                  name: info
-                    ? info.family_name + " " + info.given_name
-                    : "unknownUser",
-                  email: info ? info.email : "unknownEmail",
-                },
-                sub.reportId,
-                "SelectReportId"
-              );
-              setOpen(true);
-            })
-            .catch((e) => {
-              console.log("Session Expired");
-              oktaAuth.signOut({
-                postLogoutRedirectUri: config?.postLogoutRedirectUri, // "https://ssotest.walgreens.com/idp/idpLogout",
-                revokeAccessToken: true,
-              });
-            });
+        if (sub.reportName === 'SLA Dashboard') {
+          selectReport(sub.reportId);
+          HandleUserEvent(
+            {
+              name: names ? names[0] : 'unknownUser',
+              email: email ? email : 'unknownEmail',
+            },
+            sub.reportId,
+            'SelectReportId'
+          );
+          setOpen(true);
         }
       });
     });
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: 'flex' }}>
       <Drawer
         variant="permanent"
         open={open}
         onClick={handleDrawer}
-        sx={{ cursor: "pointer" }}
+        sx={{ cursor: 'pointer' }}
       >
         <List component="nav" disablePadding sx={{ mt: 8 }}>
           {reports?.map((item, index) => {
@@ -255,10 +233,10 @@ export const ListReports = ({
       <Box
         onClick={handleDrawer}
         sx={{
-          display: "flex",
+          display: 'flex',
           mt: 8,
           mr: 1,
-          cursor: "pointer",
+          cursor: 'pointer',
         }}
       >
         {open ? (

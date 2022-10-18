@@ -14,7 +14,6 @@ import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material';
 import User from '../images/user.svg';
 import SignOut from '../images/sign-out.svg';
-import { useOktaAuth } from '@okta/okta-react';
 import {
   ConfigCtx,
   IConfig,
@@ -23,9 +22,6 @@ import {
 
 export const UserMenu = () => {
   const theme = useTheme();
-  const [userName, setUserName] = useState('');
-  const [userInitials, setUserInitials] = useState('');
-  const { oktaAuth, authState } = useOktaAuth(); // needs to be removed and replaced with getClaims
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -68,34 +64,21 @@ export const UserMenu = () => {
       fontSize: theme.typography.subtitle1.fontSize,
     },
   }));
-  //@alec: needs to use login from app
-  useEffect(() => {
-    if (!authState?.isAuthenticated) {
-      oktaAuth.signInWithRedirect();
-    } else {
-      if (names) {
-        setUserName(names.join(' '));
-      }
-      if (initials) {
-        setUserInitials(initials);
-      }
-    }
-  }, []);
 
   return (
     <Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
         <IconButton onClick={handleClick} size="small">
-          <UserTooltip title={userName} placement="top">
+          <UserTooltip title={names ? names[0] : ''} placement="top">
             <Avatar
-              alt={userName}
+              alt={names ? names[0] : ''}
               sx={{
                 width: 32,
                 height: 32,
                 backgroundColor: theme.palette.primary.main,
               }}
             >
-              {userInitials}
+              {initials!}
             </Avatar>
           </UserTooltip>
         </IconButton>

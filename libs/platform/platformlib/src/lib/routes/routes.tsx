@@ -2,18 +2,18 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 
 //@TODO get rid of OKTA
-import { useOktaAuth } from '@okta/okta-react';
 import { useState, useEffect, useContext } from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { NotAuthorized } from '../components/NotAuthorized';
+import { Route } from 'react-router-dom';
 import { UserForm } from '../features/users/userForm';
 import { AddUserForm as UserEmail } from '../features/users/userEmail';
-
+import { NotAuthorized } from '@cloudcore/ui-shared';
 import { Dashboard } from '../Dashboard/dashboard';
 import { OrganizationForm as AddNewOrganisation } from '../features/organizations/OrganisationForm';
-import {  Snackbar } from '../components';
+import userOnboardingInstructions from '../features/users/userOnboardingInstructions';
+import UserOnboarding from '../features/users/userOnboardingForm';
+import { Snackbar } from '../components';
 import { ListUsers } from '../features/users/allUsers';
-import { getOrganizationsAsync,platformStore } from '@cloudcore/redux-store';
+import { getOrganizationsAsync, platformStore } from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
 import { Sites } from '../features/sites/sites';
 import { Header } from '@cloudcore/ui-shared';
@@ -24,13 +24,21 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-const {useAppDispatch, useAppSelector } = platformStore
+
+
+
+const { useAppDispatch, useAppSelector } = platformStore;
+
 export const Routes = () => {
-  const { oktaAuth, authState } = useOktaAuth();
-  // const oktaCfg = useAppSelector(selectOidc);
-  // const config = useAppSelector(isConfigSet);
+  const config: IConfig = useContext(ConfigCtx)!;
+  const { signOut, token, initials, names, permissions } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
+
+  const adminPermission = permissions?.admin && permissions?.admin.length > 0;
+
   const dispatch = useAppDispatch();
-  const [authorizedState, setAuthorizedState] = useState<boolean | undefined>();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   const [snackbar, setSnackbar] = useState(false);
@@ -38,30 +46,10 @@ export const Routes = () => {
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [formModified, setFormModified] = useState(false);
   const error = useAppSelector((state) => state.user.error);
-  const [userName, setUserName] = useState('');
-  const [userInitials, setUserInitials] = useState('');
 
   const handleFormModified = (value: boolean) => {
     setFormModified(value);
   };
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { signOut, initials, names } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
-
-  useEffect(() => {
-    if (!authState?.isAuthenticated) {
-      oktaAuth.signInWithRedirect();
-    } else {
-      if (names) {
-        setUserName(names.join(' '));
-      }
-      if (initials) {
-        setUserInitials(initials);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (error) {
@@ -76,39 +64,15 @@ export const Routes = () => {
       dispatch(
         getOrganizationsAsync({
           url: platformBaseUrl,
-          token: authState?.accessToken?.accessToken,
+          token: token,
         })
       );
     }
-  }, [dispatch, platformBaseUrl, authState]);
-
-  useEffect(() => {
-    async function authenticate() {
-      if (!authState) return;
-
-      if (!authState.isAuthenticated || !authState.accessToken) {
-        oktaAuth.signInWithRedirect({});
-      } else {
-        const claims = authState.accessToken?.claims as any;
-        const adminPermissions = claims?.admin;
-        if (
-          !adminPermissions ||
-          (!adminPermissions.includes('global') &&
-            !adminPermissions.includes('organization'))
-        ) {
-          setAuthorizedState(false);
-        } else {
-          setAuthorizedState(true);
-        }
-      }
-    }
-
-    authenticate();
-  }, [authState, oktaAuth, dispatch]);
+  }, [dispatch, platformBaseUrl, token]);
 
   return (
     <>
-      {authorizedState ? (
+      {adminPermission ? (
         <>
           {' '}
           {snackbar && (
@@ -120,7 +84,7 @@ export const Routes = () => {
           )}
           {/* <NavBar /> */}
           <Header
-            title={'PLATFORM MANAGEMENT'}
+            title={'PLATFORM'}
             logo={{ img: logo, path: '/' }}
             betaIcon={true}
             reportIssue={false}
@@ -129,8 +93,8 @@ export const Routes = () => {
               { label: 'USERS', route: '/user' },
             ]}
             userMenu={{
-              userName: userName,
-              userInitials: userInitials,
+              userName: names ? names[0] : '',
+              userInitials: initials!,
             }}
             userMenuList={[
               {
@@ -154,17 +118,16 @@ export const Routes = () => {
             <Route path="/user/email" component={UserEmail} />
             <Route path="/user/addUser" component={UserForm} />
             <Route path="/user/editUser" component={UserForm} />
+            <Route path="/user/onboarding" component={UserOnboarding} />
+            <Route path="/user/onboardingInstructions" component={userOnboardingInstructions}/>
             <Route path="/organization/sites" component={Sites} />
             <Route path="/organization/editSite" component={SiteForm} />
-
             <Route path="/organization/addSite" component={SiteForm} />
             <Route path="/organization/editOrg/addSite" component={SiteForm} />
           </>
         </>
-      ) : authorizedState === undefined ? (
-        <></>
       ) : (
-        <NotAuthorized />
+        <NotAuthorized signOut={signOut} />
       )}
     </>
   );
