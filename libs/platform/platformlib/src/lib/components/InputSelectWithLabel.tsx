@@ -1,8 +1,9 @@
-import { styled } from "@mui/material/styles";
-import { InputLabel, FormControl } from "@mui/material";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import { withStyles } from "@mui/styles";
+import { styled } from '@mui/material/styles';
+import { InputLabel, FormControl } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { withStyles } from '@mui/styles';
+import { useState } from 'react';
 
 interface Props {
   label?: string;
@@ -29,72 +30,74 @@ interface Props {
 }
 
 const CustomSelect = styled(Select)(({ theme }) => ({
-  "label + &": {
+  'label + &': {
     marginTop: theme.spacing(3),
   },
-  "& .MuiInputBase-input": {
+  '& .MuiInputBase-input': {
     borderRadius: 4,
-    position: "relative",
-    fontSize: "18px",
-    width: "100%",
-    padding: "6px 10px",
-    height: "20px",
+    position: 'relative',
+    fontSize: '18px',
+    width: '100%',
+    padding: '6px 10px',
+    height: '20px',
     /* transition: theme.transitions.create([
       "border-color",
       "background-color",
       "box-shadow",
     ]), */
-    "&:focus": {
+    '&:focus': {
       // boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
       //borderColor: theme.palette.primary.main,
     },
     border: `1px solid ${theme.palette.inputBorder.main}`,
   },
-  "& .Mui-disabled": {
+  '& .Mui-disabled': {
     backgroundColor: theme.palette.text.disabled,
     color: theme.palette.blackFont.main,
-    WebkitTextFillColor: "black !important",
+    WebkitTextFillColor: 'black !important',
   },
 }));
 
 const CustomSelectCss = withStyles((theme) => ({
-  "@global": {
-    ".css-16bw062-MuiSvgIcon-root-MuiSelect-icon": {
+  '@global': {
+    '.css-16bw062-MuiSvgIcon-root-MuiSelect-icon': {
       color: `${theme.palette.common.black} !important`,
     },
-    ".css-yacrg0-MuiSvgIcon-root-MuiSelect-icon": {
+    '.css-yacrg0-MuiSvgIcon-root-MuiSelect-icon': {
       color: `${theme.palette.common.black} !important`,
     },
-    ".css-14e1qvh-MuiSelect-select-MuiInputBase-input-MuiInput-input:focus": {
+    '.css-14e1qvh-MuiSelect-select-MuiInputBase-input-MuiInput-input:focus': {
       backgroundColor: `${theme.palette.secondary.main} !important`,
     },
-    ".css-1ooztp-MuiPaper-root-MuiMenu-paper-MuiPaper-root-MuiPopover-paper": {
+    '.css-1ooztp-MuiPaper-root-MuiMenu-paper-MuiPaper-root-MuiPopover-paper': {
       backgroundColor: `${theme.palette.secondary.main} !important`,
     },
   },
 }))(() => null);
 
 const InputSelectWithLabel = (props: Props) => {
+  const [value, setValue] = useState<string>(props.value);
   const handleChange = (event: SelectChangeEvent) => {
-      props.orgChangeHandler?.(event.target.value);
-      props.domainChangeHandler?.(event.target.value);
-      props.permissionChangeHandler?.(event.target.value);
+    setValue(event.target.value as any);
+    props.orgChangeHandler?.(event.target.value);
+    props.domainChangeHandler?.(event.target.value);
+    props.permissionChangeHandler?.(event.target.value);
   };
-  
+
   const required = props.required ? true : false;
   return (
     <>
       <CustomSelectCss />
-      
-      <FormControl variant="standard" sx={{ width: "90%" }}>
+
+      <FormControl variant="standard" sx={{ width: '90%' }}>
         <InputLabel
           htmlFor={props.id}
           sx={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            paddingBottom: "24px",
-            "& .MuiInputLabel-asterisk": {
-              color: "#FE3F3F",
+            fontSize: '24px',
+            fontWeight: 'bold',
+            paddingBottom: '24px',
+            '& .MuiInputLabel-asterisk': {
+              color: '#FE3F3F',
             },
           }}
           shrink
@@ -109,7 +112,7 @@ const InputSelectWithLabel = (props: Props) => {
           label="Age"
           onChange={handleChange}
           displayEmpty
-          inputProps={{ "aria-label": "Without label" }}
+          inputProps={{ 'aria-label': 'Without label' }}
           input={<CustomSelect />}
           disabled={props.disabled}
         >

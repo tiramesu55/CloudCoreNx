@@ -97,7 +97,7 @@ export const ActivateDeactivateSite = (props: Props) => {
         .then(
           (value: any) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editSiteSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
               history.push('/organization/sites', {
@@ -109,7 +109,7 @@ export const ActivateDeactivateSite = (props: Props) => {
           },
           (reason: any) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editSiteFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );
@@ -132,7 +132,7 @@ export const ActivateDeactivateSite = (props: Props) => {
         .then(
           (value: any) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editSiteSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
               history.push('/organization/sites', {
@@ -144,7 +144,7 @@ export const ActivateDeactivateSite = (props: Props) => {
           },
           (reason: any) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editSiteFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );

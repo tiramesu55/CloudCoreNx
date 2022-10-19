@@ -9,7 +9,7 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import betaIcon from './assets/betaIcon.png';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 
 interface AppsMenuProps {
   title: string;
@@ -28,24 +28,24 @@ const AppsMenu = (props: AppsMenuProps) => {
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
-console.log('')
+  console.log('');
   const apps = [
     {
       name: 'ANALYTICS',
-      url: config.isMainApp? '/analytics' : "/",
+      url: config.isMainApp ? '/analytics' : '/',
       permission: permissions?.analytics && permissions?.analytics.length > 0,
     },
     {
       name: 'MARKETPLACE',
-      url: config.isMainApp? '/marketplace/' : "/",
-      permisssion: permissions?.marketplace && permissions?.marketplace.length > 0,
+      url: config.isMainApp ? '/marketplace/' : '/',
+      permission:
+        permissions?.marketplace && permissions?.marketplace.length > 0,
     },
     {
       name: 'PLATFORM',
-      url: config.isMainApp? '/platform' : "/",
+      url: config.isMainApp ? '/platform' : '/',
       permission: permissions?.admin && permissions?.admin.length > 0,
     },
-
   ];
 
   //this filters out current app from AppsMenuChoices, But the title needs to match a name of the app
@@ -53,7 +53,6 @@ console.log('')
     (app) => app.name.toLowerCase() !== props.title.toLowerCase()
   );
 
-  
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box
@@ -65,7 +64,7 @@ console.log('')
         }}
         onMouseEnter={(e) => {
           setAnchorEl(e.currentTarget);
-         // setIndex(1);
+          // setIndex(1);
         }}
         onMouseLeave={(e) => {
           setAnchorEl(null);
@@ -109,33 +108,32 @@ console.log('')
             <KeyboardArrowDownIcon sx={{ mt: 1 }} />
           </Box>
         </Typography>
-        
-          <Menu
-            anchorEl={anchorEl}
-            open={openMenu}
-            onClose={() => setAnchorEl(null)}
-            autoFocus={false}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-              onMouseLeave: () => setAnchorEl(null),
-            }}
-            sx={{
-              width: '252px',
-              '& .MuiMenu-list': {
-                paddingTop: '0px',
-                paddingBottom: '0px',
-              },
-            }}
-          >
-            {availableApps.map((app) => {
-        
-              return(
+
+        <Menu
+          anchorEl={anchorEl}
+          open={openMenu}
+          onClose={() => setAnchorEl(null)}
+          autoFocus={false}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button',
+            onMouseLeave: () => setAnchorEl(null),
+          }}
+          sx={{
+            width: '252px',
+            '& .MuiMenu-list': {
+              paddingTop: '0px',
+              paddingBottom: '0px',
+            },
+          }}
+        >
+          {availableApps.map((app) => {
+            return (
               <MenuItem
                 onClick={() => {
                   history.push(app.url);
                 }}
                 key={app.name}
-               // disabled={!app.permission}
+                disabled={!app.permission}
                 sx={{
                   width: '252px',
                   '&:hover': {
@@ -149,9 +147,9 @@ console.log('')
               >
                 {app.name}
               </MenuItem>
-            )})}
-          </Menu>
-
+            );
+          })}
+        </Menu>
       </Box>
     </Box>
   );

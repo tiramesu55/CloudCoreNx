@@ -229,7 +229,9 @@ export const siteSlice = createSlice({
       .addCase(getSites.rejected, (state) => {
         state.status = "failed";
       })
-
+      .addCase(updateSite.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(updateSite.fulfilled, (state, action) => {
         state.status = "idle";
         state.sites = state.sites.map((st) => {
@@ -242,20 +244,28 @@ export const siteSlice = createSlice({
           }
         });
       })
-
+      .addCase(updateSite.rejected, (state) => {
+        state.status = "failed";
+      })
+      .addCase(createSite.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(createSite.fulfilled, (state, action) => {
         state.status = "idle";
         state.sites = [...state.sites, action.payload.data].filter(
           (item) => item.id
         );
       })
-      .addMatcher(isPending, (state, action) => {
+      .addCase(createSite.rejected, (state) => {
+        state.status = "failed";
+      })
+      .addCase(deleteSite.pending, (state, action) => {
         state.status = "loading";
       })
-      .addMatcher(isFulfilled, (state, action) => {
+      .addCase(deleteSite.fulfilled, (state, action) => {
         state.status = "idle";
       })
-      .addMatcher(isRejected, (state, action) => {
+      .addCase(deleteSite.rejected, (state, action) => {
         state.status = "failed";
       });
   },

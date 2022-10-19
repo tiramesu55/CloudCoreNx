@@ -9,7 +9,6 @@ import { NavBar } from './Navbar'
 import { PhoneInput } from './PhoneInput'
 import { ResponsiveToolBar } from './ResponsiveToolbar'
 import { SearchFilter } from './SearchFilter'
-import { Snackbar } from './Snackbar'
 import { UnsavedData } from './UnsavedData'
 import { UserMenu } from './UserMenu'
 import { SelectSites } from './selectSites'
@@ -28,7 +27,6 @@ export {
     PhoneInput,
     ResponsiveToolBar,
     SearchFilter,
-    Snackbar,
     UnsavedData,
     UserMenu,
     SelectSites,

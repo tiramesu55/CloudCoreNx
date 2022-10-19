@@ -38,10 +38,16 @@ export const UnsavedData = (props: Props) => {
     orgName: location?.state?.orgName,
   };
 
+  const currentPage = location?.state?.currentPage;
+  const rowsPerPage = location?.state?.rowsPerPage;
+
   const handleLeave = () => {
     props.handleLeave(false);
     if (props.location === 'users') {
-      history.push('/user');
+      history.push('/user', {
+        currentPage: currentPage,
+        rowsPerPage: rowsPerPage,
+      });
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
       dispatch(setUserFormModified(false));

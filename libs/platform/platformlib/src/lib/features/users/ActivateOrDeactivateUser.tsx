@@ -75,7 +75,7 @@ export const DeactivateUser = (props: Props) => {
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editUserSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
 
             setTimeout(() => {
@@ -84,7 +84,7 @@ export const DeactivateUser = (props: Props) => {
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editUserFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );
@@ -111,7 +111,7 @@ export const DeactivateUser = (props: Props) => {
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editUserSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
 
             setTimeout(() => {
@@ -120,7 +120,7 @@ export const DeactivateUser = (props: Props) => {
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editUserFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );

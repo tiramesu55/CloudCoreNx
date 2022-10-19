@@ -9,7 +9,6 @@ import { useTheme } from '@mui/material';
 import {
   InputTextWithLabel,
   SelectSites,
-  Snackbar,
   UnsavedData,
   PhoneInput as CustomPhoneNumber,
 } from '../../components';
@@ -34,6 +33,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { Snackbar } from '@cloudcore/ui-shared';
 
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -215,15 +215,19 @@ export const UserForm = () => {
           .then(
             (value) => {
               setSnackbar(true);
-              setSnackBarMsg('editUserSuccess');
+              setSnackBarMsg('successMsg');
               setSnackBarType('success');
               setTimeout(() => {
-                history.push('/user');
+                history.push('/user', {
+                  currentPage: location.state?.currentPage,
+                  rowsPerPage: location.state?.rowsPerPage,
+                });
               }, 1000);
+              dispatch(setUserFormModified(false));
             },
             (reason) => {
               setSnackbar(true);
-              setSnackBarMsg('editUserFailure');
+              setSnackBarMsg('errorMsg');
               setSnackBarType('failure');
             }
           );
@@ -316,7 +320,10 @@ export const UserForm = () => {
     userFormModified
       ? setDialogBoxOpen(true)
       : location.pathname.includes('editUser')
-      ? history.push('/user')
+      ? history.push('/user', {
+          currentPage: location.state?.currentPage,
+          rowsPerPage: location.state?.rowsPerPage,
+        })
       : history.push('/user/email');
   };
 

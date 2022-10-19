@@ -16,7 +16,6 @@ import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
   UnsavedData,
-  Snackbar,
 } from '../../components';
 import { InfoCard, Card } from '@cloudcore/ui-shared';
 import sites from '../../images/sites.svg';
@@ -60,6 +59,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { Snackbar } from '@cloudcore/ui-shared';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
@@ -600,7 +600,7 @@ export const OrganizationForm = () => {
             .then(
               () => {
                 setSnackbar(true);
-                setSnackBarMsg('editOrganizationSuccess');
+                setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
                   history.push('/');
@@ -608,7 +608,7 @@ export const OrganizationForm = () => {
               },
               () => {
                 setSnackbar(true);
-                setSnackBarMsg('editOrganizationFailure');
+                setSnackBarMsg('errorMsg');
                 setSnackBarType('failure');
               }
             );
@@ -703,7 +703,13 @@ export const OrganizationForm = () => {
           location="organization"
         />
       }
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      {snackbar && (
+        <Snackbar
+          type={snackbarType}
+          content={snackBarMsg}
+          errorReason={errorReason}
+        />
+      )}
       {
         <OrgDomainModal
           open={orgDomainDialogOpen}

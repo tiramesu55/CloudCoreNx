@@ -9,4 +9,6 @@ export * from './lib/idleTimeOut/countDown-timer';
 export * from './lib/InfoCard';
 export * from './lib/Card';
 export * from './lib/List';
-export * from './lib/themes'
+export * from './lib/themes';
+export * from './lib/Snackbar';
+export * from './lib/AppsMenu';

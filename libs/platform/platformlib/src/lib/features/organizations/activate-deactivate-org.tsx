@@ -93,7 +93,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editOrganizationSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
               history.push('/');
@@ -101,7 +101,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editOrganizationFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );
@@ -124,7 +124,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         .then(
           (value) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editOrganizationSuccess');
+            props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
               history.push('/');
@@ -132,7 +132,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
           },
           (reason) => {
             props.setSnackbar(true);
-            props.setSnackBarMsg('editOrganizationFailure');
+            props.setSnackBarMsg('errorMsg');
             props.setSnackBarType('failure');
           }
         );

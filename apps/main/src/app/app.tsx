@@ -8,18 +8,22 @@ import { theme } from '@cloudcore/ui-shared';
 import { AnalyticsPowerbi } from '@cloudcore/analytics/powerbi';
 import { MpRoutes } from '@cloudcore/marketplace/marketplace-lib';
 import { Route, Redirect } from 'react-router-dom';
+import { Routes } from '@cloudcore/platform/platformlib';
 
 function App() {
   const config: IConfig | null = useContext(ConfigCtx);
   const MainRoute = () => {
-    return (<>
-      <Route exact path="/">
-        <Redirect to="/analytics" />
-      </Route>
-      <AnalyticsPowerbi/>
-      <MpRoutes/>
-    </>)
-  }
+    return (
+      <>
+        <Route exact path="/">
+          <Redirect to="/analytics" />
+        </Route>
+        <AnalyticsPowerbi />
+        <MpRoutes />
+        <Routes />
+      </>
+    );
+  };
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>

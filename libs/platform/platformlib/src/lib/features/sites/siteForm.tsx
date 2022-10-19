@@ -10,7 +10,6 @@ import { platformStore } from '@cloudcore/redux-store';
 import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
-  Snackbar,
   UnsavedData,
 } from '../../components';
 import { Card } from '@cloudcore/ui-shared';
@@ -39,6 +38,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { Snackbar } from '@cloudcore/ui-shared';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 interface Application {
@@ -463,7 +463,7 @@ export const SiteForm = () => {
             .then(
               (value: any) => {
                 setSnackbar(true);
-                setSnackBarMsg('editSiteSuccess');
+                setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
                   history.push('/organization/sites', {
@@ -475,7 +475,7 @@ export const SiteForm = () => {
               },
               (reason: any) => {
                 setSnackbar(true);
-                setSnackBarMsg('editSiteFailure');
+                setSnackBarMsg('errorMsg');
                 setSnackBarType('failure');
               }
             );

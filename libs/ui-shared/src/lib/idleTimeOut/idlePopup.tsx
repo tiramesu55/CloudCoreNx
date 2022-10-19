@@ -15,7 +15,7 @@ import { CountDownTimer } from './countDown-timer';
 
 interface IdlePopUpProps {
   open: boolean;
-  userActive: () => void;
+  onActive: () => void;
   logOut?: () => void;
   minutes?: number;
   seconds: number;
@@ -24,7 +24,7 @@ interface IdlePopUpProps {
 
 export const IdlePopUp = ({
   open,
-  userActive,
+  onActive,
   logOut,
   minutes,
   seconds,
@@ -50,7 +50,7 @@ export const IdlePopUp = ({
                 top: 8,
                 color: '#000000',
               }}
-              onClick={userActive}
+              onClick={onActive}
             >
               <CloseIcon fontSize="large" />
             </IconButton>
@@ -117,7 +117,7 @@ export const IdlePopUp = ({
               backgroundColor: '#6513F0',
             },
           }}
-          onClick={userActive}
+          onClick={onActive}
         >
           CONTINUE
         </Button>

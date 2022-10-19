@@ -3,12 +3,14 @@
 import { useEffect, useState, useContext } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 
-import { Box, Grid, Button } from '@mui/material';
-import { useTheme } from '@mui/material';
-import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
+import { Box, Grid, Button, Chip, useTheme } from '@mui/material';
+import MUIDataTable, {
+  MUIDataTableOptions,
+  TableFilterList,
+} from 'mui-datatables';
 import { withStyles } from '@mui/styles';
-import { useHistory } from 'react-router-dom';
-import { Snackbar } from '../../components';
+import { useHistory, useLocation } from 'react-router-dom';
+import { Snackbar } from '@cloudcore/ui-shared';
 import { Card } from '@cloudcore/ui-shared';
 import Tooltip from '@mui/material/Tooltip';
 import {
@@ -29,6 +31,21 @@ import {
 const { useAppDispatch, useAppSelector } = platformStore;
 
 interface Props {}
+
+const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
+  return (
+    <Chip
+      variant="outlined"
+      color="primary"
+      label={label}
+      onDelete={onDelete}
+    />
+  );
+};
+
+const CustomFilterList = (props: any) => {
+  return <TableFilterList {...props} ItemComponent={CustomChip} />;
+};
 
 export const ListUsers = (props: Props) => {
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -51,12 +68,25 @@ export const ListUsers = (props: Props) => {
     return {
       ...user,
       orgName: orgName?.name,
+      userName: `${user.firstName} ${user.lastName}`,
+      applications:
+        user.applications !== null
+          ? user.applications.map((app) => app.appCode)
+          : '--',
     };
   });
   const history = useHistory();
+  const location: any = useLocation();
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
+  const [currentPage, setCurrentPage] = useState(
+    location.state?.currentPage ? location.state?.currentPage : 0
+  );
+  const [rowsPerPage, setRowsPerPage] = useState(
+    location.state?.rowsPerPage ? location.state?.rowsPerPage : 10
+  );
+  const [errorReason, setErrorReason] = useState('');
   //const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -72,7 +102,14 @@ export const ListUsers = (props: Props) => {
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then((reason: any) => {
+          setSnackbar(true);
+          setSnackBarType('failure');
+          setErrorReason(reason.message);
+          setSnackBarMsg('allUserFailure');
+        });
     }
   }, [platformBaseUrl, dispatch]);
 
@@ -81,7 +118,7 @@ export const ListUsers = (props: Props) => {
     if (error) {
       setSnackbar(true);
       setSnackBarType('fetchError');
-      setSnackBarMsg('editUserFailure');
+      setSnackBarMsg('errorMsg');
     }
   }, [error]);
 
@@ -108,7 +145,7 @@ export const ListUsers = (props: Props) => {
       },
     },
     {
-      name: 'firstName',
+      name: 'userName',
       label: 'User Name',
       options: {
         filter: true,
@@ -116,7 +153,6 @@ export const ListUsers = (props: Props) => {
         customBodyRender: (value: string, tableMeta: any) => {
           const tableData = tableMeta.tableData;
           const index = tableMeta.rowIndex;
-          const rowData = tableData[index];
           return (
             <Tooltip
               title={
@@ -145,10 +181,12 @@ export const ListUsers = (props: Props) => {
                     title: 'Edit User',
                     task: 'editUser',
                     from: 'editUser',
+                    currentPage,
+                    rowsPerPage,
                   });
                 }}
               >
-                {tableMeta.rowData[0]} {tableMeta.rowData[1]}
+                {value}
               </Button>
             </Tooltip>
           );
@@ -178,16 +216,11 @@ export const ListUsers = (props: Props) => {
         filter: true,
         sort: false,
         customBodyRender: (value: any) => {
-          const appCodeArray: any = [];
-          value?.forEach((app: Application) => {
-            if (app.roles && app.roles.length > 0) {
-              appCodeArray.push(allApps.get(app.appCode));
-            }
-          });
-
-          const apps = appCodeArray.flat();
-
-          return <>{apps && apps.length ? apps.join(', ') : '--'}</>;
+          if (value === '--') {
+            return <>{'--'}</>;
+          } else {
+            return <>{value.join(', ')}</>;
+          }
         },
       },
     },
@@ -197,50 +230,69 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
-        customBodyRender: (value: Date) => (
-          <div>
-            {value === null || new Date(value) >= new Date()
-              ? 'Active'
-              : 'Not Active'}
-          </div>
-        ),
+        customBodyRender: (value: Date) => {
+          return (
+            <div>
+              {value === null || new Date(value) >= new Date()
+                ? 'Active'
+                : 'Not Active'}
+            </div>
+          );
+        },
+        filterOptions: {
+          renderValue: (value: any) => {
+            if (value === null || new Date(value) >= new Date()) {
+              return 'Active';
+            } else {
+              return 'Not Active';
+            }
+          },
+        },
+        customFilterListOptions: {
+          render: (value: any) => {
+            if (value === null || new Date(value) >= new Date()) {
+              return 'Active';
+            } else {
+              return 'Not Active';
+            }
+          },
+        },
       },
     },
   ];
-
   const CustomToolbar = () => {
     return (
-    <>
-              <Button
-        variant="text"
-        disableRipple={true}
-        sx={{
-          textTransform: 'capitalize',
-          fontWeight: 'bold',
-          fontSize: '18px',
-
-          textDecoration: 'none',
-          color: theme.palette.primary.main,
-        }}
-        onClick={() => {
-          history.push('user/email', { title: 'Add User', task: 'addUser' });
-        }}
-      >
-        Add New User
-      </Button>
-      <Button
+      <>
+        <Button
           variant="text"
           disableRipple={true}
           sx={{
-            textTransform: "capitalize",
-            fontWeight: "bold",
-            fontSize: "18px",
+            textTransform: 'capitalize',
+            fontWeight: 'bold',
+            fontSize: '18px',
 
-            textDecoration: "none",
+            textDecoration: 'none',
             color: theme.palette.primary.main,
           }}
           onClick={() => {
-            history.push("user/onboardingInstructions");
+            history.push('user/email', { title: 'Add User', task: 'addUser' });
+          }}
+        >
+          Add New User
+        </Button>
+        <Button
+          variant="text"
+          disableRipple={true}
+          sx={{
+            textTransform: 'capitalize',
+            fontWeight: 'bold',
+            fontSize: '18px',
+
+            textDecoration: 'none',
+            color: theme.palette.primary.main,
+          }}
+          onClick={() => {
+            history.push('user/onboardingInstructions');
           }}
         >
           Import Users
@@ -253,6 +305,8 @@ export const ListUsers = (props: Props) => {
     selectableRowsHideCheckboxes: true,
     selectableRowsOnClick: false,
     pagination: true,
+    page: currentPage,
+    rowsPerPage,
     tableBodyMaxHeight: '75vh',
     filter: true,
     viewColumns: false,
@@ -262,6 +316,16 @@ export const ListUsers = (props: Props) => {
     customToolbar: CustomToolbar,
     enableNestedDataAccess: '.',
     searchAlwaysOpen: true,
+    sortOrder: {
+      name: 'userName',
+      direction: 'asc',
+    },
+    onChangePage(currentPage) {
+      setCurrentPage(currentPage);
+    },
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
 
     /* onCellClick: async (
       colData: any,
@@ -332,7 +396,13 @@ export const ListUsers = (props: Props) => {
   return (
     <Grid container>
       <>
-        {snackbar && <Snackbar type={snackbarType} content={error} />}
+        {snackbar && (
+          <Snackbar
+            type={snackbarType}
+            content={snackBarMsg}
+            errorReason={errorReason}
+          />
+        )}
         <CustomTableCss />
         <Grid item xs={12} sx={{ paddingTop: theme.spacing(2) }}>
           <Card sx={{ margin: '0px 24px', border: 'none' }}>
@@ -345,6 +415,9 @@ export const ListUsers = (props: Props) => {
               data={usersWithOrg}
               columns={columns}
               options={options}
+              components={{
+                TableFilterList: CustomFilterList,
+              }}
             />
           </Card>
         </Grid>

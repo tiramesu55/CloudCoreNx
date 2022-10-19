@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 
 //@TODO get rid of OKTA
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { Route } from 'react-router-dom';
 import { UserForm } from '../features/users/userForm';
 import { AddUserForm as UserEmail } from '../features/users/userEmail';
@@ -11,7 +11,7 @@ import { Dashboard } from '../Dashboard/dashboard';
 import { OrganizationForm as AddNewOrganisation } from '../features/organizations/OrganisationForm';
 import userOnboardingInstructions from '../features/users/userOnboardingInstructions';
 import UserOnboarding from '../features/users/userOnboardingForm';
-import { Snackbar } from '../components';
+import { Snackbar } from '@cloudcore/ui-shared';
 import { ListUsers } from '../features/users/allUsers';
 import { getOrganizationsAsync, platformStore } from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
@@ -24,8 +24,6 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-
-
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
@@ -45,20 +43,21 @@ export const Routes = () => {
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [formModified, setFormModified] = useState(false);
-  const error = useAppSelector((state) => state.user.error);
+  // TODO unable use useAppSelector when we switch to main
+  /*   const { error } = useAppSelector((state) => state.user); */
 
   const handleFormModified = (value: boolean) => {
     setFormModified(value);
   };
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (error) {
       setSnackbar(true);
       setSnackBarType('fetchError');
-      setSnackBarMsg('editUserFailure');
+      setSnackBarMsg('errorMsg');
     }
-  }, [error]);
-
+  }, [error]); */
+  console.log(platformBaseUrl, 'plat');
   useEffect(() => {
     if (platformBaseUrl) {
       dispatch(
@@ -67,64 +66,98 @@ export const Routes = () => {
           token: token,
         })
       );
+      console.log(platformBaseUrl, 'base');
     }
   }, [dispatch, platformBaseUrl, token]);
 
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform' : '/'}`;
+  }, [config.isMainApp]);
+  const platformPermissions = permissions.admin?.length > 0;
+
+  const ComponentLayout = (Component: any) => {
+    return (
+      <>
+        {HeaderPlatform}
+        <Component />
+      </>
+    );
+  };
+
+  const HeaderPlatform = useMemo(
+    () => (
+      <>
+        {' '}
+        {snackbar && (
+          <Snackbar type={snackbarType} content={snackBarMsg} duration={5000} />
+        )}
+        <Header
+          title={'PLATFORM'}
+          logo={{ img: logo, path: '/' }}
+          betaIcon={true}
+          reportIssue={false}
+          navLinkMenuList={[
+            { label: 'DASHBOARD', route: '/' },
+            { label: 'USERS', route: '/user' },
+          ]}
+          userMenu={{
+            userName: names ? names[0] : '',
+            userInitials: initials!,
+          }}
+          userMenuList={[
+            {
+              icon: logOutIcon,
+              label: 'Logout',
+              onClick: signOut,
+            },
+          ]}
+        />
+      </>
+    ),
+    [snackbar, snackbarType, snackBarMsg, names, initials, signOut]
+  );
+
   return (
     <>
-      {adminPermission ? (
+      {platformPermissions ? (
         <>
-          {' '}
-          {snackbar && (
-            <Snackbar
-              type={snackbarType}
-              content={snackBarMsg}
-              duration={5000}
-            />
-          )}
-          {/* <NavBar /> */}
-          <Header
-            title={'PLATFORM'}
-            logo={{ img: logo, path: '/' }}
-            betaIcon={true}
-            reportIssue={false}
-            navLinkMenuList={[
-              { label: 'DASHBOARD', route: '/' },
-              { label: 'USERS', route: '/user' },
-            ]}
-            userMenu={{
-              userName: names ? names[0] : '',
-              userInitials: initials!,
-            }}
-            userMenuList={[
-              {
-                icon: logOutIcon,
-                label: 'Logout',
-                onClick: signOut,
-              },
-            ]}
-          />
-          <>
-            <Route exact path="/" component={Dashboard} />
-            <Route
-              path="/organization/addOrganization"
-              component={AddNewOrganisation}
-            />
-            <Route
-              path="/organization/editOrganization"
-              component={AddNewOrganisation}
-            />
-            <Route exact path="/user" component={ListUsers} />
-            <Route path="/user/email" component={UserEmail} />
-            <Route path="/user/addUser" component={UserForm} />
-            <Route path="/user/editUser" component={UserForm} />
-            <Route path="/user/onboarding" component={UserOnboarding} />
-            <Route path="/user/onboardingInstructions" component={userOnboardingInstructions}/>
-            <Route path="/organization/sites" component={Sites} />
-            <Route path="/organization/editSite" component={SiteForm} />
-            <Route path="/organization/addSite" component={SiteForm} />
-            <Route path="/organization/editOrg/addSite" component={SiteForm} />
-          </>
+          <Route exact path={`${path}`}>
+            {ComponentLayout(Dashboard)}
+          </Route>
+          <Route path={`${path}organization/addOrganization`}>
+            {ComponentLayout(AddNewOrganisation)}
+          </Route>
+          <Route path={`${path}organization/editOrganization`}>
+            {ComponentLayout(AddNewOrganisation)}
+          </Route>
+          <Route exact path={`${path}user`}>
+            {ComponentLayout(ListUsers)}
+          </Route>
+          <Route path={`${path}user/email`}>{ComponentLayout(UserEmail)}</Route>
+          <Route path={`${path}user/addUser`}>
+            {ComponentLayout(UserForm)}
+          </Route>
+          <Route path={`${path}user/editUser`}>
+            {ComponentLayout(UserForm)}
+          </Route>
+          <Route path={`${path}user/onboarding`}>
+            {ComponentLayout(UserOnboarding)}
+          </Route>
+          <Route path={`${path}user/onboardingInstructions`}>
+            {ComponentLayout(userOnboardingInstructions)}
+          </Route>
+          <Route path={`${path}organization/sites`}>
+            {ComponentLayout(Sites)}
+          </Route>
+          <Route path={`${path}organization/editSite`}>
+            {ComponentLayout(SiteForm)}
+          </Route>
+          <Route path={`${path}organization/addSite`}>
+            {ComponentLayout(SiteForm)}
+          </Route>
+          <Route path={`${path}organization/editOrg/addSite`}>
+            {ComponentLayout(SiteForm)}
+          </Route>
         </>
       ) : (
         <NotAuthorized signOut={signOut} />

@@ -46,7 +46,6 @@ export const AnalyticsPowerbi = () => {
   const [listReportLoading, setListReportLoading] = useState<boolean>(false);
   const [activityModal, setActivityModal] = useState<boolean>(false);
 
-  const sessionTimeoutRef: any = useRef(null);
   const {
     loadReports,
     openAlert,
@@ -90,7 +89,6 @@ export const AnalyticsPowerbi = () => {
 
   useEffect(() => {
     if (token) {
-      // debugger;
       if (config?.REACT_APP_SUITES_URL) {
         // setListReportLoading(true);  //  too quick. No point running spinner
         requests
@@ -116,36 +114,29 @@ export const AnalyticsPowerbi = () => {
     }
   }, []);
 
-  const logOut = () => {
-    clearTimeout(sessionTimeoutRef.current);
+  // Do some idle action like log out your user
+  const onIdle = () => {
     signOut();
   };
 
-  //idle timeout
-  const handleOnIdle = () => {
-    if (!activityModal) {
-      setActivityModal(true);
-      sessionTimeoutRef.current = setTimeout(logOut, 1000 * 298);
-    }
-  };
-
-  const handleActive = () => {
-    if (!activityModal) {
-      clearTimeout(sessionTimeoutRef.current);
-    }
-  };
-
-  const userActive = () => {
-    // isIdle && idleTimerReset();
-    clearTimeout(sessionTimeoutRef.current);
+  // Close Modal Prompt and reset the idleTimer
+  const onActive = () => {
     setActivityModal(false);
+    reset();
+  };
+
+  // opens modal prompt on timeout
+  const onPrompt = () => {
+    setActivityModal(true);
   };
 
   const { reset } = useIdleTimer({
     timeout: 1000 * 1500,
-    onIdle: handleOnIdle,
-    onActive: handleActive,
+    onIdle,
+    onActive,
     debounce: 500,
+    onPrompt,
+    promptTimeout: 1000 * 299,
   });
 
   const handleReportClick = (reportId: string) => {
@@ -197,8 +188,8 @@ export const AnalyticsPowerbi = () => {
       <>
         <IdlePopUp
           open={activityModal}
-          logOut={logOut}
-          userActive={userActive}
+          logOut={signOut}
+          onActive={onActive}
           minutes={5}
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
