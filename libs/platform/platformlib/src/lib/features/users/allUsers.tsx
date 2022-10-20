@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 
 import { Box, Grid, Button, Chip, useTheme } from '@mui/material';
@@ -48,15 +48,16 @@ const CustomFilterList = (props: any) => {
 };
 
 export const ListUsers = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { isMainApp, logoutSSO, platformBaseUrl, postLogoutRedirectUri  } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
   const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  // const baseUrl = useAppSelector(selectBaseUrl);
 
   const users = useAppSelector(allUsers);
   const allApps = useAppSelector(applicationMapping);
@@ -177,7 +178,7 @@ export const ListUsers = (props: Props) => {
                 }}
                 onClick={() => {
                   dispatch(selectUserID(tableMeta.rowData[2]));
-                  history.replace('/user/editUser', {
+                  history.replace(`${path}/user/editUser`, {
                     title: 'Edit User',
                     task: 'editUser',
                     from: 'editUser',

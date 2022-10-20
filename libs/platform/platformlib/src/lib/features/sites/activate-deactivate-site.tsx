@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -36,13 +36,16 @@ interface Props {
 }
 const { useAppDispatch, useAppSelector } = platformStore;
 export const ActivateDeactivateSite = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);  
   const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
   const theme = useTheme();
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const [open, setOpen] = useState(false);
   const site = useAppSelector(selectedSite);
   const history = useHistory();
@@ -100,7 +103,7 @@ export const ActivateDeactivateSite = (props: Props) => {
             props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
-              history.push('/organization/sites', {
+              history.push(`${path}/organization/sites`, {
                 from: 'siteForm',
                 orgCode: props.orgData.orgCode,
                 orgName: props.orgData.orgName,
@@ -135,7 +138,7 @@ export const ActivateDeactivateSite = (props: Props) => {
             props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
-              history.push('/organization/sites', {
+              history.push(`${path}/organization/sites`, {
                 from: 'siteForm',
                 orgCode: props.orgData.orgCode,
                 orgName: props.orgData.orgName,

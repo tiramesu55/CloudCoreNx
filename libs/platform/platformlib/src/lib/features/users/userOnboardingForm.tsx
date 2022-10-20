@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import styles from './userOnboardingForm.module.css';
-import { useContext, useState } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { UnsavedData } from '../../components';
 import { Snackbar, theme } from '@cloudcore/ui-shared';
 import {
@@ -114,8 +115,11 @@ const UserOnboarding = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { platformBaseUrl, isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const { authState } = useOktaAuth();
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
 
   const options: MUIDataTableOptions = {
     selectableRowsHideCheckboxes: true,
@@ -172,11 +176,11 @@ const UserOnboarding = () => {
   const backToInstructions = () => {
     formModified
       ? setDialogBoxOpen(true)
-      : history.push('/user/onboardingInstructions');
+      : history.push(`${path}/user/onboardingInstructions`);
   };
 
   const backToUsers = () => {
-    formModified ? setDialogBoxOpen(true) : history.push('/user');
+    formModified ? setDialogBoxOpen(true) : history.push(`${path}/user`);
   };
 
   const backToUpload = () => {

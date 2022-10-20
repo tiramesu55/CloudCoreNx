@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-types */
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Grid, Box, Typography, IconButton, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
@@ -56,16 +56,18 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const SiteForm = () => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);  
   const { token, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
 
   const theme = useTheme();
   const site = useAppSelector(selectedSite);
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
   const selectedSiteId = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
   const location: any = useLocation();
@@ -168,7 +170,7 @@ export const SiteForm = () => {
     if (location.state?.from === 'organizationForm') {
       siteFormModified
         ? setDialogBoxOpen(true)
-        : history.push('/organization/editOrganization', {
+        : history.push(`${path}/organization/editOrganization`, {
             from: 'siteForm',
             orgCode: orgData.orgCode,
             orgName: orgData.orgName,
@@ -176,7 +178,7 @@ export const SiteForm = () => {
     } else {
       siteFormModified
         ? setDialogBoxOpen(true)
-        : history.push('/organization/sites', {
+        : history.push(`${path}/organization/sites`, {
             from: 'siteForm',
             orgCode: orgData.orgCode,
             orgName: orgData.orgName,
@@ -268,7 +270,7 @@ export const SiteForm = () => {
       location.state === undefined &&
       location.pathname.includes('/organization/editSite')
     ) {
-      history.push('/organization/sites', {
+      history.push(`${path}/organization/sites`, {
         from: 'editSite',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -276,9 +278,9 @@ export const SiteForm = () => {
       });
     } else if (
       location.state === undefined &&
-      location.pathname.includes('/organization/addSite')
+      location.pathname.includes(`${path}/organization/addSite`)
     ) {
-      history.push('/organization/sites', {
+      history.push(`${path}/organization/sites`, {
         from: 'addSite',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -288,7 +290,7 @@ export const SiteForm = () => {
       location.state === undefined &&
       location.pathname.includes('/editOrg/addSite')
     ) {
-      history.push('/organization/editOrganization', {
+      history.push(`${path}/organization/editOrganization`, {
         from: 'siteFormEdit',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -367,7 +369,7 @@ export const SiteForm = () => {
                 setSnackBarMsg('addSiteSuccess');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push('/organization/sites', {
+                  history.push(`${path}/organization/sites`, {
                     from: '/organization/addSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,
@@ -466,7 +468,7 @@ export const SiteForm = () => {
                 setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push('/organization/sites', {
+                  history.push(`${path}/organization/sites`, {
                     from: '/organization/editSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,

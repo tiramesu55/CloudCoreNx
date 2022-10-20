@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useContext, useEffect, useMemo } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
@@ -20,23 +21,24 @@ import {
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
-  IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Dashboard = () => {
-  const config: IConfig = useContext(ConfigCtx)!;
+  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
+  
   const { token, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
   const baseUrl = platformBaseUrl;
   // console.log(baseUrl)
   const orgsCount = useAppSelector(getAllOrgCount);
@@ -63,7 +65,7 @@ export const Dashboard = () => {
   }, [dispatch, baseUrl, token]);
 
   const handleClickAddOrg = () => {
-    history.replace('/organization/addOrganization', {
+    history.replace(`${path}/organization/addOrganization`, {
       title: 'Add Organization',
       task: 'addOrganization',
       from: 'addOrganization',

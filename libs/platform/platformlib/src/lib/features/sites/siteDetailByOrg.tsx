@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
 import locationIcon from '../../images/location.svg';
@@ -12,11 +13,19 @@ import {
 } from '@cloudcore/redux-store';
 import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useContext, useMemo } from 'react';
+import {
+  ConfigCtx
+} from '@cloudcore/okta-and-config';
 
 const { useAppSelector } = platformStore
 export const SiteDetailByOrg = () => {
   const theme = useTheme();
+  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
   const idSelected = useAppSelector(selectSelectedId);
   const location: any = useLocation();
   const selected = useAppSelector(selectedId);
@@ -38,7 +47,7 @@ export const SiteDetailByOrg = () => {
   );
   const history = useHistory();
   const handleClick = () => {
-    history.push('/organization/editSite', {
+    history.push(`${path}/organization/editSite`, {
       title: 'Edit Site',
       task: 'editSite',
       from: 'editSite',

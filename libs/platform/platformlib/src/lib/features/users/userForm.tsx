@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import 'react-phone-number-input/style.css';
 import { useHistory, useLocation } from 'react-router-dom';
 import { platformStore } from '@cloudcore/redux-store';
@@ -47,17 +47,19 @@ const CustomCss = withStyles(() => ({
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const UserForm = () => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+  const { platformBaseUrl, isMainApp, logoutSSO, postLogoutRedirectUri } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+   const { token } = useClaimsAndSignout(
+    logoutSSO,
+    postLogoutRedirectUri
   );
+  const path = useMemo(() => {
+    return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
 
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+ 
   const location: any = useLocation();
   const selectedApps = useAppSelector(currentApps);
 
@@ -118,12 +120,12 @@ export const UserForm = () => {
       location.state === undefined &&
       location.pathname.includes('editUser')
     ) {
-      history.push('/user', { from: 'editUser', task: 'navigateToUser' });
+      history.push(`${path}/user`, { from: 'editUser', task: 'navigateToUser' });
     } else if (
       location.state === undefined &&
       location.pathname.includes('addUser')
     ) {
-      history.push('/user/email', { from: 'addUser', task: 'navigateToAdd' });
+      history.push(`${path}/user/email`, { from: 'addUser', task: 'navigateToAdd' });
     }
   }, []);
 
@@ -218,7 +220,7 @@ export const UserForm = () => {
               setSnackBarMsg('successMsg');
               setSnackBarType('success');
               setTimeout(() => {
-                history.push('/user', {
+                history.push(`${path}/user`, {
                   currentPage: location.state?.currentPage,
                   rowsPerPage: location.state?.rowsPerPage,
                 });
@@ -287,7 +289,7 @@ export const UserForm = () => {
               setSnackBarMsg('addUserSuccess');
               setSnackBarType('success');
               setTimeout(() => {
-                history.push('/user');
+                history.push(`${path}/user`);
               }, 1000);
             },
             (reason) => {
@@ -320,11 +322,11 @@ export const UserForm = () => {
     userFormModified
       ? setDialogBoxOpen(true)
       : location.pathname.includes('editUser')
-      ? history.push('/user', {
+      ? history.push(`${path}/user`, {
           currentPage: location.state?.currentPage,
           rowsPerPage: location.state?.rowsPerPage,
         })
-      : history.push('/user/email');
+      : history.push(`${path}/user/email`);
   };
 
   useEffect(() => {

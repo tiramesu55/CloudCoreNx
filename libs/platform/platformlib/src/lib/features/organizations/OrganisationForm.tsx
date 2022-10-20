@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -9,7 +10,7 @@ import {
   Stack,
   Autocomplete,
 } from '@mui/material';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useTheme } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -72,15 +73,17 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const OrganizationForm = () => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
   const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -317,7 +320,7 @@ export const OrganizationForm = () => {
       location.state === undefined &&
       location.pathname.includes('editOrganization')
     ) {
-      history.replace('/', {
+      history.replace(`${path? path : "/"}`, {
         from: 'editOrganization',
         task: 'navigateToDashboard',
       });
@@ -325,7 +328,7 @@ export const OrganizationForm = () => {
       location.state === undefined &&
       location.pathname.includes('addOrganization')
     ) {
-      history.replace('/', {
+      history.replace(`${path? path : "/"}`, {
         from: 'addOrganization',
         task: 'navigateToDashboard',
       });
@@ -338,7 +341,7 @@ export const OrganizationForm = () => {
   };
 
   const closeOrganizationForm = () => {
-    orgFormModified ? setDialogBoxOpen(true) : history.push('/');
+    orgFormModified ? setDialogBoxOpen(true) : history.push(`${path? path : "/"}`);
   };
 
   const handleOfficeEmailChange = (key: string, event: any) => {
@@ -467,7 +470,7 @@ export const OrganizationForm = () => {
                 setSnackBarMsg('addOrganizationSuccess');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push('/');
+                  history.push(`${path? path : "/"}`);
                 }, 1000);
               },
               () => {
@@ -603,7 +606,7 @@ export const OrganizationForm = () => {
                 setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push('/');
+                  history.push(`${path? path : "/"}`);
                 }, 1000);
               },
               () => {
@@ -683,7 +686,7 @@ export const OrganizationForm = () => {
   };
 
   const addNewSite = () => {
-    history.push('/organization/editOrg/addSite', {
+    history.push(`${path}/organization/editOrg/addSite`, {
       title: 'Add Site',
       task: 'addSite',
       from: 'organizationForm',

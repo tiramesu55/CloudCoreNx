@@ -6,8 +6,11 @@ import LowerButton from '../../components/LowerButtons';
 import theme from '../../../../../../ui-shared/src/lib/themes'; 
 import { useAppDispatch } from "../../../../../../redux-store/src/lib/hooks";
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import TitleAndCloseIcon from '../../components/TitleAndClose';
+import {
+  ConfigCtx
+} from '@cloudcore/okta-and-config';
 
   const style = {
     Card: {
@@ -50,6 +53,11 @@ import TitleAndCloseIcon from '../../components/TitleAndClose';
 const UserOnboardingInstructions =()=> {
     const history = useHistory();
     const dispatch = useAppDispatch();
+    const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+    const path = useMemo(() => {
+        return `${isMainApp ? '/platform' : ''}`;
+    }, [isMainApp]);
 
     const [activeStep, setActiveStep] = useState(0);
     const maxSteps = steps.length;
@@ -68,11 +76,11 @@ const UserOnboardingInstructions =()=> {
       };
 
     const closeInstructions = () => {
-        history.push("/user");
+        history.push(`${path}/user`);
       };
 
     const moveUserOnboarding = () => {
-        history.push("/user/onboarding",{from: "onboarding",});
+        history.push(`${path}/user/onboarding`, {from: "onboarding",});
     };
 
     const download = (data:string) => {

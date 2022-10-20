@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory } from 'react-router-dom';
 import {
@@ -35,14 +35,18 @@ interface Props {
 
 const { useAppDispatch, useAppSelector } = platformStore;
 export const DeactivateUser = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]); 
+
   const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+    logoutSSO,
+    postLogoutRedirectUri
   );
 
   const theme = useTheme();
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const dispatch = useAppDispatch();
 
   const history = useHistory();
@@ -79,7 +83,7 @@ export const DeactivateUser = (props: Props) => {
             props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push('/user');
+              history.push(`${path}/user`);
             }, 1000);
           },
           (reason) => {
@@ -115,7 +119,7 @@ export const DeactivateUser = (props: Props) => {
             props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push('/user');
+              history.push(`${path}/user`);
             }, 1000);
           },
           (reason) => {

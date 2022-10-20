@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useMemo, useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
   DialogActions,
@@ -15,6 +17,9 @@ import {
   setUserFormModified,
   platformStore,
 } from '@cloudcore/redux-store';
+import {
+  ConfigCtx
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   open: boolean;
@@ -28,7 +33,11 @@ export const UnsavedData = (props: Props) => {
   const history = useHistory();
   const location: any = useLocation();
   const dispatch = useAppDispatch();
+  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
   const handleStay = () => {
     props.handleLeave(false);
   };
@@ -44,7 +53,7 @@ export const UnsavedData = (props: Props) => {
   const handleLeave = () => {
     props.handleLeave(false);
     if (props.location === 'users') {
-      history.push('/user', {
+      history.push(`${path}/user`, {
         currentPage: currentPage,
         rowsPerPage: rowsPerPage,
       });
@@ -52,22 +61,22 @@ export const UnsavedData = (props: Props) => {
       dispatch(setSiteFormModified(false));
       dispatch(setUserFormModified(false));
     } else if (props.location === 'dashboard') {
-      history.push('/');
+      history.push(`${path? path : "/" }`);
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
       dispatch(setUserFormModified(false));
     } else if (props.location === 'organization') {
-      history.push('/');
+      history.push(`${path? path : "/" }`);
       dispatch(setOrgFormModified(false));
     } else if (props.location === 'site') {
-      history.push('/organization/sites', {
+      history.push(`${path}/organization/sites`, {
         from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
     } else if (props.location === 'organizationForm') {
-      history.push('/organization/editOrganization', {
+      history.push(`${path}/organization/editOrganization`, {
         from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,

@@ -6,6 +6,7 @@
     "start": "npx nx serve",
     "start-platform": "npx nx serve platform",
     "start-analytics": "npx nx serve analytics",
+    "start-main": "npx nx serve main",
     "build": "nx build",
     "test": "nx test"
   },

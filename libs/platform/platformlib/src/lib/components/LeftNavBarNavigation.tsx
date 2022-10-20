@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useEffect, useState, useMemo, useContext } from 'react';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import {
   Box,
@@ -27,6 +28,9 @@ import {
   getUserFormModified,
   platformStore,
 } from '@cloudcore/redux-store';
+import {
+  ConfigCtx
+} from '@cloudcore/okta-and-config';
 
 const drawerWidth = 240;
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -127,6 +131,11 @@ interface Props {
 
 export const MiniDrawer = (props: Props) => {
   const { useAppSelector } = platformStore;
+  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
   const theme = useTheme();
   const useStyles = makeStyles({
     list: {
@@ -173,11 +182,11 @@ export const MiniDrawer = (props: Props) => {
   const history = useHistory();
 
   const [selectedLink, setSelectedLink] = React.useState(() => {
-    return location.pathname.includes('/user') ? 1 : 0;
+    return location.pathname.includes(`${path}/user`) ? 1 : 0;
   });
 
   useEffect(() => {
-    setSelectedLink(location.pathname.includes('/user') ? 1 : 0);
+    setSelectedLink(location.pathname.includes(`${path}/user`) ? 1 : 0);
   }, [location]);
 
   const buttonProps = (value: any) => ({
@@ -245,7 +254,7 @@ export const MiniDrawer = (props: Props) => {
                   setDialogBoxOpen(true);
                   setRedirectUrl('dashboard');
                 } else {
-                  history.replace('/');
+                  history.replace(`${path? path : "/"}`);
                 }
               }}
               style={{
@@ -303,7 +312,7 @@ export const MiniDrawer = (props: Props) => {
                   setDialogBoxOpen(true);
                   setRedirectUrl('users');
                 } else {
-                  history.push('/user');
+                  history.push(`${path}/user`);
                 }
               }}
               style={{ textDecoration: 'none', color: 'white', padding: '0px' }}

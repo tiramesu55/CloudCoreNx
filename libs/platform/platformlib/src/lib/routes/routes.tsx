@@ -71,7 +71,7 @@ export const Routes = () => {
   }, [dispatch, platformBaseUrl, token]);
 
   const path = useMemo(() => {
-    return `${config.isMainApp ? '/platform' : '/'}`;
+    return `${config.isMainApp ? '/platform' : ''}`;
   }, [config.isMainApp]);
   const platformPermissions = permissions.admin?.length > 0;
 
@@ -93,12 +93,12 @@ export const Routes = () => {
         )}
         <Header
           title={'PLATFORM'}
-          logo={{ img: logo, path: '/' }}
+          logo={{ img: logo, path: config.isMainApp ? path : '/' }}
           betaIcon={true}
           reportIssue={false}
           navLinkMenuList={[
-            { label: 'DASHBOARD', route: '/' },
-            { label: 'USERS', route: '/user' },
+            { label: 'DASHBOARD', route: config.isMainApp ? path : '/' },
+            { label: 'USERS', route: config.isMainApp ? `${path}/user` : '/user' },
           ]}
           userMenu={{
             userName: names ? names[0] : '',
@@ -121,41 +121,41 @@ export const Routes = () => {
     <>
       {platformPermissions ? (
         <>
-          <Route exact path={`${path}`}>
+          <Route exact path={`${path? path : "/"}`}>
             {ComponentLayout(Dashboard)}
           </Route>
-          <Route path={`${path}organization/addOrganization`}>
+          <Route path={`${path}/organization/addOrganization`}>
             {ComponentLayout(AddNewOrganisation)}
           </Route>
-          <Route path={`${path}organization/editOrganization`}>
+          <Route path={`${path}/organization/editOrganization`}>
             {ComponentLayout(AddNewOrganisation)}
           </Route>
-          <Route exact path={`${path}user`}>
+          <Route exact path={`${path}/user`}>
             {ComponentLayout(ListUsers)}
           </Route>
-          <Route path={`${path}user/email`}>{ComponentLayout(UserEmail)}</Route>
-          <Route path={`${path}user/addUser`}>
+          <Route path={`${path}/user/email`}>{ComponentLayout(UserEmail)}</Route>
+          <Route path={`${path}/user/addUser`}>
             {ComponentLayout(UserForm)}
           </Route>
-          <Route path={`${path}user/editUser`}>
+          <Route path={`${path}/user/editUser`}>
             {ComponentLayout(UserForm)}
           </Route>
-          <Route path={`${path}user/onboarding`}>
+          <Route path={`${path}/user/onboarding`}>
             {ComponentLayout(UserOnboarding)}
           </Route>
-          <Route path={`${path}user/onboardingInstructions`}>
+          <Route path={`${path}/user/onboardingInstructions`}>
             {ComponentLayout(userOnboardingInstructions)}
           </Route>
-          <Route path={`${path}organization/sites`}>
+          <Route path={`${path}/organization/sites`}>
             {ComponentLayout(Sites)}
           </Route>
-          <Route path={`${path}organization/editSite`}>
+          <Route path={`${path}/organization/editSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
-          <Route path={`${path}organization/addSite`}>
+          <Route path={`${path}/organization/addSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
-          <Route path={`${path}organization/editOrg/addSite`}>
+          <Route path={`${path}/organization/editOrg/addSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
         </>

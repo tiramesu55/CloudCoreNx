@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 import {
   Button,
@@ -19,6 +20,9 @@ import {
 } from '@cloudcore/redux-store';
 import { useTheme } from '@mui/material';
 import { useHistory } from 'react-router-dom';
+import {
+  ConfigCtx
+} from '@cloudcore/okta-and-config';
 
 const {useAppDispatch, useAppSelector } = platformStore
 
@@ -26,6 +30,11 @@ export const AddUserForm = () => {
   const theme = useTheme();
   const [emailID, setEmailID] = useState('');
   const dispatch = useAppDispatch();
+  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
+  const path = useMemo(() => {
+      return `${isMainApp ? '/platform' : ''}`;
+  }, [isMainApp]);
 
   const org = useAppSelector((state) =>
     selectOrganizationByDomain(state, emailID.toLowerCase())
@@ -41,7 +50,7 @@ export const AddUserForm = () => {
   const history = useHistory();
 
   const closeAddUser = () => {
-    history.push('/user');
+    history.push(`${path}/user`);
   };
 
   useEffect(() => {
@@ -128,13 +137,13 @@ export const AddUserForm = () => {
                 disabled={!org}
                 onClick={() => {
                   if (usr) {
-                    history.push('/user/editUser', {
+                    history.push(`${path}/user/editUser`, {
                       title: 'Edit User',
                       task: 'editUser',
                       from: 'editUser',
                     });
                   } else {
-                    history.push('/user/addUser', {
+                    history.push(`${path}/user/addUser`, {
                       from: 'addUser',
                       task: 'addUser',
                     });
