@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import {  Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 import {
   ConfigCtx,
@@ -10,7 +10,7 @@ import { Header, NotAuthorized } from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import Component1 from './components/component1/component1';
 import Component2 from './components/component2/component2';
-import Landing from './landing/landing'
+import Landing from './landing/landing';
 import logo from './images/Nexia-Logo2.png';
 import logOutIcon from './images/sign-out.svg';
 import PowerbiReport from './powerbi-report/powerbi-report';
@@ -23,12 +23,12 @@ export const MpRoutes = () => {
     config.postLogoutRedirectUri
   );
 
-  const mpPermissions = permissions.marketplace?.length > 0;
+  const mpPermissions =
+    permissions.marketplace && permissions.marketplace?.length > 0;
   const history = useHistory();
 
   const path = useMemo(() => {
-    console.log('config.ismain', config.isMainApp)
-    return `${config.isMainApp!== undefined ? '/marketplace/' : '/'}`;
+    return `${config.isMainApp ? '/marketplace/' : '/'}`;
   }, [config.isMainApp]);
   const ComponentLayout = (Component: any) => {
     return (
@@ -86,16 +86,16 @@ export const MpRoutes = () => {
     ),
     [history, initials, names, path, signOut]
   );
-  console.log('path', path)
+
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {mpPermissions ? (
         <>
-          <Route exact  path={`${path}`}>
+          <Route exact path={`${path}`}>
             {ComponentLayout(Landing)}
           </Route>
-          <Route  path={`${path}component1`}>
+          <Route path={`${path}component1`}>
             {ComponentLayout(Component1)}
           </Route>
           <Route path={`${path}component2`}>
@@ -106,7 +106,9 @@ export const MpRoutes = () => {
           </Route>
         </>
       ) : (
-        <NotAuthorized signOut={signOut} />
+        <Route path={path}>
+          <NotAuthorized signOut={signOut} />
+        </Route>
       )}
     </>
   );

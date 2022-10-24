@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useMemo, useContext } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useContext, useMemo } from 'react';
 import {
   DialogActions,
   DialogContent,
@@ -16,10 +15,10 @@ import {
   setSiteFormModified,
   setUserFormModified,
   platformStore,
+  setSuiteFormModified,
+  setResetForm,
 } from '@cloudcore/redux-store';
-import {
-  ConfigCtx
-} from '@cloudcore/okta-and-config';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 interface Props {
   open: boolean;
@@ -28,16 +27,16 @@ interface Props {
 }
 
 export const UnsavedData = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const theme = useTheme();
   const { useAppDispatch } = platformStore;
   const history = useHistory();
   const location: any = useLocation();
   const dispatch = useAppDispatch();
-  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
-  const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
   const handleStay = () => {
     props.handleLeave(false);
   };
@@ -53,35 +52,46 @@ export const UnsavedData = (props: Props) => {
   const handleLeave = () => {
     props.handleLeave(false);
     if (props.location === 'users') {
-      history.push(`${path}/user`, {
+      history.push(`${path}user`, {
         currentPage: currentPage,
         rowsPerPage: rowsPerPage,
       });
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
       dispatch(setUserFormModified(false));
+      dispatch(setSuiteFormModified(false));
+      dispatch(setResetForm(true));
     } else if (props.location === 'dashboard') {
-      history.push(`${path? path : "/" }`);
+      history.push(path);
       dispatch(setOrgFormModified(false));
       dispatch(setSiteFormModified(false));
       dispatch(setUserFormModified(false));
+      dispatch(setSuiteFormModified(false));
+      dispatch(setResetForm(true));
     } else if (props.location === 'organization') {
-      history.push(`${path? path : "/" }`);
+      history.push(path);
       dispatch(setOrgFormModified(false));
     } else if (props.location === 'site') {
-      history.push(`${path}/organization/sites`, {
+      history.push(`${path}organization/sites`, {
         from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
     } else if (props.location === 'organizationForm') {
-      history.push(`${path}/organization/editOrganization`, {
+      history.push(`${path}organization/editOrganization`, {
         from: 'siteForm',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
+    }  else if (props.location === "customReports") {
+      history.push(`${path}customReports`);
+      dispatch(setOrgFormModified(false));
+      dispatch(setSiteFormModified(false));
+      dispatch(setUserFormModified(false));
+      dispatch(setSuiteFormModified(false));
+      dispatch(setResetForm(true));
     } else {
       history.goBack();
     }

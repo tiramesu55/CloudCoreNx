@@ -6,7 +6,6 @@ interface Props {
   type?: string;
   content?: string;
   duration?: number;
-  errorReason?: string;
 }
 
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
@@ -39,7 +38,7 @@ export const Snackbar = (props: Props) => {
           {props.content === 'addOrganizationSuccess' &&
             'Organization added successfully'}
           {props.content === 'addSiteSuccess' && 'Site added successfully'}
-          {props.content === 'updateSuite' && 'Suite updated successfully'}
+          {props.content === 'updateSuiteSuccess' && 'Suite updated successfully'}
           {props.content === 'deleteSuiteSuccess' &&
             'Suite deleted successfully'}
           {props.content === 'uploadUsersSuccess' &&
@@ -52,16 +51,14 @@ export const Snackbar = (props: Props) => {
           {props.content === 'addOrganizationFailure' &&
             'Error while adding Organization'}
           {props.content === 'addSiteFailure' && 'Error while adding Site'}
-          {props.content === 'allUserFailure' && props.errorReason}
-          {props.content === 'getSitesFailure' && props.errorReason}
           {props.content === 'uploadUsersError' &&
             'Error while uploading Users'}
-          {props.content === 'deleteSuiteFailure' &&
+            {props.content === 'deleteSuiteFailure' &&
             'Error while deleting suite'}
-        </Alert>
-      ) : props.type === 'fetchError' ? (
-        <Alert severity="error">
-          Error while loading the data, Please try again.
+          {props.content === 'updateSuiteFailure' &&
+            'Error while updating suite'}
+          {props.content === 'fetchError' &&
+            'Error while loading the data, Please try again.'}
         </Alert>
       ) : (
         <Box></Box>

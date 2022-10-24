@@ -12,3 +12,4 @@ export * from './lib/List';
 export * from './lib/themes';
 export * from './lib/Snackbar';
 export * from './lib/AppsMenu';
+export * from './lib/BackDrop';

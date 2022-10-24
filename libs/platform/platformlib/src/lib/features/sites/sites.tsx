@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useEffect, useContext, useMemo } from 'react';
+import { useEffect, useMemo, useContext } from 'react';
 import { Grid, Box, Typography, IconButton, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { useSelector } from 'react-redux';
@@ -19,23 +18,19 @@ import {
   selectedIdSite,
   selectAllSites,
 } from '@cloudcore/redux-store';
-import {
-  ConfigCtx
-} from '@cloudcore/okta-and-config';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 export const Sites = () => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const theme = useTheme();
   const selectedSiteId = useAppSelector(selectSelectedId);
   const selectSiteByID = useSelector((state: any) =>
     siteSelector.selectById(state, selectedSiteId)
   );
-  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
-  const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
-
   const siteList = useAppSelector(selectAllSites);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -77,7 +72,7 @@ export const Sites = () => {
     }
   }, []);
   const closeSites = () => {
-    history.push(`${path}/organization/editOrganization`, {
+    history.push(`${path}organization/editOrganization`, {
       title: 'Edit Organization',
       task: 'editOrganization',
       from: 'editOrganization',
@@ -92,7 +87,7 @@ export const Sites = () => {
   );
 
   const addNewSite = () => {
-    history.push(`${path}/organization/addSite`, {
+    history.push(`${path}organization/addSite`, {
       title: 'Add Site',
       task: 'addSite',
       from: 'addSite',

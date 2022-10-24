@@ -17,7 +17,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Header } from '@cloudcore/ui-shared';
+import { Backdrop, Header } from '@cloudcore/ui-shared';
 import { BackdropPowerBi } from './components/BackDrop/Backdrop';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import { Box } from '@mui/system';
@@ -38,10 +38,6 @@ export interface AnalyticsPowerbiProps {}
 export const AnalyticsPowerbi = () => {
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
-
-  // const [userName, setUserName] = useState('');
-  // const [userEmail, setUserEmail] = useState('');
-  // const [userInitials, setUserInitials] = useState('');
 
   const [listReportLoading, setListReportLoading] = useState<boolean>(false);
   const [activityModal, setActivityModal] = useState<boolean>(false);
@@ -101,7 +97,6 @@ export const AnalyticsPowerbi = () => {
             dispatch(loadReports(response.suites));
           })
           .catch((error) => {
-            console.log(error);
             setListReportLoading(false);
             handleErrorResponse({
               type: 'GetGroupReports',
@@ -214,7 +209,7 @@ export const AnalyticsPowerbi = () => {
         />
         <Box sx={{ display: 'flex' }}>
           {selectedReportId && (
-            <>
+            <Backdrop open={loadingSingleReport}>
               <ReportBiClientComponent
                 userName={names ? names[0] : ''}
                 userEmail={email ?? ''}
@@ -225,8 +220,8 @@ export const AnalyticsPowerbi = () => {
                 selectedReportId={selectedReportId}
                 reportFilter={reportFilter}
               />
-              <BackdropPowerBi loadingState={loadingSingleReport} />
-            </>
+              {/* <BackdropPowerBi loadingState={loadingSingleReport} /> */}
+            </Backdrop>
           )}
         </Box>
       </>
@@ -239,7 +234,9 @@ export const AnalyticsPowerbi = () => {
       {anltPermissions ? (
         <Route path={path}>{AnalitycsComponent}</Route>
       ) : (
-        <NotAuthorized signOut={signOut} />
+        <Route path={path}>
+          <NotAuthorized signOut={signOut} />
+        </Route>
       )}
     </>
   );

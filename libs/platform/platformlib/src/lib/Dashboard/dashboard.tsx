@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
@@ -9,6 +8,7 @@ import users from '../images/users.svg';
 import organizations from '../images/organizations.svg';
 import { useHistory } from 'react-router-dom';
 import { List } from '@cloudcore/ui-shared';
+import { Snackbar } from '@cloudcore/ui-shared';
 import { OrganizationDataProfile } from '../features/organizations/organizationsProfile/organizationDataProfile';
 import {
   getAllOrgCount,
@@ -21,26 +21,28 @@ import {
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
+  IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Dashboard = () => {
-  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!;
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
-  
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token, permissions } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
-  const baseUrl = platformBaseUrl;
-  // console.log(baseUrl)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const [snackbar, setSnackbar] = useState(false);
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);
@@ -54,18 +56,29 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (baseUrl) {
+    if (platformBaseUrl) {
       dispatch(
         getDashboardStats({
-          url: baseUrl,
+          url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
     }
-  }, [dispatch, baseUrl, token]);
+  }, [dispatch, platformBaseUrl, token]);
 
   const handleClickAddOrg = () => {
-    history.replace(`${path}/organization/addOrganization`, {
+    history.replace(`${path}organization/addOrganization`, {
       title: 'Add Organization',
       task: 'addOrganization',
       from: 'addOrganization',
@@ -74,6 +87,7 @@ export const Dashboard = () => {
 
   return (
     <Grid container spacing={1}>
+      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
       <Grid item xs={12}>
         <Box
           sx={{

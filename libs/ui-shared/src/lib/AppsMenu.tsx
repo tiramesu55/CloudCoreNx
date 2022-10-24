@@ -28,7 +28,6 @@ const AppsMenu = (props: AppsMenuProps) => {
     config.logoutSSO,
     config.postLogoutRedirectUri
   );
-  console.log('');
   const apps = [
     {
       name: 'ANALYTICS',

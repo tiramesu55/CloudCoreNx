@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import styles from './userOnboardingForm.module.css';
 import { useContext, useState, useMemo } from 'react';
 import { UnsavedData } from '../../components';
 import { Snackbar, theme } from '@cloudcore/ui-shared';
@@ -30,8 +28,11 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import InputSelectWithLabel from '../../components/InputSelectWithLabel';
 import ImportFile from '../../components/ImportFile';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
-import { useOktaAuth } from '@okta/okta-react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 const style = {
   Card: {
@@ -90,6 +91,14 @@ interface DisplayRecord {
   Errors: string;
 }
 const UserOnboarding = () => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const { useAppDispatch, useAppSelector } = platformStore;
   const [org, setOrg] = useState('');
   const [orgCode, setOrgCode] = useState('');
@@ -115,11 +124,7 @@ const UserOnboarding = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const { platformBaseUrl, isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { authState } = useOktaAuth();
-  const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   const options: MUIDataTableOptions = {
     selectableRowsHideCheckboxes: true,
@@ -176,11 +181,11 @@ const UserOnboarding = () => {
   const backToInstructions = () => {
     formModified
       ? setDialogBoxOpen(true)
-      : history.push(`${path}/user/onboardingInstructions`);
+      : history.push(`${path}user/onboardingInstructions`);
   };
 
   const backToUsers = () => {
-    formModified ? setDialogBoxOpen(true) : history.push(`${path}/user`);
+    formModified ? setDialogBoxOpen(true) : history.push(`${path}user`);
   };
 
   const backToUpload = () => {
@@ -293,7 +298,7 @@ const UserOnboarding = () => {
           importUserFile({
             upload: uploadFile,
             url: platformBaseUrl,
-            token: authState?.accessToken?.accessToken,
+            token: token,
           })
         )
           .unwrap()
@@ -328,8 +333,6 @@ const UserOnboarding = () => {
               setFormModified(false);
               // var endTime = new Date()
               // var seconds = (endTime.getTime() - startTime.getTime()) / 1000;
-              // console.log("seconds")
-              // console.log(seconds)
             },
             (reason: any) => {
               setFormModified(false);

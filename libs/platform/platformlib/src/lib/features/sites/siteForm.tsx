@@ -56,18 +56,19 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const SiteForm = () => {
-  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);  
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token, permissions } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
 
   const theme = useTheme();
   const site = useAppSelector(selectedSite);
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const selectedSiteId = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
   const location: any = useLocation();
@@ -117,9 +118,20 @@ export const SiteForm = () => {
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
     }
-  }, [platformBaseUrl]);
+  }, [dispatch, platformBaseUrl, token]);
 
   useEffect(() => {
     setSiteApplications(site.applications);
@@ -170,7 +182,7 @@ export const SiteForm = () => {
     if (location.state?.from === 'organizationForm') {
       siteFormModified
         ? setDialogBoxOpen(true)
-        : history.push(`${path}/organization/editOrganization`, {
+        : history.push(`${path}organization/editOrganization`, {
             from: 'siteForm',
             orgCode: orgData.orgCode,
             orgName: orgData.orgName,
@@ -178,7 +190,7 @@ export const SiteForm = () => {
     } else {
       siteFormModified
         ? setDialogBoxOpen(true)
-        : history.push(`${path}/organization/sites`, {
+        : history.push(`${path}organization/sites`, {
             from: 'siteForm',
             orgCode: orgData.orgCode,
             orgName: orgData.orgName,
@@ -270,7 +282,7 @@ export const SiteForm = () => {
       location.state === undefined &&
       location.pathname.includes('/organization/editSite')
     ) {
-      history.push(`${path}/organization/sites`, {
+      history.push(`${path}organization/sites`, {
         from: 'editSite',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -278,9 +290,9 @@ export const SiteForm = () => {
       });
     } else if (
       location.state === undefined &&
-      location.pathname.includes(`${path}/organization/addSite`)
+      location.pathname.includes('/organization/addSite')
     ) {
-      history.push(`${path}/organization/sites`, {
+      history.push(`${path}organization/sites`, {
         from: 'addSite',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -290,7 +302,7 @@ export const SiteForm = () => {
       location.state === undefined &&
       location.pathname.includes('/editOrg/addSite')
     ) {
-      history.push(`${path}/organization/editOrganization`, {
+      history.push(`${path}organization/editOrganization`, {
         from: 'siteFormEdit',
         task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
@@ -369,7 +381,7 @@ export const SiteForm = () => {
                 setSnackBarMsg('addSiteSuccess');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push(`${path}/organization/sites`, {
+                  history.push(`${path}organization/sites`, {
                     from: '/organization/addSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,
@@ -468,7 +480,7 @@ export const SiteForm = () => {
                 setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push(`${path}/organization/sites`, {
+                  history.push(`${path}organization/sites`, {
                     from: '/organization/editSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,

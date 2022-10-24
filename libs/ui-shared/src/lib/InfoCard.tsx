@@ -1,9 +1,15 @@
+import { useContext, useMemo } from 'react';
 import { Box, Button, Grid } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Card } from './Card';
 import { useTheme } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 import { useHistory } from 'react-router-dom';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   title: string;
@@ -25,10 +31,14 @@ const style = {
 };
 
 export const InfoCard = (props: Props) => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const theme = useTheme();
   const history = useHistory();
   const redirectToEditSites = () => {
-    history.push('/organization/sites', {
+    history.push(`${path}organization/sites`, {
       from: '/organization/editSite',
       orgCode: props.orgCode,
       orgName: props.orgName,

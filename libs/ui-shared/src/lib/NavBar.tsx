@@ -12,7 +12,7 @@ interface navigationProps {
 interface navigation {
   label: string;
   route?: string;
-  onClick?: () => void;
+  onClick?: (e :  React.MouseEvent<HTMLElement>) => void;
   subMenuList?: subMenuListProps[];
 }
 
@@ -105,7 +105,6 @@ const NavBar = (props: navigationProps) => {
                   <MenuItem
                     onClick={() => {
                       handleMenuItemClick(sub?.route);
-                      console.log(sub, 'subRoute');
                       sub?.onClick?.();
                     }}
                     key={indx}
@@ -133,9 +132,7 @@ const NavBar = (props: navigationProps) => {
             key={item.route}
             exact
             activeClassName="selected"
-            onClick={(e) => {
-              return null;
-            }}
+            onClick={item.onClick}
             activeStyle={{
               color: theme.palette.primary.main,
             }}

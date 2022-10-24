@@ -323,7 +323,7 @@ export const organizationsSlice = createSlice({
       .addCase(getOrganizationsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.organizations = action?.payload?.data;
-        console.log("action", action)
+        state.selectedId = action?.payload?.data[0]?.id;
         organizationAdapter.upsertMany(state, action?.payload?.data!);
       })
       .addCase(getOrganizationsAsync.rejected, (state) => {
@@ -334,15 +334,6 @@ export const organizationsSlice = createSlice({
       })
       .addCase(updateOrganizationAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        // state.organizations = state.organizations.map((organization) => {
-        //   if (organization.id === action.payload.data?.id) {
-        //     return {
-        //       ...action.payload,
-        //     };
-        //   } else {
-        //     return organization;
-        //   }
-        // });
       })
       .addCase(updateOrganizationAsync.rejected, (state) => {
         state.status = "failed";

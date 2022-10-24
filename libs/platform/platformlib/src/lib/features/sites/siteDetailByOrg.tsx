@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
 import locationIcon from '../../images/location.svg';
@@ -14,18 +13,15 @@ import {
 import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useEffect, useContext, useMemo } from 'react';
-import {
-  ConfigCtx
-} from '@cloudcore/okta-and-config';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
-const { useAppSelector } = platformStore
+const { useAppSelector } = platformStore;
 export const SiteDetailByOrg = () => {
-  const theme = useTheme();
-  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!;
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
+  const theme = useTheme();
   const idSelected = useAppSelector(selectSelectedId);
   const location: any = useLocation();
   const selected = useAppSelector(selectedId);
@@ -47,7 +43,7 @@ export const SiteDetailByOrg = () => {
   );
   const history = useHistory();
   const handleClick = () => {
-    history.push(`${path}/organization/editSite`, {
+    history.push(`${path}organization/editSite`, {
       title: 'Edit Site',
       task: 'editSite',
       from: 'editSite',

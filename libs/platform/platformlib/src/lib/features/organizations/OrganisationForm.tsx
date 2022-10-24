@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -73,17 +72,18 @@ const CustomCss = withStyles(() => ({
 }))(() => null);
 
 export const OrganizationForm = () => {
-  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
   const history = useHistory();
@@ -105,7 +105,6 @@ export const OrganizationForm = () => {
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const [errorReason, setErrorReason] = useState('');
   const selectedOrgStats = useAppSelector(organizationStats);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const orgFormModified = useAppSelector(getOrgFormModified);
@@ -165,7 +164,18 @@ export const OrganizationForm = () => {
         url: platformBaseUrl,
         token: token,
       })
-    );
+    )
+    .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
   }, []);
 
   useEffect(() => {
@@ -198,12 +208,16 @@ export const OrganizationForm = () => {
         })
       )
         .unwrap()
-        .then((reason: any) => {
-          setSnackbar(true);
-          setSnackBarType('failure');
-          setErrorReason(reason.message);
-          setSnackBarMsg('getSitesFailure');
-        });
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
     }
   }, []);
 
@@ -320,7 +334,7 @@ export const OrganizationForm = () => {
       location.state === undefined &&
       location.pathname.includes('editOrganization')
     ) {
-      history.replace(`${path? path : "/"}`, {
+      history.replace(path, {
         from: 'editOrganization',
         task: 'navigateToDashboard',
       });
@@ -328,7 +342,7 @@ export const OrganizationForm = () => {
       location.state === undefined &&
       location.pathname.includes('addOrganization')
     ) {
-      history.replace(`${path? path : "/"}`, {
+      history.replace(path, {
         from: 'addOrganization',
         task: 'navigateToDashboard',
       });
@@ -341,7 +355,7 @@ export const OrganizationForm = () => {
   };
 
   const closeOrganizationForm = () => {
-    orgFormModified ? setDialogBoxOpen(true) : history.push(`${path? path : "/"}`);
+    orgFormModified ? setDialogBoxOpen(true) : history.push(path);
   };
 
   const handleOfficeEmailChange = (key: string, event: any) => {
@@ -470,7 +484,7 @@ export const OrganizationForm = () => {
                 setSnackBarMsg('addOrganizationSuccess');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push(`${path? path : "/"}`);
+                  history.push(path);
                 }, 1000);
               },
               () => {
@@ -606,7 +620,7 @@ export const OrganizationForm = () => {
                 setSnackBarMsg('successMsg');
                 setSnackBarType('success');
                 setTimeout(() => {
-                  history.push(`${path? path : "/"}`);
+                  history.push(path);
                 }, 1000);
               },
               () => {
@@ -686,7 +700,7 @@ export const OrganizationForm = () => {
   };
 
   const addNewSite = () => {
-    history.push(`${path}/organization/editOrg/addSite`, {
+    history.push(`${path}organization/editOrg/addSite`, {
       title: 'Add Site',
       task: 'addSite',
       from: 'organizationForm',
@@ -706,13 +720,7 @@ export const OrganizationForm = () => {
           location="organization"
         />
       }
-      {snackbar && (
-        <Snackbar
-          type={snackbarType}
-          content={snackBarMsg}
-          errorReason={errorReason}
-        />
-      )}
+      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
       {
         <OrgDomainModal
           open={orgDomainDialogOpen}

@@ -14,11 +14,9 @@ import { Snackbar } from '@cloudcore/ui-shared';
 import { Card } from '@cloudcore/ui-shared';
 import Tooltip from '@mui/material/Tooltip';
 import {
-  applicationMapping,
   getApplications,
   selectOrganizations,
   selectUserID,
-  Application,
   fetchUsers,
   allUsers,
 } from '@cloudcore/redux-store';
@@ -48,19 +46,19 @@ const CustomFilterList = (props: any) => {
 };
 
 export const ListUsers = (props: Props) => {
-  const { isMainApp, logoutSSO, platformBaseUrl, postLogoutRedirectUri  } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
   const theme = useTheme();
   const dispatch = useAppDispatch();
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   const users = useAppSelector(allUsers);
-  const allApps = useAppSelector(applicationMapping);
   const orgData = useAppSelector(selectOrganizations);
   const usersWithOrg = users.map((user) => {
     const orgName = orgData.find((org) => {
@@ -87,7 +85,6 @@ export const ListUsers = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(
     location.state?.rowsPerPage ? location.state?.rowsPerPage : 10
   );
-  const [errorReason, setErrorReason] = useState('');
   //const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -97,7 +94,18 @@ export const ListUsers = (props: Props) => {
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
       dispatch(
         fetchUsers({
           url: platformBaseUrl,
@@ -105,23 +113,18 @@ export const ListUsers = (props: Props) => {
         })
       )
         .unwrap()
-        .then((reason: any) => {
-          setSnackbar(true);
-          setSnackBarType('failure');
-          setErrorReason(reason.message);
-          setSnackBarMsg('allUserFailure');
-        });
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
     }
-  }, [platformBaseUrl, dispatch]);
-
-  const { error } = useAppSelector((state) => state.user);
-  useEffect(() => {
-    if (error) {
-      setSnackbar(true);
-      setSnackBarType('fetchError');
-      setSnackBarMsg('errorMsg');
-    }
-  }, [error]);
+  }, [platformBaseUrl, dispatch, token]);
 
   const columns = [
     {
@@ -152,8 +155,6 @@ export const ListUsers = (props: Props) => {
         filter: true,
         sort: true,
         customBodyRender: (value: string, tableMeta: any) => {
-          const tableData = tableMeta.tableData;
-          const index = tableMeta.rowIndex;
           return (
             <Tooltip
               title={
@@ -178,7 +179,7 @@ export const ListUsers = (props: Props) => {
                 }}
                 onClick={() => {
                   dispatch(selectUserID(tableMeta.rowData[2]));
-                  history.replace(`${path}/user/editUser`, {
+                  history.replace(`${path}user/editUser`, {
                     title: 'Edit User',
                     task: 'editUser',
                     from: 'editUser',
@@ -276,7 +277,10 @@ export const ListUsers = (props: Props) => {
             color: theme.palette.primary.main,
           }}
           onClick={() => {
-            history.push('user/email', { title: 'Add User', task: 'addUser' });
+            history.push(`${path}user/email`, {
+              title: 'Add User',
+              task: 'addUser',
+            });
           }}
         >
           Add New User
@@ -293,7 +297,7 @@ export const ListUsers = (props: Props) => {
             color: theme.palette.primary.main,
           }}
           onClick={() => {
-            history.push('user/onboardingInstructions');
+            history.push(`${path}user/onboardingInstructions`);
           }}
         >
           Import Users
@@ -327,26 +331,6 @@ export const ListUsers = (props: Props) => {
     onChangeRowsPerPage(numberOfRows) {
       setRowsPerPage(numberOfRows);
     },
-
-    /* onCellClick: async (
-      colData: any,
-      cellMeta: {
-        colIndex: number;
-        rowIndex: number;
-        dataIndex: number;
-      }
-    ) => {
-      console.log(colData, "colData");
-      const email = users[cellMeta.rowIndex].email;
-      if (email && cellMeta.colIndex === 3) {
-        dispatch(selectUserID(email));
-        history.replace("/user/editUser", {
-          title: "Edit User",
-          task: "editUser",
-          from: "editUser",
-        });
-      }
-    }, */
     rowHover: false,
   };
 
@@ -397,13 +381,7 @@ export const ListUsers = (props: Props) => {
   return (
     <Grid container>
       <>
-        {snackbar && (
-          <Snackbar
-            type={snackbarType}
-            content={snackBarMsg}
-            errorReason={errorReason}
-          />
-        )}
+        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <CustomTableCss />
         <Grid item xs={12} sx={{ paddingTop: theme.spacing(2) }}>
           <Card sx={{ margin: '0px 24px', border: 'none' }}>

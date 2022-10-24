@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -34,18 +34,20 @@ interface Props {
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const ActivateDeactivateOrg = (props: Props) => {
-  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
+
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const organization = useAppSelector(selectedOrganization);
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const history = useHistory();
   const dispatch = useAppDispatch();
 
@@ -97,7 +99,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
             props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
-              history.push(`${path? path : "/"}`);
+              history.push(path);
             }, 1000);
           },
           (reason) => {
@@ -128,7 +130,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
             props.setSnackBarMsg('successMsg');
             props.setSnackBarType('success');
             setTimeout(() => {
-              history.push(`${path? path : "/"}`);
+              history.push(path);
             }, 1000);
           },
           (reason) => {

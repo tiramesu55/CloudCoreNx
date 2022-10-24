@@ -15,5 +15,4 @@ Primary.args = {
   type: '',
   content: '',
   duration: 0,
-  errorReason: '',
 };

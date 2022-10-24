@@ -10,14 +10,16 @@ import {
   selectOrganizations,
 } from '@cloudcore/redux-store';
 import { useHistory } from 'react-router-dom';
-import {
-  ConfigCtx
-} from '@cloudcore/okta-and-config';
-import { useMemo, useContext } from 'react';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import { useContext, useMemo } from 'react';
 
-const { useAppSelector } = platformStore
+const { useAppSelector } = platformStore;
 
 export const OrganizationDataProfile = () => {
+  const config: IConfig = useContext(ConfigCtx)!;
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const theme = useTheme();
   const organizations = useAppSelector(selectOrganizations);
   const selectId = useAppSelector(selectedId);
@@ -26,13 +28,9 @@ export const OrganizationDataProfile = () => {
     organizationSelector.selectById(state, id)
   );
   const history = useHistory();
-  const { isMainApp } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
-  const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);  
   const handleClick = () => {
-    history.replace(`${path}/organization/editOrganization`, {
+    history.replace(`${path}organization/editOrganization`, {
       title: 'Edit Organization',
       task: 'editOrganization',
       from: 'editOrganization',

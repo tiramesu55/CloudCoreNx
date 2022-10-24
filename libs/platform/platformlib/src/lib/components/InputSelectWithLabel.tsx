@@ -4,6 +4,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { withStyles } from '@mui/styles';
 import { useState } from 'react';
+import { getSuiteFormModified, platformStore } from "@cloudcore/redux-store";
 
 interface Props {
   label?: string;
@@ -77,11 +78,26 @@ const CustomSelectCss = withStyles((theme) => ({
 
 const InputSelectWithLabel = (props: Props) => {
   const [value, setValue] = useState<string>(props.value);
+  const { useAppSelector } = platformStore;
+  const suiteFormModified = useAppSelector(getSuiteFormModified);
   const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as any);
-    props.orgChangeHandler?.(event.target.value);
-    props.domainChangeHandler?.(event.target.value);
-    props.permissionChangeHandler?.(event.target.value);
+    if(!suiteFormModified){
+      props.orgChangeHandler?.(event.target.value);
+      props.domainChangeHandler?.(event.target.value);
+      props.permissionChangeHandler?.(event.target.value);
+    }
+  };
+
+  const handleUnsavedData = () => {
+    if (suiteFormModified) {
+     props?.unsavedDataHandler && props?.unsavedDataHandler(true);
+      if (props.handleDomainReset && props.id === "domain") {
+        props.handleDomainReset(true);
+      }
+      if (props.handlePermissionReset && props.id === "permission") {
+        props.handlePermissionReset(true);
+      }
+    }
   };
 
   const required = props.required ? true : false;
@@ -121,7 +137,7 @@ const InputSelectWithLabel = (props: Props) => {
           </MenuItem>
           {props.options?.map((option, i) => {
             return (
-              <MenuItem key={i} value={option}>
+              <MenuItem key={i} value={option} onClick={handleUnsavedData}>
                 {option}
               </MenuItem>
             );

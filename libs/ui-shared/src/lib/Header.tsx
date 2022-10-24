@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Typography, Divider, Box } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { ReportIssue } from './ReportIssue';
 import { UserMenu } from './UserMenu';
 import NavBar from './NavBar';
@@ -7,6 +7,7 @@ import reportIssueIcon from './assets/report-issue.svg';
 import { useTheme } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
 import AppsMenu from './AppsMenu';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 interface headerProps {
   title: string;
@@ -38,7 +39,7 @@ interface userMenuListProps {
 interface navLinkMenuListProps {
   label: string;
   route?: string;
-  onClick?: () => void;
+  onClick?: (e :  React.MouseEvent<HTMLElement>) => void;
   subMenuList?: subMenuListProps[];
 }
 
@@ -50,6 +51,8 @@ interface subMenuListProps {
 
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const config: IConfig = useContext(ConfigCtx)!;
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const handleReportIssueDialogOpen = () => {
@@ -192,18 +195,20 @@ export const Header = (props: headerProps) => {
               />
             </Typography>
             <Divider orientation="vertical" variant="middle" flexItem />
-            {/* <Box
-              sx={{
-                justifyContent: 'left',
-                display: { xs: 'none', md: 'flex' },
-                alignItems: 'center',
-              }}
-              style={style.navLinkIconActive}
-            >
-              {props.title}
-            </Box> */}
-            <AppsMenu title={props.title} betaIcon={props.betaIcon} />
-
+            {config.isMainApp ? (
+              <AppsMenu title={props.title} betaIcon={props.betaIcon} />
+            ) : (
+              <Box
+                sx={{
+                  justifyContent: 'left',
+                  display: { xs: 'none', md: 'flex' },
+                  alignItems: 'center',
+                }}
+                style={style.navLinkIconActive}
+              >
+                {props.title}
+              </Box>
+            )}
             <NavBar navigationProps={navLinkList} />
           </Box>
           <Box sx={{ display: { xs: 'inline-flex', md: 'inline-flex' } }}>

@@ -1,41 +1,40 @@
+import { Box, Grid, IconButton, Typography } from '@mui/material';
+import { theme } from '@cloudcore/ui-shared';
+import CloseIcon from '@mui/icons-material/Close';
 
-import { Box, Grid, IconButton, Typography} from '@mui/material';
-import theme from '../../../../../ui-shared/src/lib/themes'; 
-import CloseIcon from "@mui/icons-material/Close";
-
-interface Props{
-  onClickButton: ()=>void;
-  breadCrumbOrigin:string;
-  breadCrumbTitle:string;
+interface Props {
+  onClickButton: () => void;
+  breadCrumbOrigin: string;
+  breadCrumbTitle: string;
 }
 
-const TitleAndCloseIcon = (props:Props) => {
+const TitleAndCloseIcon = (props: Props) => {
   return (
     <Grid item xs={12}>
-        <Box
+      <Box
         sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingX: theme.spacing(3),
-            paddingY: theme.spacing(2),
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingX: theme.spacing(3),
+          paddingY: theme.spacing(2),
         }}
-        >
+      >
         <Typography
-            variant="subtitle1"
-            fontSize="18px"
-            color={theme.breadcrumLink.primary}
+          variant="subtitle1"
+          fontSize="18px"
+          color={theme.breadcrumLink.primary}
         >
-          {props.breadCrumbOrigin}/{" "}
-          <Box component={"span"} sx={{ fontWeight: "bold" }}>
+          {props.breadCrumbOrigin}/{' '}
+          <Box component={'span'} sx={{ fontWeight: 'bold' }}>
             {props.breadCrumbTitle}
           </Box>
         </Typography>
-        <IconButton sx={{ color: "#000000" }} onClick={props.onClickButton}>
-        <CloseIcon fontSize="large" />
+        <IconButton sx={{ color: '#000000' }} onClick={props.onClickButton}>
+          <CloseIcon fontSize="large" />
         </IconButton>
-        </Box>
+      </Box>
     </Grid>
   );
-}
-export default  TitleAndCloseIcon;
+};
+export default TitleAndCloseIcon;

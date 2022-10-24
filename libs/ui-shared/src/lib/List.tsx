@@ -127,28 +127,26 @@ export const List = (props: ListProps) => {
     responsive: 'vertical',
   };
   return (
-    <>
-      {props.data !== null && (
-        <>
-          <CustomTableCss />
-          <MUIDataTable
-            title={
-              <Box
-                sx={{
-                  fontSize: theme.typography.h3.fontSize,
-                  fontWeight: 'bold',
-                }}
-              >
-                Listed {props.label}
-              </Box>
-            }
-            data={props.data}
-            columns={columns}
-            options={options}
-          />
-        </>
-      )}
-    </>
+    props.data && (
+      <>
+        <CustomTableCss />
+        <MUIDataTable
+          title={
+            <Box
+              sx={{
+                fontSize: theme.typography.h3.fontSize,
+                fontWeight: 'bold',
+              }}
+            >
+              Listed {props.label}
+            </Box>
+          }
+          data={props.data}
+          columns={columns}
+          options={options}
+        />
+      </>
+    )
   );
 };
 

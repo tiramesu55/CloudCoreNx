@@ -47,19 +47,20 @@ const CustomCss = withStyles(() => ({
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const UserForm = () => {
-  const { platformBaseUrl, isMainApp, logoutSSO, postLogoutRedirectUri } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-   const { token } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
-  );
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-    return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]);
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
 
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
- 
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+
   const location: any = useLocation();
   const selectedApps = useAppSelector(currentApps);
 
@@ -120,14 +121,20 @@ export const UserForm = () => {
       location.state === undefined &&
       location.pathname.includes('editUser')
     ) {
-      history.push(`${path}/user`, { from: 'editUser', task: 'navigateToUser' });
+      history.replace(`${path}user/`, {
+        from: 'editUser',
+        task: 'navigateToUser',
+      });
     } else if (
       location.state === undefined &&
       location.pathname.includes('addUser')
     ) {
-      history.push(`${path}/user/email`, { from: 'addUser', task: 'navigateToAdd' });
+      history.replace(`${path}user/email`, {
+        from: 'addUser',
+        task: 'navigateToAdd',
+      });
     }
-  }, []);
+  }, [location.state, location.pathname, history]);
 
   const onLastNameFocused = (ele: HTMLInputElement) => {
     ele.value ? setLastNameInvalid(false) : setLastNameInvalid(true);
@@ -220,7 +227,7 @@ export const UserForm = () => {
               setSnackBarMsg('successMsg');
               setSnackBarType('success');
               setTimeout(() => {
-                history.push(`${path}/user`, {
+                history.push(`${path}user`, {
                   currentPage: location.state?.currentPage,
                   rowsPerPage: location.state?.rowsPerPage,
                 });
@@ -289,7 +296,7 @@ export const UserForm = () => {
               setSnackBarMsg('addUserSuccess');
               setSnackBarType('success');
               setTimeout(() => {
-                history.push(`${path}/user`);
+                history.push(`${path}user/`);
               }, 1000);
             },
             (reason) => {
@@ -322,11 +329,11 @@ export const UserForm = () => {
     userFormModified
       ? setDialogBoxOpen(true)
       : location.pathname.includes('editUser')
-      ? history.push(`${path}/user`, {
+      ? history.push(`${path}user`, {
           currentPage: location.state?.currentPage,
           rowsPerPage: location.state?.rowsPerPage,
         })
-      : history.push(`${path}/user/email`);
+      : history.push(`${path}user/email`);
   };
 
   useEffect(() => {

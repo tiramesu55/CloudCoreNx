@@ -35,18 +35,17 @@ interface Props {
 
 const { useAppDispatch, useAppSelector } = platformStore;
 export const DeactivateUser = (props: Props) => {
-  const { isMainApp, logoutSSO, postLogoutRedirectUri, platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
-      return `${isMainApp ? '/platform' : ''}`;
-  }, [isMainApp]); 
-
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const { token } = useClaimsAndSignout(
-    logoutSSO,
-    postLogoutRedirectUri
+    config.logoutSSO,
+    config.postLogoutRedirectUri
   );
 
   const theme = useTheme();
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const dispatch = useAppDispatch();
 
   const history = useHistory();
@@ -83,7 +82,7 @@ export const DeactivateUser = (props: Props) => {
             props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push(`${path}/user`);
+              history.push(`${path}user`);
             }, 1000);
           },
           (reason) => {
@@ -119,7 +118,7 @@ export const DeactivateUser = (props: Props) => {
             props.setSnackBarType('success');
 
             setTimeout(() => {
-              history.push(`${path}/user`);
+              history.push(`${path}user`);
             }, 1000);
           },
           (reason) => {

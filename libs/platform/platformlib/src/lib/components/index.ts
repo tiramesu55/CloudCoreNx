@@ -4,7 +4,6 @@ import { CustomMultiSelectBox } from './CustomMultiSelectBox'
 import { DateInput } from './DateInput'
 import { Header } from './Header'
 import { InputTextWithLabel } from './InputTextWithLabel'
-import { MiniDrawer } from './LeftNavBarNavigation'
 import { NavBar } from './Navbar'
 import { PhoneInput } from './PhoneInput'
 import { ResponsiveToolBar } from './ResponsiveToolbar'
@@ -22,7 +21,6 @@ export {
     DateInput,
     Header,
     InputTextWithLabel,
-    MiniDrawer,
     NavBar,
     PhoneInput,
     ResponsiveToolBar,
