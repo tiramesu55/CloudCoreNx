@@ -262,7 +262,6 @@ export const Routes = () => {
            {showCustomReports && <Route path={`${path}customReports`}>
             {ComponentLayout(CustomReports)}
           </Route>}
-          <Route render={() => <Redirect to={{pathname: `${path}`}} />} />
         </Backdrop>
       ) : (
         <Route path={path}>

@@ -209,7 +209,7 @@ export const AnalyticsPowerbi = () => {
         />
         <Box sx={{ display: 'flex' }}>
           {selectedReportId && (
-            <Backdrop open={loadingSingleReport}>
+            <>
               <ReportBiClientComponent
                 userName={names ? names[0] : ''}
                 userEmail={email ?? ''}
@@ -220,8 +220,8 @@ export const AnalyticsPowerbi = () => {
                 selectedReportId={selectedReportId}
                 reportFilter={reportFilter}
               />
-              {/* <BackdropPowerBi loadingState={loadingSingleReport} /> */}
-            </Backdrop>
+              <BackdropPowerBi loadingState={loadingSingleReport} />
+            </>
           )}
         </Box>
       </>
