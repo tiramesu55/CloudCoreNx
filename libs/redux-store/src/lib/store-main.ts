@@ -7,9 +7,11 @@ import {dashboardReduser} from './Platform-UI/dashboard/dashboardSlice';
 import { organizationsReducer } from './Platform-UI/organizations/organizationsSlice';
 import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 import { customReportsReducer } from "./Platform-UI/custom-reports/customReportsSlice";
+import { configReducer } from "./marketplace/configuration/configurationSlice";
 export const store = configureStore({
    reducer:{
       report: reportReducer,
+      configuration: configReducer,
       user: userReducer,
       applications: applicationsReducer,
       sites: sitesReducer,

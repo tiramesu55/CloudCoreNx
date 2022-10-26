@@ -47,6 +47,7 @@
     "react-redux": "8.0.2",
     "react-router-dom": "^5.3.0",
     "regenerator-runtime": "0.13.7",
+    "styled-jsx": "5.0.4",
     "throttle-debounce": "^3.0.1",
     "tslib": "^2.3.0"
   },
@@ -57,6 +58,7 @@
     "@nrwl/jest": "14.7.3",
     "@nrwl/linter": "14.7.3",
     "@nrwl/react": "14.7.3",
+    "@nrwl/storybook": "^14.7.3",
     "@nrwl/web": "14.7.3",
     "@nrwl/workspace": "14.7.3",
     "@testing-library/react": "13.3.0",
@@ -65,7 +67,6 @@
     "@types/mui-datatables": "^3.7.9",
     "@types/node": "16.11.7",
     "@types/react": "18.0.18",
-    "@nrwl/storybook": "^14.7.3",
     "@types/react-dom": "18.0.6",
     "@types/react-router-dom": "5.3.3",
     "@types/throttle-debounce": "^2.1.0",

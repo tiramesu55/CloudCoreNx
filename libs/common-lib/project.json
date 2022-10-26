@@ -3,16 +3,7 @@
   "sourceRoot": "libs/common-lib/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/common-lib",
-        "main": "libs/common-lib/src/index.ts",
-        "tsConfig": "libs/common-lib/tsconfig.lib.json",
-        "assets": ["libs/common-lib/*.md"]
-      }
-    },
+    
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],

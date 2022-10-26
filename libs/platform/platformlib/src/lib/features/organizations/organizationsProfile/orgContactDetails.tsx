@@ -1,7 +1,7 @@
 import { Grid, Typography, Box, Divider } from '@mui/material';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { platformStore} from '@cloudcore/redux-store';
+import { platformStore } from '@cloudcore/redux-store';
 import { useTheme } from '@mui/material';
 import {
   organizationSelector,
@@ -9,7 +9,7 @@ import {
   selectOrganizations,
 } from '@cloudcore/redux-store';
 
-const { useAppSelector } = platformStore
+const { useAppSelector } = platformStore;
 export const OrgContactDetails = () => {
   const theme = useTheme();
   const organizations = useAppSelector(selectOrganizations);

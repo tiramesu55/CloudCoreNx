@@ -1,24 +1,32 @@
-import { useEffect, useMemo, useContext } from 'react';
-import { Grid, Box, Typography, IconButton, Button } from '@mui/material';
-import { useTheme } from '@mui/material';
+import { useState, useEffect, useMemo, useContext } from 'react';
+import {
+  Grid,
+  Box,
+  Typography,
+  IconButton,
+  Button,
+  useTheme,
+} from '@mui/material';
 import { useSelector } from 'react-redux';
 import { platformStore } from '@cloudcore/redux-store';
 import CloseIcon from '@mui/icons-material/Close';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Card } from '@cloudcore/ui-shared';
-import { List } from '@cloudcore/ui-shared';
+import { Card, List, Snackbar } from '@cloudcore/ui-shared';
 import { SiteDetailByOrg } from './siteDetailByOrg';
 import {
-  setOrganization,
-  selectOrgByOrgCode,
   resetSite,
   selectSelectedId,
   setSite,
   siteSelector,
   selectedIdSite,
   selectAllSites,
+  getSites,
 } from '@cloudcore/redux-store';
-import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 export const Sites = () => {
@@ -26,6 +34,11 @@ export const Sites = () => {
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
+  const { platformBaseUrl } = useContext(ConfigCtx)!;
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const theme = useTheme();
   const selectedSiteId = useAppSelector(selectSelectedId);
   const selectSiteByID = useSelector((state: any) =>
@@ -35,6 +48,9 @@ export const Sites = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
   const location: any = useLocation();
+  const [snackbar, setSnackbar] = useState(false);
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   const getOrgData = () => {
     const retrieveData = window.localStorage.getItem('orgData');
     const updatedorgData = JSON.parse(retrieveData as any);
@@ -47,10 +63,6 @@ export const Sites = () => {
       }
     : getOrgData();
 
-  const organization = useAppSelector((state: any) =>
-    selectOrgByOrgCode(state, orgData.orgCode)
-  );
-
   const setSelectedId = (id: string) => {
     dispatch(selectedIdSite(id));
   };
@@ -62,6 +74,27 @@ export const Sites = () => {
   }, [selectSiteByID]);
 
   useEffect(() => {
+    if (location?.state?.orgCode) {
+      dispatch(
+        getSites({
+          orgCode: location?.state?.orgCode,
+          url: platformBaseUrl,
+          token: token,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
+    }
+
     if (
       location.state !== undefined &&
       location?.state?.orgCode !== undefined
@@ -70,17 +103,10 @@ export const Sites = () => {
       window.localStorage.removeItem('orgCode');
       window.localStorage.setItem('orgData', JSON.stringify(orgData));
     }
-  }, []);
-  const closeSites = () => {
-    history.push(`${path}organization/editOrganization`, {
-      title: 'Edit Organization',
-      task: 'editOrganization',
-      from: 'editOrganization',
-      orgCode: storedOrgData.orgCode,
-      orgName: storedOrgData.orgName,
-    });
+  }, [dispatch, token]);
 
-    dispatch(setOrganization(organization));
+  const closeSites = () => {
+    history.push(`${path}`);
   };
   const storedOrgData = JSON.parse(
     window.localStorage.getItem('orgData') as any
@@ -100,6 +126,7 @@ export const Sites = () => {
   return (
     <>
       <Grid container spacing={1}>
+        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid xs={12} item>
           <Box
             sx={{

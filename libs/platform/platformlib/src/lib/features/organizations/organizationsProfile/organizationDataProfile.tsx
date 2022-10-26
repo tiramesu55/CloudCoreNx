@@ -1,6 +1,5 @@
-import { Grid, Box, Typography, Button } from '@mui/material';
+import { Grid, Box, Typography, Button, useTheme } from '@mui/material';
 import { platformStore } from '@cloudcore/redux-store';
-import { useTheme } from '@mui/material';
 import locationIcon from '../../../images/location.svg';
 import { OrgContactDetails } from './orgContactDetails';
 import { useSelector } from 'react-redux';
@@ -12,6 +11,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 import { useContext, useMemo } from 'react';
+import {} from '@cloudcore/ui-shared';
 
 const { useAppSelector } = platformStore;
 
@@ -20,6 +20,7 @@ export const OrganizationDataProfile = () => {
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
+
   const theme = useTheme();
   const organizations = useAppSelector(selectOrganizations);
   const selectId = useAppSelector(selectedId);
@@ -28,12 +29,19 @@ export const OrganizationDataProfile = () => {
     organizationSelector.selectById(state, id)
   );
   const history = useHistory();
-
-  const handleClick = () => {
+  const handleEditOrgClick = () => {
     history.replace(`${path}organization/editOrganization`, {
       title: 'Edit Organization',
       task: 'editOrganization',
       from: 'editOrganization',
+    });
+  };
+
+  const handleEditSiteClick = () => {
+    history.push(`${path}organization/sites`, {
+      from: `${path}`,
+      orgCode: organization?.orgCode,
+      orgName: organization?.name,
     });
   };
 
@@ -57,23 +65,46 @@ export const OrganizationDataProfile = () => {
       <Grid item sm={12} md={12} lg={12}>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ flex: '1 0 auto', width: 'auto' }} component="span">
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ mr: 2 }}>
                 <Typography component={'span'} variant="h3" fontWeight={'bold'}>
                   {organization?.name}
                 </Typography>
-              </Box>
-              <Box>
                 <Box
                   component={'img'}
                   src={locationIcon}
                   alt="location"
-                  sx={{ mr: 1 }}
+                  sx={{ mx: 1 }}
                   color="#808184"
                 />
                 <Typography component={'span'} variant="body2">
                   {`${organization?.address?.street}, ${organization?.address?.city}`}
                 </Typography>
+              </Box>
+              <Box
+                sx={{
+                  alignItems: 'flex-end',
+                  mx: 4.5,
+                  justifyContent: 'end',
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  size="large"
+                  color="primary"
+                  aria-haspopup="true"
+                  aria-controls="confirmation"
+                  aria-label="confirmation"
+                  onClick={handleEditOrgClick}
+                  sx={{
+                    fontSize: theme.typography.subtitle1.fontSize,
+                    fontWeight: 'bold',
+                    paddingX: theme.spacing(6),
+                    paddingY: theme.spacing(1.1),
+                  }}
+                >
+                  EDIT
+                </Button>
               </Box>
             </Box>
             <OrgContactDetails />
@@ -85,24 +116,6 @@ export const OrganizationDataProfile = () => {
                 justifyContent: 'end',
               }}
             >
-              {/* <Button
-                                type="submit"
-                                variant="outlined"
-                                size="large"
-                                color="primary"
-                                aria-haspopup="true"
-                                aria-controls="error"
-                                aria-label="error"
-                                sx={{
-                                    fontSize: theme.typography.subtitle1.fontSize,
-                                    fontWeight: "bold",
-                                    paddingX: theme.spacing(5),
-                                    paddingY: theme.spacing(1.1),
-                                    marginRight: theme.spacing(2),
-                                }}
-                            >
-                                ADD SUB ORG
-                            </Button> */}
               <Button
                 variant="outlined"
                 size="large"
@@ -110,7 +123,7 @@ export const OrganizationDataProfile = () => {
                 aria-haspopup="true"
                 aria-controls="confirmation"
                 aria-label="confirmation"
-                onClick={handleClick}
+                onClick={handleEditSiteClick}
                 sx={{
                   fontSize: theme.typography.subtitle1.fontSize,
                   fontWeight: 'bold',
@@ -118,7 +131,7 @@ export const OrganizationDataProfile = () => {
                   paddingY: theme.spacing(1.1),
                 }}
               >
-                EDIT
+                EDIT SITES
               </Button>
             </Box>
           </Box>

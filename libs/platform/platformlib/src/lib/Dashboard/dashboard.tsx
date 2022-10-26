@@ -1,14 +1,12 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
-import { Grid, Box, Typography, Button } from '@mui/material';
-import { useTheme } from '@mui/material';
+import { Grid, Box, Typography, Button, useTheme } from '@mui/material';
 import { InfoCard, Card } from '@cloudcore/ui-shared';
 import sites from '../images/sites.svg';
 import users from '../images/users.svg';
 import organizations from '../images/organizations.svg';
 import { useHistory } from 'react-router-dom';
-import { List } from '@cloudcore/ui-shared';
-import { Snackbar } from '@cloudcore/ui-shared';
+import { List, Snackbar } from '@cloudcore/ui-shared';
 import { OrganizationDataProfile } from '../features/organizations/organizationsProfile/organizationDataProfile';
 import {
   getAllOrgCount,

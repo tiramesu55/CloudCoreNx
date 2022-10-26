@@ -21,13 +21,13 @@ import {
   importUserFile,
 } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
-import TitleAndCloseIcon from '../../components/TitleAndClose';
-import LowerButton from '../../components/LowerButtons';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import LowerButton from '../../components/LowerButtons/LowerButtons';
 import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import InputSelectWithLabel from '../../components/InputSelectWithLabel';
-import ImportFile from '../../components/ImportFile';
+import InputSelectWithLabel from '../../components/InputSelectWithLabel/InputSelectWithLabel';
+import ImportFile from '../../components/ImportFile/ImportFile';
 import {
   ConfigCtx,
   IConfig,

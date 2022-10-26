@@ -8,12 +8,12 @@ import {
   Typography,
 } from '@mui/material';
 import { useHistory } from 'react-router-dom';
-import LowerButton from '../../components/LowerButtons';
+import LowerButton from '../../components/LowerButtons/LowerButtons';
 import { theme } from '@cloudcore/ui-shared';
 import { platformStore } from '@cloudcore/redux-store';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import { useEffect, useState, useContext, useMemo } from 'react';
-import TitleAndCloseIcon from '../../components/TitleAndClose';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 
 const style = {

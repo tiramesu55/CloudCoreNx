@@ -12,9 +12,10 @@ import {
   DialogActions,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { InputTextWithLabel, Tooltip } from '../../components';
+import { InputTextWithLabel } from '../../components';
 import { useTheme } from '@mui/material';
 import { DeleteOrgDomain } from './delete-org-domain';
+import { Tooltip } from '@cloudcore/ui-shared';
 
 interface Props {
   open: boolean;

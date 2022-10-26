@@ -8,16 +8,16 @@ import {
   Button,
   Stack,
   Autocomplete,
+  useTheme,
 } from '@mui/material';
 import { useEffect, useState, useContext, useMemo } from 'react';
-import { useTheme } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
   UnsavedData,
 } from '../../components';
-import { InfoCard, Card } from '@cloudcore/ui-shared';
+import { InfoCard, Card, Snackbar } from '@cloudcore/ui-shared';
 import sites from '../../images/sites.svg';
 import users from '../../images/users.svg';
 import 'react-phone-number-input/style.css';
@@ -45,7 +45,6 @@ import {
   fetchUsers,
   usersDomain,
   resetSite,
-  getSites,
 } from '@cloudcore/redux-store';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -59,7 +58,6 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import { Snackbar } from '@cloudcore/ui-shared';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
@@ -165,17 +163,17 @@ export const OrganizationForm = () => {
         token: token,
       })
     )
-    .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
-          }
-        );
+      .unwrap()
+      .then(
+        (value: any) => {
+          //Do Nothing
+        },
+        (reason: any) => {
+          setSnackbar(true);
+          setSnackBarMsg('fetchError');
+          setSnackBarType('failure');
+        }
+      );
   }, []);
 
   useEffect(() => {
@@ -198,26 +196,6 @@ export const OrganizationForm = () => {
           token: token,
         })
       );
-      dispatch(
-        getSites({
-          orgCode: selectOrgByID?.orgCode
-            ? selectOrgByID?.orgCode
-            : storedOrgData?.orgCode,
-          url: platformBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
-          }
-        );
     }
   }, []);
 

@@ -24,7 +24,6 @@ import {
   createSite,
   getSiteFormModified,
   selectedSite,
-  selectSelectedId,
   setSiteFormModified,
   Site,
   updateSite,
@@ -69,7 +68,6 @@ export const SiteForm = () => {
   const site = useAppSelector(selectedSite);
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
-  const selectedSiteId = useAppSelector(selectSelectedId);
   const dispatch = useAppDispatch();
   const location: any = useLocation();
   const isAddSite =
