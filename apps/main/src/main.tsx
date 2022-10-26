@@ -12,11 +12,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <ConfigContext isMainApp={true}>
     <Provider store={mainStore.store}>
-      <StrictMode>
+
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </StrictMode>
+
     </Provider>
   </ConfigContext>
 );
