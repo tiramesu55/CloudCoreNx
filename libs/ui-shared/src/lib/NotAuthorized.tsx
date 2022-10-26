@@ -4,23 +4,6 @@ import theme from './themes';
 import React from 'react';
 import access_denied from './assets/access_denied.svg';
 
-import React from "react";
-//import access_denied from "../assets/access_denied.svg";
-const useStyles = makeStyles({
-  root: {
-    //minWidth: "100%",
-    minHeight: "80vh",
-    //display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  card: {
-    maxWidth: "40%",
-    minHeight: "20vh",
-    display: "flex",
-    alignItems: "center",
-  },
-});
 type Props = {
   signOut: () => void;
 };
@@ -36,7 +19,7 @@ export const NotAuthorized: React.FC<Props> = (props) => {
         justifyContent={'center'}
         sx={{ marginTop: theme.spacing(3) }}
       >
-        {/* <img height={"240px"} src={access_denied} alt="access_denied" /> */}
+        <img height={'240px'} src={access_denied} alt="access_denied" />
         {/* <BlockIcon
           sx={{ fontSize: "100px", color: theme.palette.error.main }}
         /> */}
