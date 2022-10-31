@@ -282,6 +282,7 @@ export const ListUsers = (props: Props) => {
               task: 'addUser',
             });
           }}
+          data-testid="addnewuser"
         >
           Add New User
         </Button>
@@ -299,6 +300,7 @@ export const ListUsers = (props: Props) => {
           onClick={() => {
             history.push(`${path}user/onboardingInstructions`);
           }}
+          data-testid="importusers"
         >
           Import Users
         </Button>

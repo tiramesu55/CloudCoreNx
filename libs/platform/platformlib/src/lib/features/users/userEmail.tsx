@@ -150,6 +150,7 @@ export const AddUserForm = () => {
                   fontWeight: 'bold',
                   paddingX: theme.spacing(5),
                 }}
+                data-testid="next"
               >
                 NEXT
               </Button>

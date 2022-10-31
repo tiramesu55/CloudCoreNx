@@ -154,6 +154,7 @@ const UserOnboardingInstructions = () => {
                         size="small"
                         onClick={handleNext}
                         disabled={activeStep === maxSteps - 1}
+                        data-testid="next"
                       >
                         Next
                         {theme.direction === 'rtl' ? (
@@ -168,6 +169,7 @@ const UserOnboardingInstructions = () => {
                         size="small"
                         onClick={handleBack}
                         disabled={activeStep === 0}
+                        data-testid="back"
                       >
                         {theme.direction === 'rtl' ? (
                           <KeyboardArrowRight />
@@ -189,6 +191,7 @@ const UserOnboardingInstructions = () => {
                     onClick={() => {
                       download(columns);
                     }}
+                    data-testid="template"
                   >
                     Get Template
                   </Button>

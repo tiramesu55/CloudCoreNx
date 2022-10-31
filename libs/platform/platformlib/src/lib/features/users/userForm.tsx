@@ -563,6 +563,7 @@ export const UserForm = () => {
                   variant="outlined"
                   sx={{ marginRight: theme.spacing(2) }}
                   onClick={closeEditUser}
+                  data-testid="back"
                 >
                   BACK
                 </Button>
@@ -571,11 +572,12 @@ export const UserForm = () => {
                     variant="outlined"
                     disabled={!userFormModified}
                     onClick={updateUserClick}
+                    data-testid="updateuser"
                   >
                     UPDATE USER
                   </Button>
                 ) : (
-                  <Button variant="outlined" onClick={saveUserClick}>
+                  <Button variant="outlined" onClick={saveUserClick} data-testid="save">
                     Save
                   </Button>
                 )}

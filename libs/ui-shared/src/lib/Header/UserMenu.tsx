@@ -79,6 +79,7 @@ export const UserMenu = (props: userMenuProps) => {
                 height: 32,
                 backgroundColor: theme.palette.primary.main,
               }}
+              data-testid="user"
             >
               {props.userMenuProps?.userInitials}
             </Avatar>
@@ -122,12 +123,14 @@ export const UserMenu = (props: userMenuProps) => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         {props.userMenuProps?.userMenuList.map((item: userMenuList, ind) => {
+          const dataTestId = item.label;
           return (
             <MenuItem
               disabled={item.disabled}
               style={style.MenuItem}
               onClick={item.onClick}
               key={ind}
+              data-testid={dataTestId}
             >
               <ListItemIcon>
                 <img src={item.icon} alt="SignOut" />
