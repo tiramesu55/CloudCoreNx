@@ -18,11 +18,11 @@ describe("Basic tests IARX", () => {
         cy.get('[data-testid="pagination-rows"]').click()
         cy.get('[data-value="100"]').click()
 
-        cy.get('.MuiAvatar-root').should('be.visible').click()
-        cy.get('.MuiList-root > .MuiButtonBase-root').click({ force: true })
+        cy.get('[data-testid="user"]').should('be.visible').click()
+        cy.get('[data-testid="Logout"]').click({ force: true })
             cy.origin("https://ssotest.walgreens.com/idp/idpLogout", () => {
                 cy.contains("Sign Off Successful").should('be.visible')
                 cy.url().should('contains', "https://ssotest.walgreens.com/idp/idpLogout")
-                });   
+                }); 
     });
 })

@@ -2,11 +2,13 @@ describe("Basic tests IARX", () => {
     //тестирование IARX
 
     beforeEach (() => {
-        cy.visit("http://localhost:3000/");
+        cy.visit("http://localhost:3000/platform");
         cy.origin("https://iarx-services.oktapreview.com/api/v1/authn/introspect", () => {
         cy.get("input[type='text']").type('cypress@walgreens.com').type('{enter}');
         cy.get("input[type='password']").type('Whiskey+2').type('{enter}')
         });
+        cy.wait(10000)
+        cy.visit("http://localhost:3000/platform");
     })
 
     it ("can log In and Log Out", ()  => {
