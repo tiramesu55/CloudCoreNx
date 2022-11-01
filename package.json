@@ -8,9 +8,7 @@
     "start-analytics": "npx nx serve analytics",
     "start-main": "npx nx serve main",
     "build": "nx build",
-    "test": "nx test",
-    "cy:open": "cd ./apps/platform-e2e && cypress open --browser chrome",
-    "cy": "nx e2e platform-e2e"
+    "test": "nx test"
   },
   "private": true,
   "dependencies": {
@@ -44,6 +42,7 @@
     "react": "18.2.0",
     "react-countdown": "^2.3.2",
     "react-dom": "18.2.0",
+    "react-error-boundary": "^3.1.4",
     "react-idle-timer": "^5.4.2",
     "react-phone-number-input": "^3.2.11",
     "react-redux": "8.0.2",

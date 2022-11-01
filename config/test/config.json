@@ -1,0 +1,17 @@
+{
+  "homeBaseUrl": "https://iarx-services.oktapreview.com",
+  "powerbiBaseUrl": "https://powerbi.dev.nexia.app",
+  "platformBaseUrl": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/platform-api",
+  "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/marketplace",
+  "logoutSSO": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/powerbi-node-qa/SSOLogout",
+  "postLogoutRedirectUri": "https://ssotest.walgreens.com/idp/idpLogout",
+  "oidcConfig": {
+    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
+    "clientId": "0oa2e7f4dvYLDDdmw1d7",
+    "redirectUri": "https://home.qa.nexia.app/login/callback",
+    "pkce": true
+  },
+  "instrumentationKey": "8f2e56e0-9ec2-491d-80bb-42f37ada0f5f",
+  "REACT_APP_SUITES_URL": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/platform-api/GetSuitesByPermission",
+  "REACT_APP_POWERBI_URL": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/powerbi-node-qa/getReport"
+}
