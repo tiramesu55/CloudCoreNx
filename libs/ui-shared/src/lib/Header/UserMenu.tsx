@@ -123,14 +123,20 @@ export const UserMenu = (props: userMenuProps) => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         {props.userMenuProps?.userMenuList.map((item: userMenuList, ind) => {
+<<<<<<< HEAD
           const dataTestId = item.label;
+=======
+>>>>>>> parent of fc11f81 (multiple things.)
           return (
             <MenuItem
               disabled={item.disabled}
               style={style.MenuItem}
               onClick={item.onClick}
               key={ind}
+<<<<<<< HEAD
               data-testid={dataTestId}
+=======
+>>>>>>> parent of fc11f81 (multiple things.)
             >
               <ListItemIcon>
                 <img src={item.icon} alt="SignOut" />
