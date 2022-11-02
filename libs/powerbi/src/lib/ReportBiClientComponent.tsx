@@ -6,8 +6,8 @@ import { makeStyles } from '@mui/styles';
 import { Theme } from '@mui/material/styles';
 import ReportEmbedding from './ReportEmbeddingClass';
 import { throttle } from 'throttle-debounce';
-import { useAppInsightHook } from '@cloudcore/common-lib';
-import { IErrorTypeResponse } from './interfaces/interfaces';
+import { useAppInsightHook, IErrorTypeResponse } from '@cloudcore/common-lib';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   ConfigCtx,
   IConfig,
@@ -16,19 +16,11 @@ import {
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
-    height: '100%',
     visibility: 'visible',
-    marginTop: '70px',
   },
 
-  button: {
-    // margin: theme.spacing(1),
-  },
   reportOptionsContainer: {
-    borderBottom: '1px solid #eaeaea',
-    marginBottom: '10px',
     display: 'inline-block',
-    width: '100%',
   },
 }));
 
@@ -64,7 +56,8 @@ export const ReportBiClientComponent = ({
     useState<HTMLDivElement | null>(null);
   const { HandleUserEvent } = useAppInsightHook();
 
-  const handleErrorResponse = (err: IErrorTypeResponse) => {
+  const handleErrorOrLogResponse = (err: IErrorTypeResponse) => {
+    console.log('handleErrorResponse function', err);
     HandleUserEvent(
       {
         name: userName,
@@ -80,6 +73,7 @@ export const ReportBiClientComponent = ({
       );
     }
   };
+  //this gets a PowerBi auth token
   const getToken = async (reportContainer: HTMLDivElement) => {
     const request = new Request(config ? config.REACT_APP_POWERBI_URL! : '', {
       headers: {
@@ -89,29 +83,35 @@ export const ReportBiClientComponent = ({
       method: 'POST',
       body: JSON.stringify({ reportId: selectedReportId }),
     });
-    const response = await fetch(request)
-      .then((res) => res.json())
-      .catch((err) => {
+    try {
+      const response = await fetch(request);
+      const data = await response.json();
+      reportContainer &&
+        reportEmbedding.setActualToken(reportContainer, data.accessToken);
+      await handleTokenExpiration(reportContainer);
+    } catch (err) {
+      if (err instanceof Error) {
         const errorData = JSON.parse(err.message);
         let errorText;
         try {
           errorText = JSON.parse(errorData.text);
         } catch (e) {
-          errorText = err.text;
+          errorText = 'Unknown Report Error';
         }
-        handleErrorResponse({
+        //display alert
+        handleErrorOrLogResponse({
           type: errorData.type ? errorData.type : 'GetReportError',
           message: errorText.message ? errorText.message : errorText,
           status: errorData.status,
+          justEventSend: false,
           messageToShow: errorText.messageToShow
             ? errorText.messageToShow
             : errorText,
         });
-      });
-    reportContainer &&
-      reportEmbedding
-        .setActualToken(reportContainer, response.accessToken)
-        .then(() => handleTokenExpiration(reportContainer));
+      } else {
+        //if err is not of the correct type.  Impossible
+      }
+    }
   };
 
   const handleTokenExpiration = (reportContainer: HTMLDivElement) => {
@@ -146,13 +146,14 @@ export const ReportBiClientComponent = ({
   ): void => {
     reportEmbedding.resetElem(reportContainer);
     reportContainer.style.visibility = 'visible';
+    //actually run report
     reportEmbedding.embedReport(
       reportId,
       reportContainer,
       isMobileViewport,
       token ? token : '',
       config ? config.REACT_APP_POWERBI_URL! : '',
-      handleErrorResponse,
+      handleErrorOrLogResponse,
       loadingReportSingle,
       reportFilter,
       selectFilterItemSelected,
@@ -169,15 +170,24 @@ export const ReportBiClientComponent = ({
   }, [selectedReportId]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexGrow: 1,
-      }}
-      id="container"
-      ref={reportContainer}
-      className={classes.container}
-      onClick={() => console.log('From container')}
-    />
+    <ErrorBoundary
+      fallbackRender={({ error, resetErrorBoundary }) => (
+        <div>
+          <h1>An error occurred: {error.message}</h1>
+          <button onClick={resetErrorBoundary}>Try again</button>
+        </div>
+      )}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexGrow: 1,
+        }}
+        id="container"
+        ref={reportContainer}
+        className={classes.container}
+        onClick={() => console.log('From container')}
+      />
+    </ErrorBoundary>
   );
 };

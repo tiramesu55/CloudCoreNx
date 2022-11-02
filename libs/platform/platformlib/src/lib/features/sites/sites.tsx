@@ -1,15 +1,7 @@
 import { useState, useEffect, useMemo, useContext } from 'react';
-import {
-  Grid,
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  useTheme,
-} from '@mui/material';
+import { Grid, useTheme } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { platformStore } from '@cloudcore/redux-store';
-import CloseIcon from '@mui/icons-material/Close';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Card, List, Snackbar } from '@cloudcore/ui-shared';
 import { SiteDetailByOrg } from './siteDetailByOrg';
@@ -27,6 +19,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 export const Sites = () => {
@@ -128,38 +121,14 @@ export const Sites = () => {
       <Grid container spacing={1}>
         {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid xs={12} item>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingX: theme.spacing(3),
-              paddingY: theme.spacing(2),
-            }}
-          >
-            <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
-              <>
-                {' '}
-                DASHBOARD / {storedOrgData?.orgName?.toUpperCase()} ORG / ORG /
-                <Typography component={'span'} fontWeight="bold">
-                  {' '}
-                  EDIT SITES
-                </Typography>
-              </>
-            </Typography>
-            <Box>
-              <Button
-                variant="contained"
-                sx={{ marginRight: theme.spacing(2) }}
-                onClick={addNewSite}
-              >
-                Add New Site
-              </Button>
-              <IconButton sx={{ color: '#000000' }} onClick={closeSites}>
-                <CloseIcon fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
+          <TitleAndCloseIcon
+            onClickButton={closeSites}
+            breadCrumbOrigin={`DASHBOARD / ${storedOrgData?.orgName?.toUpperCase()} ORG / ORG`}
+            breadCrumbTitle={'EDIT SITES'}
+            addBtn={true}
+            onClickAddBtn={addNewSite}
+            addBtnText="Add New Site"
+          />
         </Grid>
         <Grid item xs={12} sx={{ paddingRIght: '20px' }}>
           <Card
@@ -188,7 +157,6 @@ export const Sites = () => {
           </Card>
         </Grid>
       </Grid>
-      )
     </>
   );
 };

@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import warningImg from '../../images/warning.png';
 import { platformStore } from '@cloudcore/redux-store';
 import {
   deleteOrganizationAsync,
@@ -23,6 +22,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { warning_img } from '@cloudcore/ui-shared';
 
 interface Props {
   orgDomain: string;
@@ -140,7 +140,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
           }
         );
     } catch (err) {
-      console.log('faild to deactivate organization', err);
+      console.log('failed to deactivate organization', err);
     }
   };
 
@@ -179,7 +179,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
       >
         <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
           <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
-            <img src={warningImg} alt="warning" />
+            <img src={warning_img} alt="warning" />
           </Box>
           <Box>
             <Typography

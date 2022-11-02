@@ -3,30 +3,34 @@
 
 //@TODO get rid of OKTA
 import { useState, useEffect, useContext, useMemo } from 'react';
-import { Redirect, Route, useHistory } from 'react-router-dom';
+import { Route, useHistory } from 'react-router-dom';
 import { UserForm } from '../features/users/userForm';
 import { AddUserForm as UserEmail } from '../features/users/userEmail';
-import { NotAuthorized } from '@cloudcore/ui-shared';
 import { Dashboard } from '../Dashboard/dashboard';
 import { OrganizationForm as AddNewOrganisation } from '../features/organizations/OrganisationForm';
-import userOnboardingInstructions from '../features/users/userOnboardingInstructions';
 import UserOnboarding from '../features/users/userOnboardingForm';
-import { Snackbar } from '@cloudcore/ui-shared';
+import {
+  Snackbar,
+  IdlePopUp,
+  Header,
+  NotAuthorized,
+  Backdrop,
+} from '@cloudcore/ui-shared';
 import { ListUsers } from '../features/users/allUsers';
 import { getOrganizationsAsync, platformStore } from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
 import { Sites } from '../features/sites/sites';
-import { Header } from '@cloudcore/ui-shared';
-import logo from '../images/Nexia-Logo2.png';
-import logOutIcon from '../images/sign-out.svg';
+import { nexia_logo_img } from '@cloudcore/ui-shared';
+import { sign_out_img } from '@cloudcore/ui-shared';
 import {
   ConfigCtx,
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import { Backdrop } from '@cloudcore/ui-shared';
 import CustomReports from '../features/customReports/customReports';
 import { UnsavedData } from '../components';
+import { useIdleTimer } from 'react-idle-timer';
+
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Routes = () => {
@@ -37,16 +41,16 @@ export const Routes = () => {
   };
   const orgFormModified = useAppSelector(
     (state) => state.organizations.orgFormModified
-  )
+  );
   const userFormModified = useAppSelector(
     (state) => state.user.userFormModified
-  )
+  );
   const siteFormModified = useAppSelector(
     (state) => state.sites.siteFormModified
-  )
+  );
   const suiteFormModified = useAppSelector(
     (state) => state.customReports.suiteFormModified
-  )
+  );
   const orgLoadingState = useAppSelector(
     (state) => state.organizations.status === 'loading'
   );
@@ -92,14 +96,40 @@ export const Routes = () => {
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState('');
   const showCustomReports =
     permissions.admin && permissions.admin?.includes('global') ? true : false;
+
+  const [activityModal, setActivityModal] = useState<boolean>(false);
+
+  // Do some idle action like log out your user
+  const onIdle = () => {
+    signOut();
+  };
+
+  // Close Modal Prompt and reset the idleTimer
+  const onActive = () => {
+    setActivityModal(false);
+    reset();
+  };
+
+  // opens modal prompt on timeout
+  const onPrompt = () => {
+    setActivityModal(true);
+  };
+
+  const { reset } = useIdleTimer({
+    timeout: 1000 * 1500,
+    onIdle,
+    onActive,
+    debounce: 500,
+    onPrompt,
+    promptTimeout: 1000 * 299,
+  });
 
   const handleDialogBox = (open: boolean) => {
     setDialogBoxOpen(open);
   };
-
 
   useEffect(() => {
     if (platformBaseUrl) {
@@ -136,50 +166,58 @@ export const Routes = () => {
     );
   };
 
-  const handleNavigation = (e :  React.MouseEvent<HTMLElement>, loc : string)=>{
+  const handleNavigation = (e: React.MouseEvent<HTMLElement>, loc: string) => {
     e.preventDefault();
-    if(
+    if (
       orgFormModified === true ||
       siteFormModified === true ||
       userFormModified === true ||
       suiteFormModified === true
-    ){
+    ) {
       setDialogBoxOpen(true);
       setRedirectUrl(loc);
-    }else {
-      loc === "dashboard" && history.push(`${path}`);
-      loc === "users" && history.push(`${path}user`);
-      loc === "customReports" && history.push(`${path}customReports`);
+    } else {
+      loc === 'dashboard' && history.push(`${path}`);
+      loc === 'users' && history.push(`${path}user`);
+      loc === 'customReports' && history.push(`${path}customReports`);
     }
-  }
+  };
 
-  const navList = showCustomReports ? [
-    { 
-      label: 'DASHBOARD', 
-      route: path,
-      onClick : (e : React.MouseEvent<HTMLElement> ) => handleNavigation(e,"dashboard")
-    },
-    { 
-      label: 'USERS', 
-      route: `${path}user`,
-      onClick : (e :  React.MouseEvent<HTMLElement>)=> handleNavigation(e,"users")
-    },
-    { 
-      label: 'CUSTOM REPORTS', 
-      route : `${path}customReports`, 
-      onClick : (e :  React.MouseEvent<HTMLElement>)=>handleNavigation(e,"customReports")}
-  ] : [
-    { 
-      label: 'DASHBOARD', 
-      route: path,
-      onClick : (e : React.MouseEvent<HTMLElement> ) => handleNavigation(e,"dashboard")
-    },
-    { 
-      label: 'USERS', 
-      route: `${path}user`,
-      onClick : (e :  React.MouseEvent<HTMLElement>)=> handleNavigation(e,"users")
-    }
-  ]
+  const navList = showCustomReports
+    ? [
+        {
+          label: 'DASHBOARD',
+          route: path,
+          onClick: (e: React.MouseEvent<HTMLElement>) =>
+            handleNavigation(e, 'dashboard'),
+        },
+        {
+          label: 'USERS',
+          route: `${path}user`,
+          onClick: (e: React.MouseEvent<HTMLElement>) =>
+            handleNavigation(e, 'users'),
+        },
+        {
+          label: 'CUSTOM REPORTS',
+          route: `${path}customReports`,
+          onClick: (e: React.MouseEvent<HTMLElement>) =>
+            handleNavigation(e, 'customReports'),
+        },
+      ]
+    : [
+        {
+          label: 'DASHBOARD',
+          route: path,
+          onClick: (e: React.MouseEvent<HTMLElement>) =>
+            handleNavigation(e, 'dashboard'),
+        },
+        {
+          label: 'USERS',
+          route: `${path}user`,
+          onClick: (e: React.MouseEvent<HTMLElement>) =>
+            handleNavigation(e, 'users'),
+        },
+      ];
 
   const HeaderPlatform = useMemo(
     () => (
@@ -188,16 +226,22 @@ export const Routes = () => {
         {snackbar && (
           <Snackbar type={snackbarType} content={snackBarMsg} duration={5000} />
         )}
-        {
         <UnsavedData
           open={dialogBoxOpen}
           location={redirectUrl}
           handleLeave={handleDialogBox}
         />
-      }
+        <IdlePopUp
+          open={activityModal}
+          logOut={signOut}
+          onActive={onActive}
+          minutes={5}
+          seconds={0}
+          timer={{ minutes: 5, seconds: 0 }}
+        />
         <Header
           title={'PLATFORM'}
-          logo={{ img: logo, path: path }}
+          logo={{ img: nexia_logo_img, path: path }}
           betaIcon={true}
           reportIssue={false}
           navLinkMenuList={navList}
@@ -207,7 +251,7 @@ export const Routes = () => {
           }}
           userMenuList={[
             {
-              icon: logOutIcon,
+              icon: sign_out_img,
               label: 'Logout',
               onClick: signOut,
             },
@@ -244,9 +288,6 @@ export const Routes = () => {
           <Route path={`${path}user/onboarding`}>
             {ComponentLayout(UserOnboarding)}
           </Route>
-          <Route path={`${path}user/onboardingInstructions`}>
-            {ComponentLayout(userOnboardingInstructions)}
-          </Route>
           <Route path={`${path}organization/sites`}>
             {ComponentLayout(Sites)}
           </Route>
@@ -259,9 +300,11 @@ export const Routes = () => {
           <Route path={`${path}organization/editOrg/addSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
-           {showCustomReports && <Route path={`${path}customReports`}>
-            {ComponentLayout(CustomReports)}
-          </Route>}
+          {showCustomReports && (
+            <Route path={`${path}customReports`}>
+              {ComponentLayout(CustomReports)}
+            </Route>
+          )}
         </Backdrop>
       ) : (
         <Route path={path}>

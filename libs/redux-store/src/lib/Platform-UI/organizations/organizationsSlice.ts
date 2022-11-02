@@ -359,9 +359,6 @@ export const organizationsSlice = createSlice({
       .addCase(deleteOrganizationAsync.rejected, (state) => {
         state.status = "failed";
       })
-      .addCase(getOrganizationStatsAsync.pending, (state, action) => {
-        state.status = "loading";
-      })
       .addCase(getOrganizationStatsAsync.fulfilled, (state, action) => {
         state.organizationStats = action.payload.data;
         state.status = "idle";

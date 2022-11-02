@@ -1,9 +1,10 @@
-import {  useParams} from "react-router-dom";
+import { useParams } from 'react-router-dom';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import { BackdropPowerBi } from '@cloudcore/analytics/powerbi';
 import { analyticsStore, reportsActions } from '@cloudcore/redux-store';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-
+import { ErrorBoundary } from 'react-error-boundary';
+import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 type PartnerParams = {
   id: string;
 };
@@ -12,6 +13,8 @@ export interface PowerbiReportProps {}
 
 export function PowerbiReport(props: PowerbiReportProps) {
   const { id } = useParams<PartnerParams>();
+  const config: IConfig = useContext(ConfigCtx)!;
+
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
   const {
@@ -22,7 +25,16 @@ export function PowerbiReport(props: PowerbiReportProps) {
     selectReport,
   } = reportsActions;
 
-  const { loadingSingleReport, selectedReportId, reportFilter, reports } =  useAppSelector((state) => state.report);
+  const reportId =
+    id === undefined
+      ? config.marketplaceReports[0]
+      : id === '1'
+      ? config.marketplaceReports[1]
+      : config.marketplaceReports[2];
+  //throw new Error('xxxxxxx')
+  const { loadingSingleReport, reportFilter } = useAppSelector(
+    (state) => state.report
+  );
 
   const sessionTimeoutRef: any = useRef(null);
 
@@ -32,23 +44,30 @@ export function PowerbiReport(props: PowerbiReportProps) {
   const handleLoadingReportSingle = (data: boolean) =>
     dispatch(loadingReportSingle(data));
 
-    const handleSelectFilterItemSelected = (filter: string[], operator: string) =>
+  const handleSelectFilterItemSelected = (filter: string[], operator: string) =>
     dispatch(selectFilterItemSelected(filter, operator));
 
   return (
-    <>
-    <ReportBiClientComponent
-      userName= ''
-      userEmail= 'wag@walgreens.com'
-      reset={() => (null)  }
-      openAlert={handleOpenAlert}
-      loadingReportSingle={handleLoadingReportSingle}
-      selectFilterItemSelected={handleSelectFilterItemSelected}
-      selectedReportId={'3c7d3cd2-a042-4632-b88e-73517df4678d'}
-      reportFilter={reportFilter}
-    />
-    <BackdropPowerBi loadingState={loadingSingleReport} />
-  </>
+    <ErrorBoundary
+      fallbackRender={({ error, resetErrorBoundary }) => (
+        <div>
+          <h1>An error occurred: {error.message}</h1>
+          <button onClick={resetErrorBoundary}>Try again</button>
+        </div>
+      )}
+    >
+      <ReportBiClientComponent
+        userName=""
+        userEmail="wag@walgreens.com"
+        reset={() => null}
+        openAlert={handleOpenAlert}
+        loadingReportSingle={handleLoadingReportSingle}
+        selectFilterItemSelected={handleSelectFilterItemSelected}
+        selectedReportId={reportId}
+        reportFilter={reportFilter}
+      />
+      <BackdropPowerBi loadingState={loadingSingleReport} />
+    </ErrorBoundary>
   );
 }
 

@@ -4,7 +4,7 @@
 import * as pbi from 'powerbi-client';
 import { IEmbedConfiguration, IEmbedSettings } from 'powerbi-client';
 import * as models from 'powerbi-models';
-import { IFilterReport, IErrorTypeResponse } from "./interfaces/interfaces";
+import { IFilterReport, IErrorTypeResponse } from "@cloudcore/common-lib";
 
 interface IReportEmbedModel {
   id: string;
@@ -43,13 +43,14 @@ export default class ReportEmbedding {
     showMobileLayout: boolean,
     token: string,
     powerbiUrl: string,
-    handleErrorResponse: (err: IErrorTypeResponse) => void,
+    handleErrorOrLogResponse: (err: IErrorTypeResponse) => void,
     loadingReportSingle: (v: boolean) => void,
     actualReportFilter: IFilterReport | undefined,
     selectFilterItemSelected: (t: string[], p: string) => void,
     reset: () => void
   ): void {
     const timeStartLoad = new Date().getTime();
+   //getReportEmbedModel actually calls HTTP fetch
     this.getReportEmbedModel(reportId, token, powerbiUrl, loadingReportSingle)
       .then((apiResponse) => this.getReportEmbedModelFromResponse(apiResponse))
       .then((responseContent) =>
@@ -64,24 +65,26 @@ export default class ReportEmbedding {
           loadingReportSingle,
           actualReportFilter,
           selectFilterItemSelected,
-          handleErrorResponse,
+          handleErrorOrLogResponse,
           timeStartLoad,
           reset
         )
       )
       .catch((err) => {
         loadingReportSingle(false);
+        console.error('getReportEmbedModel') //@
         const errorData = JSON.parse(err.message);
         let errorText;
         try {
           errorText = JSON.parse(errorData.text);
         } catch (e) {
           errorText = err.text;
-        }        
-        handleErrorResponse({
+        }  
+        handleErrorOrLogResponse({
           type: errorData.type? errorData.type : "GetReportError",
           message: errorText.message? errorText.message : errorText,
           status: errorData.status,
+          justEventSend: false,
           messageToShow: errorText.messageToShow? errorText.messageToShow : errorText
         });
       });
@@ -150,7 +153,7 @@ export default class ReportEmbedding {
     loadingReportSingle: any,
     actualReportFilter: IFilterReport | undefined,
     selectFilterItemSelected: any,
-    handleErrorResponse: any,
+    handleErrororLogResponse:  (err: IErrorTypeResponse) => void,
     timeStartLoad: number,
     reset: () => void
   ): void {
@@ -164,7 +167,7 @@ export default class ReportEmbedding {
     report.off('error');
 
     report.on('loaded', () => {
-      handleErrorResponse({
+      handleErrororLogResponse({
         type: "GetReportLoading",
         message: JSON.stringify({
           id: _reportName,
@@ -200,7 +203,7 @@ export default class ReportEmbedding {
       if (error.level! > models.TraceType.Error) {
 
         console.log('Embedded Error: ', error);
-        handleErrorResponse({
+        handleErrororLogResponse({
           type: "GetReportError",
           message: error.detailedMessage,
           status: 0,

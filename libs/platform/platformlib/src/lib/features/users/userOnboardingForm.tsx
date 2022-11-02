@@ -1,6 +1,7 @@
 import { useContext, useState, useMemo } from 'react';
-import { UnsavedData } from '../../components';
+import { UnsavedData } from '../../components/un-saved-data/un-saved-data';
 import { Snackbar, theme } from '@cloudcore/ui-shared';
+import Stepper from '@mui/material/Stepper';
 import {
   Alert,
   AlertColor,
@@ -12,6 +13,8 @@ import {
   InputLabel,
   List,
   ListItem,
+  Step,
+  StepLabel,
   Typography,
 } from '@mui/material';
 import {
@@ -33,6 +36,21 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+
+const steps = [
+  {
+    label: 'Step 1',
+    line1: 'Download template,\nadd user info and save as CSV',
+  },
+  {
+    label: 'Step 2',
+    line1: `Select Organization \nand file to import`,
+  },
+  {
+    label: 'Step 3',
+    line1: `Import Data`,
+  },
+];
 
 const style = {
   Card: {
@@ -178,14 +196,43 @@ const UserOnboarding = () => {
     setDialogBoxOpen(open);
   };
 
-  const backToInstructions = () => {
-    formModified
-      ? setDialogBoxOpen(true)
-      : history.push(`${path}user/onboardingInstructions`);
-  };
-
   const backToUsers = () => {
     formModified ? setDialogBoxOpen(true) : history.push(`${path}user`);
+  };
+
+  //stepper changes
+  const [activeStep, setActiveStep] = useState(0);
+
+  const checkTemplate = () => {
+    setActiveStep(1);
+  };
+  const checkOrgfile = () => {
+    setActiveStep(2);
+  };
+  const checkImport = () => {
+    setActiveStep(3);
+  };
+
+  //columns for template csv download
+  const columnsDownload =
+    'email,firstname,lastname,phone,title,city,street,zip,state';
+
+  const download = (data: string) => {
+    checkTemplate();
+    // Creating a Blob for having a csv file format
+    // and passing the data with type
+    const blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
+    // Creating an object for downloading url
+    const url = window.URL.createObjectURL(blob);
+    // Creating an anchor(a) tag of HTML
+    const a = document.createElement('a');
+    // Passing the blob downloading url
+    a.setAttribute('href', url);
+    // Setting the anchor tag attribute for downloading
+    // and passing the download file name
+    a.setAttribute('download', 'template.csv');
+    // Performing a download with click
+    a.click();
   };
 
   const backToUpload = () => {
@@ -203,6 +250,9 @@ const UserOnboarding = () => {
     setSnackbar(false);
     setSnackBarType('');
     setSnackBarMsg('');
+    //we don't want to force them to redonwload
+    //if just stepping back
+    setActiveStep(1);
   };
 
   window.onbeforeunload = function () {
@@ -233,6 +283,13 @@ const UserOnboarding = () => {
   function handleImportFileUpdate(f: File | null, s: string) {
     setCsvFile(f);
     setFileName(s);
+    //we only move forward if both org and file are selected
+    if (f != null || s.length > 0) {
+      checkOrgfile();
+    } else {
+      //if not mark step 2 as active
+      checkTemplate();
+    }
     //this is disabled until org is selected
   }
 
@@ -283,6 +340,7 @@ const UserOnboarding = () => {
   };
 
   const handleUpload = () => {
+    checkImport();
     //var startTime = new Date()
     if (csvFile) {
       const formData = new FormData();
@@ -344,7 +402,6 @@ const UserOnboarding = () => {
               setSnackbar(true);
               setSnackBarMsg('uploadUsersError');
               setSnackBarType('failure');
-              console.log('test ' + snackbar);
             }
           );
       } catch (err) {
@@ -365,7 +422,7 @@ const UserOnboarding = () => {
           breadCrumbOrigin="ALL USERS"
           breadCrumbTitle="Import Users"
           onClickButton={backToUpload}
-        ></TitleAndCloseIcon>
+        />
         {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid item xs={12}>
           <Grid container style={style.Grid} paddingX={3}>
@@ -526,7 +583,7 @@ const UserOnboarding = () => {
         <TitleAndCloseIcon
           breadCrumbOrigin="ALL USERS"
           breadCrumbTitle="Import Users"
-          onClickButton={backToInstructions}
+          onClickButton={backToUsers}
         ></TitleAndCloseIcon>
         {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid item xs={12}>
@@ -545,91 +602,132 @@ const UserOnboarding = () => {
                 >
                   Import Users
                 </Typography>
+                <Box sx={{ width: '100%', height: '40px' }}>
+                  <Stepper activeStep={activeStep} alternativeLabel>
+                    {steps.map((label) => (
+                      <Step key={label.label}>
+                        <StepLabel style={{ whiteSpace: 'pre-line' }}>
+                          {label.line1}
+                        </StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+                </Box>
               </Grid>
-              <Grid container item sx={{ marginBottom: '10%' }}>
-                <Grid
-                  item
-                  xs={12}
-                  sx={{
-                    alignSelf: 'center',
-                    textAlign: 'center',
-                    alignContent: 'center',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <InputLabel
-                      style={{
-                        marginTop: '25px',
-                        marginRight: '10px',
-                        color: '#6513F0',
-                      }}
-                      id="custom-select"
-                    >
-                      {'Organization'}
-                    </InputLabel>
-                    <FormControl sx={{ width: '20%' }}>
-                      <InputSelectWithLabel
-                        id="org"
-                        placeholder="Select Organization"
-                        options={orgList}
-                        orgChangeHandler={handleSelectionUpdate}
-                        value={org}
-                      />
-                    </FormControl>
-                  </div>
-
-                  <ImportFile
-                    title="Import File"
-                    org={org}
-                    fileName={fileName}
-                    onImportFileUpdate={handleImportFileUpdate}
-                  ></ImportFile>
-
-                  <Button
-                    disabled={
-                      fileName.length > 0 && org.length > 0 ? false : true
-                    }
-                    variant="outlined"
+              {activeStep > 0 ? ( //if template downloaded show org and file select
+                <Grid container item sx={{ marginBottom: '10%' }}>
+                  <Grid
+                    item
+                    xs={12}
                     sx={{
-                      marginRight: theme.spacing(2),
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      //set the snackbar default to false
-                      setSnackbar(false);
-                      handleUpload();
+                      alignSelf: 'center',
+                      textAlign: 'center',
+                      alignContent: 'center',
                     }}
                   >
-                    Import Data
-                  </Button>
-                  {alertContent.length > 0 ? (
-                    <>
-                      <Typography>
-                        Error processing file, please review. Common issues are
-                        listed below
-                      </Typography>
-                      <List sx={{ paddingLeft: '35%', alignContent: 'center' }}>
-                        <ListItem style={{ alignContent: 'center' }}>
-                          Empty Column Values
-                        </ListItem>
-                        <ListItem>Empty Rows</ListItem>
-                        <ListItem>Duplicate Rows</ListItem>
-                      </List>
-                    </>
-                  ) : null}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <InputLabel
+                        style={{
+                          marginTop: '25px',
+                          marginRight: '10px',
+                          color: '#6513F0',
+                        }}
+                        id="custom-select"
+                      >
+                        {'Organization'}
+                      </InputLabel>
+                      <FormControl sx={{ width: '20%' }}>
+                        <InputSelectWithLabel
+                          id="org"
+                          placeholder="Select Organization"
+                          options={orgList}
+                          orgChangeHandler={handleSelectionUpdate}
+                          value={org}
+                        />
+                      </FormControl>
+                    </div>
+
+                    <ImportFile
+                      title="Import File"
+                      org={org}
+                      fileName={fileName}
+                      onImportFileUpdate={handleImportFileUpdate}
+                    ></ImportFile>
+
+                    <Button
+                      disabled={
+                        fileName.length > 0 && org.length > 0 ? false : true
+                      }
+                      variant="outlined"
+                      sx={{
+                        marginRight: theme.spacing(2),
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        //set the snackbar default to false
+                        setSnackbar(false);
+                        handleUpload();
+                      }}
+                    >
+                      Import Data
+                    </Button>
+                    {alertContent.length > 0 ? (
+                      <>
+                        <Typography>
+                          Error processing file, please review. Common issues
+                          are listed below
+                        </Typography>
+                        <List
+                          sx={{ paddingLeft: '35%', alignContent: 'center' }}
+                        >
+                          <ListItem style={{ alignContent: 'center' }}>
+                            Empty Column Values
+                          </ListItem>
+                          <ListItem>Empty Rows</ListItem>
+                          <ListItem>Duplicate Rows</ListItem>
+                        </List>
+                      </>
+                    ) : null}
+                  </Grid>
                 </Grid>
-              </Grid>
+              ) : (
+                //if template not downloaded show download button
+                <Grid container item sx={{ marginBottom: '10%' }}>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{
+                      alignSelf: 'center',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                    }}
+                  >
+                    <br></br>
+                    <br></br>
+                    <Button
+                      color="primary"
+                      variant="outlined"
+                      component="span"
+                      onClick={() => {
+                        download(columnsDownload);
+                      }}
+                    >
+                      Get Template
+                    </Button>
+                  </Grid>
+                </Grid>
+              )}
             </Card>
             <LowerButton
               buttonName="BACK"
-              onClickButton={backToInstructions}
+              onClickButton={backToUsers}
             ></LowerButton>
           </Grid>
         </Grid>

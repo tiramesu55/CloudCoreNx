@@ -36,7 +36,8 @@ export const deleteSuite = (url : string, id : string, token: string) => axios.d
   }
   );
 
-  export const updateWorkSpaceIdByDomain = (url : string, data : {}, token : string) => 
+  export const updateWorkSpaceIdByDomain = (url : string, data : { domain: string,
+    workspaceId: string,}, token : string) => 
     axios.put(`${url}/UpdateWorkspaceByDomain`, data , {
       headers: {
         'Authorization': `Bearer ${token}`

@@ -1,11 +1,11 @@
 import { AnyAction } from "redux";
-import { IUiReport, IFilterReport, ActionType } from '../interfaces/interfaces';
+import { IUiReportList, IFilterReport, ActionType } from '@cloudcore/common-lib';
 
 export interface IReportReducerState {
   loadingReportsAll: boolean;
   loadingSingleReport: boolean;
   selectedReportId: string | null;
-  reports:IUiReport[] | undefined; 
+  reports:IUiReportList[] | undefined; 
   reportFilter: IFilterReport | undefined;
 }
 

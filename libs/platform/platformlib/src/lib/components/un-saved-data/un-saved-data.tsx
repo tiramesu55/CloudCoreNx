@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import warningImg from '../../images/warning.png';
+import warning_img from '../../../../../../ui-shared/src/lib/assets/warning.png';
 import {
   setOrgFormModified,
   setSiteFormModified,
@@ -115,7 +115,7 @@ export const UnsavedData = (props: Props) => {
       >
         <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
           <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
-            <img src={warningImg} alt="warning" />
+            <img src={warning_img} alt="warning" />
           </Box>
           <Box>
             <Typography

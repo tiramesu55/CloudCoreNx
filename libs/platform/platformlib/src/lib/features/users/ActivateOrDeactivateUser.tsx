@@ -11,7 +11,7 @@ import {
   DialogContent,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import warningImg from '../../images/warning.png';
+import { warning_img } from '@cloudcore/ui-shared';
 import {
   selectedUserEmail,
   selectUserByIdEntity,
@@ -169,7 +169,7 @@ export const DeactivateUser = (props: Props) => {
       >
         <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
           <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
-            <img src={warningImg} alt="warning" />
+            <img src={warning_img} alt="warning" />
           </Box>
           <Box>
             <Typography

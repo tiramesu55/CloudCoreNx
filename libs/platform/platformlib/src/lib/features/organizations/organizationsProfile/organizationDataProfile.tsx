@@ -1,6 +1,11 @@
 import { Grid, Box, Typography, Button, useTheme } from '@mui/material';
-import { platformStore } from '@cloudcore/redux-store';
-import locationIcon from '../../../images/location.svg';
+import {
+  getOrganizationStatsAsync,
+  organizationStats,
+  platformStore,
+  resetSite,
+} from '@cloudcore/redux-store';
+import { location_img } from '@cloudcore/ui-shared';
 import { OrgContactDetails } from './orgContactDetails';
 import { useSelector } from 'react-redux';
 import {
@@ -9,20 +14,31 @@ import {
   selectOrganizations,
 } from '@cloudcore/redux-store';
 import { useHistory } from 'react-router-dom';
-import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
-import { useContext, useMemo } from 'react';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
+import { useContext, useEffect, useMemo } from 'react';
 import {} from '@cloudcore/ui-shared';
 
-const { useAppSelector } = platformStore;
+const { useAppDispatch, useAppSelector } = platformStore;
 
 export const OrganizationDataProfile = () => {
   const config: IConfig = useContext(ConfigCtx)!;
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { token } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
 
   const theme = useTheme();
+  const dispatch = useAppDispatch();
   const organizations = useAppSelector(selectOrganizations);
+  const selectedOrgStats = useAppSelector(organizationStats);
   const selectId = useAppSelector(selectedId);
   const id = selectId === '' ? organizations[0]?.id : selectId;
   const organization = useSelector((state: any) =>
@@ -44,6 +60,25 @@ export const OrganizationDataProfile = () => {
       orgName: organization?.name,
     });
   };
+
+  const handleAddSiteClick = () => {
+    history.push(`${path}organization/editOrg/addSite`, {
+      from: 'dashboard',
+      orgCode: organization?.orgCode,
+      orgName: organization?.name,
+    });
+    dispatch(resetSite());
+  };
+
+  useEffect(() => {
+    dispatch(
+      getOrganizationStatsAsync({
+        orgCode: organization?.orgCode,
+        url: platformBaseUrl,
+        token: token,
+      })
+    );
+  }, [selectId]);
 
   return (
     <Grid
@@ -72,7 +107,7 @@ export const OrganizationDataProfile = () => {
                 </Typography>
                 <Box
                   component={'img'}
-                  src={locationIcon}
+                  src={location_img}
                   alt="location"
                   sx={{ mx: 1 }}
                   color="#808184"
@@ -123,6 +158,42 @@ export const OrganizationDataProfile = () => {
                 aria-haspopup="true"
                 aria-controls="confirmation"
                 aria-label="confirmation"
+                onClick={handleAddSiteClick}
+                sx={{
+                  fontSize: theme.typography.subtitle1.fontSize,
+                  fontWeight: 'bold',
+                  paddingX: theme.spacing(6),
+                  paddingY: theme.spacing(1.1),
+                  marginRight: theme.spacing(2),
+                }}
+              >
+                ADD SITE
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                color="primary"
+                aria-haspopup="true"
+                aria-controls="confirmation"
+                aria-label="confirmation"
+                onClick={handleAddSiteClick}
+                sx={{
+                  fontSize: theme.typography.subtitle1.fontSize,
+                  fontWeight: 'bold',
+                  paddingX: theme.spacing(6),
+                  paddingY: theme.spacing(1.1),
+                  marginRight: theme.spacing(2),
+                }}
+              >
+                ADD SITE
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                color="primary"
+                aria-haspopup="true"
+                aria-controls="confirmation"
+                aria-label="confirmation"
                 onClick={handleEditSiteClick}
                 sx={{
                   fontSize: theme.typography.subtitle1.fontSize,
@@ -130,6 +201,7 @@ export const OrganizationDataProfile = () => {
                   paddingX: theme.spacing(6),
                   paddingY: theme.spacing(1.1),
                 }}
+                disabled={selectedOrgStats.sites < 1 ? true : false}
               >
                 EDIT SITES
               </Button>

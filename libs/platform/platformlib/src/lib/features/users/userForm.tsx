@@ -34,6 +34,7 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { Snackbar } from '@cloudcore/ui-shared';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -376,39 +377,11 @@ export const UserForm = () => {
         />
       }
       <Grid item xs={12}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingX: theme.spacing(3),
-            paddingY: theme.spacing(1),
-          }}
-        >
-          {isAddUser ? (
-            <Typography
-              variant="subtitle1"
-              fontSize="18px"
-              color={theme.breadcrumLink.primary}
-            >
-              Add New User
-            </Typography>
-          ) : (
-            <Typography
-              variant="subtitle1"
-              fontSize="18px"
-              color={theme.breadcrumLink.primary}
-            >
-              ALL USERS/{' '}
-              <Box component={'span'} sx={{ fontWeight: 'bold' }}>
-                {headerTitle}
-              </Box>
-            </Typography>
-          )}
-          <IconButton sx={{ color: '#000000' }} onClick={closeEditUser}>
-            <CloseIcon fontSize="large" />
-          </IconButton>
-        </Box>
+        <TitleAndCloseIcon
+          onClickButton={closeEditUser}
+          breadCrumbOrigin={isAddUser ? 'Add New User' : 'ALL USERS'}
+          breadCrumbTitle={isAddUser ? '' : headerTitle}
+        />
       </Grid>
       <Grid item xs={12}>
         <Grid container paddingX={3}>

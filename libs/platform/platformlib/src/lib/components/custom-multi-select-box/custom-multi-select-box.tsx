@@ -11,12 +11,9 @@ import {
   Select,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { useTheme } from '@mui/material';
-import { withStyles, makeStyles } from '@mui/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { styled } from '@mui/material/styles';
-import { Option } from '../../components/select-sites/select-sites';
-import { Theme } from '@mui/material/styles';
+import { styled, useTheme, Theme } from '@mui/material/styles';
+import { Option } from '../select-sites/select-sites';
 
 interface Props {
   application: string;
@@ -27,7 +24,31 @@ interface Props {
   title?: any;
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const SelectInput = styled(InputBase)(({ theme }) => ({
+  'label + &': {
+    marginTop: theme.spacing(3),
+  },
+  '& .MuiInputBase-input': {
+    borderRadius: 4,
+    position: 'relative',
+    backgroundColor: theme.palette.secondary.main,
+    border: `1px solid ${theme.palette.inputBorder.main}`,
+    fontSize: 16,
+    padding: '10px 26px 10px 12px',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    // Use the system font instead of the default Roboto font.
+    '&:focus': {
+      /* borderRadius: 4,
+        borderColor: "#80bdff",
+        boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
+    },
+  },
+  '& .MuiSelect-icon': {
+    color: theme.palette.inputBorder.main,
+  },
+}));
+
+const styles = (theme: Theme) => ({
   formControl: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
@@ -63,56 +84,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   yellowCloseIcon: {
     color: `1px solid ${theme.palette['chipYellow'].main} !important`,
   },
-}));
+});
 
 export const CustomMultiSelectBox = (props: Props) => {
   const theme = useTheme();
-  const SelectInput = styled(InputBase)(() => ({
-    'label + &': {
-      marginTop: theme.spacing(3),
-    },
-    '& .MuiInputBase-input': {
-      borderRadius: 4,
-      position: 'relative',
-      backgroundColor: theme.palette.secondary.main,
-      border: `1px solid ${theme.palette.inputBorder.main}`,
-      fontSize: 16,
-      padding: '10px 26px 10px 12px',
-      transition: theme.transitions.create(['border-color', 'box-shadow']),
-      // Use the system font instead of the default Roboto font.
-      '&:focus': {
-        /* borderRadius: 4,
-          borderColor: "#80bdff",
-          boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
-      },
-    },
-  }));
-
-  const CustomSelectCss = withStyles(() => ({
-    '@global': {
-      '.css-dtoucc-MuiSvgIcon-root-MuiSelect-icon': {
-        color: `${theme.palette.common.black} !important`,
-      },
-      '.css-og9e4b-MuiSvgIcon-root-MuiSelect-icon': {
-        color: `${theme.palette.common.black} !important`,
-      },
-    },
-  }))(() => null);
-
-  const classes = useStyles();
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-        backgroundColor: '#fffff !important',
-      },
-    },
-    classes: { paper: classes.dropdownStyle },
-  };
-
   const [currentList, setCurrentList] = useState<string[]>(
     props.inputList.map((el) => {
       return el['name'];
@@ -121,15 +96,13 @@ export const CustomMultiSelectBox = (props: Props) => {
 
   const permissions = new Map<string, string>();
 
-  const [totalList, setTotalList] = useState<string[]>(
-    props.totalList.map((el) => {
-      permissions.set(
-        el.name,
-        el.permissions === undefined ? '' : el.permissions.toString()
-      );
-      return el['name'];
-    })
-  );
+  const totalList = props.totalList.map((el) => {
+    permissions.set(
+      el.name,
+      el.permissions === undefined ? '' : el.permissions.toString()
+    );
+    return el['name'];
+  });
 
   const isAllSelected =
     totalList.length > 0 && currentList.length === totalList.length;
@@ -176,8 +149,7 @@ export const CustomMultiSelectBox = (props: Props) => {
 
   return (
     <>
-      <CustomSelectCss />
-      <FormControl sx={{ my: 1, width: 300 }} className={classes.formControl}>
+      <FormControl sx={styles(theme).formControl}>
         <Select
           labelId="demo-multiple-checkbox-label"
           id="demo-multiple-checkbox"
@@ -187,25 +159,26 @@ export const CustomMultiSelectBox = (props: Props) => {
           input={<SelectInput placeholder="input" />}
           renderValue={(selected) => {
             const selectedArr: string[] = [];
-            selected.map((ele) => {
+            selected.forEach((ele) => {
               selectedArr.push(ele);
             });
             return selectedArr.length
               ? selectedArr.join(', ')
               : props.customSelectLabel;
           }}
-          MenuProps={MenuProps}
+          inputProps={{
+            MenuProps: {
+              MenuListProps: {
+                sx: { backgroundColor: theme.palette.common.white },
+              },
+            },
+          }}
           displayEmpty={true}
         >
-          <MenuItem
-            value="all"
-            classes={{
-              root: isAllSelected ? classes.selectedAll : '',
-            }}
-          >
+          <MenuItem value="all" sx={styles(theme).selectedAll}>
             <ListItemIcon>
               <Checkbox
-                classes={{ indeterminate: classes.indeterminateColor }}
+                sx={styles(theme).indeterminateColor}
                 checked={isAllSelected}
                 indeterminate={
                   currentList.length > 0 &&
@@ -214,7 +187,7 @@ export const CustomMultiSelectBox = (props: Props) => {
               />
             </ListItemIcon>
             <ListItemText
-              classes={{ primary: classes.selectAllText }}
+              sx={styles(theme).indeterminateColor}
               primary="Select All"
             />
           </MenuItem>
@@ -223,7 +196,7 @@ export const CustomMultiSelectBox = (props: Props) => {
               <MenuItem key={index} value={element as any}>
                 <ListItemIcon>
                   <Checkbox
-                    classes={{ indeterminate: classes.indeterminateColor }}
+                    sx={styles(theme).indeterminateColor}
                     checked={currentList.indexOf(element) > -1}
                   />
                 </ListItemIcon>
@@ -239,6 +212,7 @@ export const CustomMultiSelectBox = (props: Props) => {
           {currentList.map((value, index) => {
             return (
               <Chip
+                sx={styles(theme).initialChip}
                 key={index}
                 variant="outlined"
                 label={value}
@@ -260,11 +234,6 @@ export const CustomMultiSelectBox = (props: Props) => {
                   )
                 }
                 onDelete={(e) => handleDelete(e, value)}
-                className={
-                  currentList.indexOf(value) > -1
-                    ? classes.initialChip
-                    : classes.newChip
-                }
               />
             );
           })}

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import warningImg from '../../images/warning.png';
+import { warning_img } from '@cloudcore/ui-shared';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
@@ -192,7 +192,7 @@ export const ActivateDeactivateSite = (props: Props) => {
       >
         <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
           <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
-            <img src={warningImg} alt="warning" />
+            <img src={warning_img} alt="warning" />
           </Box>
           <Box>
             <Typography

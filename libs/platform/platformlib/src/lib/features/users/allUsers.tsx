@@ -297,7 +297,7 @@ export const ListUsers = (props: Props) => {
             color: theme.palette.primary.main,
           }}
           onClick={() => {
-            history.push(`${path}user/onboardingInstructions`);
+            history.push(`${path}user/onboarding`);
           }}
         >
           Import Users

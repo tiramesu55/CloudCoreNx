@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Typography, Grid, Divider } from '@mui/material';
+import { Typography, Grid, Divider, useTheme } from '@mui/material';
 import { platformStore } from '@cloudcore/redux-store';
 import React, { useContext, useEffect, useState } from 'react';
+import { Snackbar } from '@cloudcore/ui-shared';
 import { CustomMultiSelectBox } from '../../components/custom-multi-select-box/custom-multi-select-box';
-import { useTheme } from '@mui/material';
-
 import {
   currentApps,
   updatePartialApp,
@@ -42,6 +41,9 @@ export const SelectSites = (props: Props) => {
     config.postLogoutRedirectUri
   );
   const dispatch = useAppDispatch();
+  const [snackbar, setSnackbar] = useState(false);
+  const [snackbarType, setSnackBarType] = useState('');
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
   const allApps = useAppSelector(selectAppRoles);
   //selectedApps below are from the user. for new user it is empty.  See the state.applications section of the state
@@ -103,20 +105,24 @@ export const SelectSites = (props: Props) => {
       )
         .unwrap()
         .then(
-          () => {
+          (value: any) => {
             setLoadSite(true);
           },
-          () => {
+          (reason: any) => {
             setLoadSite(false);
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
           }
         );
     }
-  }, [platformBaseUrl, dispatch, props.orgCode]);
+  }, [platformBaseUrl, dispatch, props.orgCode, token]);
   const theme = useTheme();
 
   return (
     <>
       <Grid container item xs={12} mt={5}>
+        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid item xs={2}>
           <Typography
             fontSize={theme.typography.subtitle1.fontSize}

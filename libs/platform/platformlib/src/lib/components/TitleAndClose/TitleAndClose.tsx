@@ -1,11 +1,14 @@
-import { Box, Grid, IconButton, Typography } from '@mui/material';
+import { Box, Grid, IconButton, Typography, Button } from '@mui/material';
 import { theme } from '@cloudcore/ui-shared';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
-  onClickButton: () => void;
+  onClickButton?: () => void;
   breadCrumbOrigin: string;
   breadCrumbTitle: string;
+  addBtn?: boolean;
+  addBtnText?: string;
+  onClickAddBtn?: () => void;
 }
 
 const TitleAndCloseIcon = (props: Props) => {
@@ -25,14 +28,31 @@ const TitleAndCloseIcon = (props: Props) => {
           fontSize="18px"
           color={theme.breadcrumLink.primary}
         >
-          {props.breadCrumbOrigin}/{' '}
-          <Box component={'span'} sx={{ fontWeight: 'bold' }}>
-            {props.breadCrumbTitle}
-          </Box>
+          {props.breadCrumbOrigin}
+          {props.breadCrumbTitle ? (
+            <Box component={'span'} sx={{ fontWeight: 'bold' }}>
+              {` / ${props.breadCrumbTitle}`}
+            </Box>
+          ) : (
+            <Box></Box>
+          )}
         </Typography>
-        <IconButton sx={{ color: '#000000' }} onClick={props.onClickButton}>
-          <CloseIcon fontSize="large" />
-        </IconButton>
+        <Box>
+          {props.addBtn && (
+            <Button
+              variant="contained"
+              sx={{ marginRight: theme.spacing(2) }}
+              onClick={props.onClickAddBtn}
+            >
+              {props.addBtnText}
+            </Button>
+          )}
+          {props.onClickButton && (
+            <IconButton sx={{ color: '#000000' }} onClick={props.onClickButton}>
+              <CloseIcon fontSize="large" />
+            </IconButton>
+          )}
+        </Box>
       </Box>
     </Grid>
   );

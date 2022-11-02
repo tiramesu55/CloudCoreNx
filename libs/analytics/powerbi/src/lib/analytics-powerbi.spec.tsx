@@ -1,6 +1,5 @@
 import { render } from '@testing-library/react';
-
-import AnalyticsPowerbi from './analytics-powerbi';
+import { AnalyticsPowerbi } from './analytics-powerbi';
 
 describe('AnalyticsPowerbi', () => {
   it('should render successfully', () => {

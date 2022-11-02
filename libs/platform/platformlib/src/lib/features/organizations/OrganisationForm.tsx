@@ -3,7 +3,6 @@
 import {
   Box,
   Grid,
-  IconButton,
   Typography,
   Button,
   Stack,
@@ -11,15 +10,19 @@ import {
   useTheme,
 } from '@mui/material';
 import { useEffect, useState, useContext, useMemo } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
   UnsavedData,
 } from '../../components';
-import { InfoCard, Card, Snackbar } from '@cloudcore/ui-shared';
-import sites from '../../images/sites.svg';
-import users from '../../images/users.svg';
+import {
+  InfoCard,
+  Card,
+  Snackbar,
+  sites_img,
+  users_img,
+  location_img,
+} from '@cloudcore/ui-shared';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import flags from 'react-phone-number-input/flags';
@@ -48,7 +51,6 @@ import {
 } from '@cloudcore/redux-store';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
-import locationIcon from '../../images/location.svg';
 import { useSelector } from 'react-redux';
 import { ActivateDeactivateOrg } from './activate-deactivate-org';
 import { withStyles } from '@mui/styles';
@@ -58,6 +60,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
@@ -151,7 +154,18 @@ export const OrganizationForm = () => {
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
       setOrgDomain('');
     }
   }, []);
@@ -189,13 +203,35 @@ export const OrganizationForm = () => {
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
       dispatch(
         getAllOrganizationsDomains({
           url: platformBaseUrl,
           token: token,
         })
-      );
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
     }
   }, []);
 
@@ -711,44 +747,19 @@ export const OrganizationForm = () => {
         />
       }
       <Grid xs={12} item>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingX: theme.spacing(3),
-            paddingY: theme.spacing(2),
-          }}
-        >
-          {isAddOrganization ? (
-            <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
-              ADD NEW ORGANIZATIONS
-            </Typography>
-          ) : (
-            <Typography variant="subtitle1" color={theme.breadcrumLink.primary}>
-              Dashboard / {organization['name']?.toUpperCase()} /
-              <Typography component={'span'} fontWeight="bold">
-                EDIT ORG
-              </Typography>
-            </Typography>
-          )}
-          <Box>
-            {!isAddOrganization && (
-              <Button
-                variant="contained"
-                sx={{ marginRight: theme.spacing(2) }}
-                onClick={addNewSite}
-              >
-                Add New Site
-              </Button>
-            )}
-            <IconButton
-              sx={{ color: '#000000' }}
-              onClick={closeOrganizationForm}
-            >
-              <CloseIcon fontSize="large" />
-            </IconButton>
-          </Box>
+        <Box>
+          <TitleAndCloseIcon
+            onClickButton={closeOrganizationForm}
+            breadCrumbOrigin={
+              isAddOrganization
+                ? 'ADD NEW ORGANIZATIONS'
+                : `Dashboard / ${organization['name']?.toUpperCase()}`
+            }
+            breadCrumbTitle={isAddOrganization ? '' : 'EDIT ORG'}
+            addBtn={!isAddOrganization}
+            onClickAddBtn={addNewSite}
+            addBtnText="Add New Site"
+          />
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -792,7 +803,7 @@ export const OrganizationForm = () => {
                   <Box>
                     <Box
                       component={'img'}
-                      src={locationIcon}
+                      src={location_img}
                       alt="location"
                       sx={{ mr: 1 }}
                       color="#808184"
@@ -1059,7 +1070,7 @@ export const OrganizationForm = () => {
                 <Grid container spacing={2}>
                   <Grid xs={3} item>
                     <InfoCard
-                      image={sites}
+                      image={sites_img}
                       title="Sites"
                       count={selectedOrgStats?.sites}
                       editSites={true}
@@ -1069,7 +1080,7 @@ export const OrganizationForm = () => {
                   </Grid>
                   <Grid xs={3} item>
                     <InfoCard
-                      image={users}
+                      image={users_img}
                       title="Users"
                       count={selectedOrgStats?.users}
                     />

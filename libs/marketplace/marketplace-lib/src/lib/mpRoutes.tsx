@@ -10,9 +10,9 @@ import { Header, NotAuthorized } from '@cloudcore/ui-shared';
 import { useHistory, useLocation } from 'react-router-dom';
 import InventorySettings from './components/inventorySettings';
 import LabelSettings from './components/labelSettings';
-import {Landing} from './marketplaceManagement/landing';
-import logo from './images/Nexia-Logo2.png';
-import logOutIcon from './images/sign-out.svg';
+import { Landing } from './marketplaceManagement/landing';
+import nexia_logo_img from '../../../../ui-shared/src/lib/assets/NexiaLogo.svg';
+import sign_out_img from '../../../../ui-shared/src/lib/assets/sign-out.svg';
 import PowerbiReport from './powerbi-report/powerbi-report';
 
 export const MpRoutes = () => {
@@ -31,9 +31,7 @@ export const MpRoutes = () => {
     return `${config.isMainApp ? '/marketplace/' : '/'}`;
   }, [config.isMainApp]);
   const ComponentLayout = (Component: any) => {
-    //console.log(loc.pathname)
     return (
-
       <>
         {HeaderMerketplace}
         <Component />
@@ -44,12 +42,10 @@ export const MpRoutes = () => {
     () => (
       <Header
         title={'MARKETPLACE'}
-        logo={{ img: logo, path: `${path}` }}
+        logo={{ img: nexia_logo_img, path: `${path}` }}
         betaIcon={true}
         reportIssue={false}
         navLinkMenuList={[
-          
-
           // submenu
           {
             label: 'CONFIGURATION',
@@ -79,7 +75,7 @@ export const MpRoutes = () => {
         }}
         userMenuList={[
           {
-            icon: logOutIcon,
+            icon: sign_out_img,
             label: 'Logout',
             onClick: signOut,
           },
@@ -104,7 +100,7 @@ export const MpRoutes = () => {
             {ComponentLayout(LabelSettings)}
           </Route>
           <Route path={`${path}partner/:id`}>
-            {ComponentLayout(Landing)}
+            {ComponentLayout(PowerbiReport)}
           </Route>
         </>
       ) : (

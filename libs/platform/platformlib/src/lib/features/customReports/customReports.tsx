@@ -47,6 +47,7 @@ import {
 import DeleteSuite from './deleteSuite';
 import { UnsavedData } from '../../components/un-saved-data/un-saved-data';
 import { platformStore } from '@cloudcore/redux-store';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 interface ReportState {
   value: string;
@@ -108,7 +109,20 @@ const CustomReports = () => {
           workspaceId: workspaceId,
         },
       })
-    );
+    )
+      .unwrap()
+      .then(
+        (value: any) => {
+          setSnackbar(true);
+          setSnackBarMsg('successMsg');
+          setSnackBarType('success');
+        },
+        (reason: any) => {
+          setSnackbar(true);
+          setSnackBarMsg('errorMsg');
+          setSnackBarType('failure');
+        }
+      );
     setIsWorkSpaceIdDisabled(true);
   };
   const resetDomainHandler = (flag: boolean) => {
@@ -558,30 +572,11 @@ const CustomReports = () => {
         />
       }
       <Grid item xs={12}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingX: theme.spacing(3),
-            paddingY: theme.spacing(1),
-          }}
-        >
-          <Typography
-            variant="subtitle1"
-            fontSize="18px"
-            color={theme.breadcrumLink.primary}
-          >
-            DASHBOARD /{' '}
-            <Box component={'span'} sx={{ fontWeight: 'bold' }}>
-              CUSTOM REPORTS
-            </Box>
-          </Typography>
-
-          <IconButton sx={{ color: '#000000' }} onClick={closeCustomReport}>
-            <CloseIcon fontSize="large" />
-          </IconButton>
-        </Box>
+        <TitleAndCloseIcon
+          onClickButton={closeCustomReport}
+          breadCrumbOrigin={'DASHBOARD'}
+          breadCrumbTitle={'CUSTOM REPORTS'}
+        />
       </Grid>
       <Grid item xs={12}>
         <Grid container paddingX={3}>
@@ -653,6 +648,7 @@ const CustomReports = () => {
                           ? enableWorkSpaceIdTextField
                           : disableWorkSpaceIdTextField
                       }
+                      disabled = {(!isWorkSpaceIdDisabled && workspaceId === "") ? true : false}
                     >
                       {isWorkSpaceIdDisabled
                         ? 'EDIT WORKSPACE ID'

@@ -1,6 +1,6 @@
 import { AlertsActions, LoadingActions, LoadReportsAction, SelectReportAction, SelectFilterItemSelectedAction } from "../actions";
 import { Dispatch } from "redux";
-import { IUiReport, ActionType } from '../interfaces/interfaces';
+import { IUiReportList, ActionType } from '@cloudcore/common-lib';
 
 export const openAlert =
   (error: string, status: number) => async (dispatch: Dispatch<AlertsActions>) => {
@@ -37,7 +37,7 @@ export const loadingReportSingle =
 };
 
 export const loadReports =
-  (reportsState: IUiReport[]) => async (dispatch: Dispatch<LoadReportsAction>) => {
+  (reportsState: IUiReportList[]) => async (dispatch: Dispatch<LoadReportsAction>) => {
     dispatch({
       type: ActionType.SET_REPORTS,
       payload: reportsState,

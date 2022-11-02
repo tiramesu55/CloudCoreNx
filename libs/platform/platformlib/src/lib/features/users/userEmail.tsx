@@ -20,6 +20,7 @@ import {
 import { useTheme } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
@@ -56,7 +57,12 @@ export const AddUserForm = () => {
   return (
     <Grid container>
       <Grid item xs={12}>
-        <Box
+        <TitleAndCloseIcon
+          onClickButton={closeAddUser}
+          breadCrumbOrigin={'Add New User'}
+          breadCrumbTitle={''}
+        />
+        {/* <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -75,7 +81,7 @@ export const AddUserForm = () => {
           <IconButton sx={{ color: '#000000' }} onClick={closeAddUser}>
             <CloseIcon fontSize="large" />
           </IconButton>
-        </Box>
+        </Box> */}
       </Grid>
       <Grid item xs={12}>
         <Grid container paddingX={3}>

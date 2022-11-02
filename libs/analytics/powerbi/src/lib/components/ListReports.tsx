@@ -111,7 +111,7 @@ export const ListReports = ({
     }
   };
 
-  const handleReportClick = (e: any, reportId: string) => {
+  const handleReportClick = (e: any, reportId: string, reportName: string) => {
     //debugger;
     e.stopPropagation();
     selectReport(reportId);
@@ -120,8 +120,12 @@ export const ListReports = ({
         name: userName,
         email: userEmail,
       },
-      reportId,
-      'SelectReportId'
+      'Report Info',
+      'SelectReportId',
+      {
+        reportId: reportId,
+        reportName: reportName,
+      }
     );
     setOpen(true);
   };
@@ -140,8 +144,12 @@ export const ListReports = ({
               name: names ? names[0] : 'unknownUser',
               email: email ? email : 'unknownEmail',
             },
-            sub.reportId,
-            'SelectReportId'
+            'Report Info',
+            'SelectReportId',
+            {
+              reportId: sub.reportId,
+              reportName: sub.reportName,
+            }
           );
           setOpen(true);
         }
@@ -216,7 +224,11 @@ export const ListReports = ({
                           <ListItemText
                             primary={sub.reportName}
                             onClick={(e) => {
-                              handleReportClick(e, sub.reportId);
+                              handleReportClick(
+                                e,
+                                sub.reportId,
+                                sub.reportName
+                              );
                             }}
                           />
                         </ListItem>

@@ -1,6 +1,5 @@
 import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
-import locationIcon from '../../images/location.svg';
 import { ApplicationBySites } from './applicationBySites';
 import { SiteContactDetails } from './siteContactDetails';
 import { platformStore } from '@cloudcore/redux-store';
@@ -14,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useEffect, useContext, useMemo } from 'react';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import { location_img } from '@cloudcore/ui-shared';
 
 const { useAppSelector } = platformStore;
 export const SiteDetailByOrg = () => {
@@ -80,7 +80,7 @@ export const SiteDetailByOrg = () => {
               <Box>
                 <Box
                   component={'img'}
-                  src={locationIcon}
+                  src={location_img}
                   alt="location"
                   sx={{ mr: 1 }}
                   color="#808184"

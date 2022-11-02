@@ -9,27 +9,24 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { Backdrop, Header } from '@cloudcore/ui-shared';
+  Header,
+  NotAuthorized,
+  IdlePopUp,
+  nexia_logo_img,
+  sign_out_img,
+} from '@cloudcore/ui-shared';
 import { BackdropPowerBi } from './components/BackDrop/Backdrop';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import { Box } from '@mui/system';
-import { requests } from '@cloudcore/common-lib';
-import { NotAuthorized } from '@cloudcore/ui-shared';
-import { IdlePopUp } from '@cloudcore/ui-shared';
 import { useIdleTimer } from 'react-idle-timer';
-import { IErrorTypeResponse } from './interfaces/interfaces';
-import { useAppInsightHook } from '@cloudcore/common-lib';
+import {
+  useAppInsightHook,
+  IErrorTypeResponse,
+  requests,
+} from '@cloudcore/common-lib';
 import { analyticsStore, reportsActions } from '@cloudcore/redux-store';
-import logo from './assets/Nexia-Logo2.png';
-import logOutIcon from './assets/sign-out.svg';
 import { Route } from 'react-router-dom';
 
 /* eslint-disable-next-line */
@@ -134,15 +131,19 @@ export const AnalyticsPowerbi = () => {
     promptTimeout: 1000 * 299,
   });
 
-  const handleReportClick = (reportId: string) => {
+  const handleReportClick = (reportId: string, reportName: string) => {
     dispatch(selectReport(reportId));
     HandleUserEvent(
       {
         name: names ? names[0] : '',
         email: email,
       },
-      reportId,
-      'SelectReportId'
+      'Report Info',
+      'SelectReportId',
+      {
+        reportId: reportId,
+        reportName: reportName,
+      }
     );
   };
 
@@ -169,7 +170,7 @@ export const AnalyticsPowerbi = () => {
       label: item.name,
       subMenuList: item.reports.map((report) => ({
         label: report.reportName,
-        onClick: () => handleReportClick(report.reportId),
+        onClick: () => handleReportClick(report.reportId, report.reportName),
       })),
     }));
   }, [reports]);
@@ -191,7 +192,7 @@ export const AnalyticsPowerbi = () => {
         />
         <Header
           title={'Analytics'}
-          logo={{ img: logo, path }}
+          logo={{ img: nexia_logo_img, path }}
           betaIcon={true}
           reportIssue={false}
           navLinkMenuList={navLinkMenuList}
@@ -201,7 +202,7 @@ export const AnalyticsPowerbi = () => {
           }}
           userMenuList={[
             {
-              icon: logOutIcon,
+              icon: sign_out_img,
               label: 'Logout',
               onClick: signOut,
             },

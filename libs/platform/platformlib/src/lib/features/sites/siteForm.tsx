@@ -38,6 +38,7 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { Snackbar } from '@cloudcore/ui-shared';
+import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 interface Application {
@@ -72,7 +73,7 @@ export const SiteForm = () => {
   const location: any = useLocation();
   const isAddSite =
     location.state?.from === 'addSite' ||
-    location.state?.from === 'organizationForm';
+    location.state?.from === 'dashboard';
   const isEditSite = location.state?.from === 'editSite';
   const history = useHistory();
   const selected = useAppSelector(selectedId);
@@ -177,10 +178,10 @@ export const SiteForm = () => {
   }, []);
 
   const closeSiteForm = () => {
-    if (location.state?.from === 'organizationForm') {
+    if (location.state?.from === 'dashboard') {
       siteFormModified
         ? setDialogBoxOpen(true)
-        : history.push(`${path}organization/editOrganization`, {
+        : history.push(`${path}`, {
             from: 'siteForm',
             orgCode: orgData.orgCode,
             orgName: orgData.orgName,
@@ -300,9 +301,8 @@ export const SiteForm = () => {
       location.state === undefined &&
       location.pathname.includes('/editOrg/addSite')
     ) {
-      history.push(`${path}organization/editOrganization`, {
+      history.push(`${path}`, {
         from: 'siteFormEdit',
-        task: 'navigateToDashboard',
         orgCode: orgData.orgCode,
         orgName: orgData.orgName,
       });
@@ -378,6 +378,7 @@ export const SiteForm = () => {
                 setSnackbar(true);
                 setSnackBarMsg('addSiteSuccess');
                 setSnackBarType('success');
+                dispatch(setSiteFormModified(false));
                 setTimeout(() => {
                   history.push(`${path}organization/sites`, {
                     from: '/organization/addSite',
@@ -477,6 +478,7 @@ export const SiteForm = () => {
                 setSnackbar(true);
                 setSnackBarMsg('successMsg');
                 setSnackBarType('success');
+                dispatch(setSiteFormModified(false));
                 setTimeout(() => {
                   history.push(`${path}organization/sites`, {
                     from: '/organization/editSite',
@@ -508,50 +510,25 @@ export const SiteForm = () => {
           open={dialogBoxOpen}
           handleLeave={handleDialogBox}
           location={
-            location.state?.from === 'organizationForm'
-              ? 'organizationForm'
+            location.state?.from === 'dashboard'
+              ? 'dashboard'
               : 'site'
           }
         />
       }
       {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
       <Grid item xs={12}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingX: theme.spacing(3),
-            paddingY: theme.spacing(1),
-          }}
-        >
-          {isAddSite ? (
-            <Typography
-              variant="subtitle1"
-              fontSize="18px"
-              color={theme.breadcrumLink.primary}
-            >
-              DASHBOARD / {location?.state?.orgName.toUpperCase()} ORG / EDIT
-              ORG / Add New Site
-            </Typography>
-          ) : (
-            <Typography
-              variant="subtitle1"
-              fontSize="18px"
-              color={theme.breadcrumLink.primary}
-            >
-              DASHBOARD / {location?.state?.orgName?.toUpperCase()} ORG / EDIT
-              ORG / EDIT SITES /
-              <Box component={'span'} sx={{ fontWeight: 'bold' }}>
-                {' '}
-                {site?.siteName}
-              </Box>
-            </Typography>
-          )}
-          <IconButton sx={{ color: '#000000' }} onClick={closeSiteForm}>
-            <CloseIcon fontSize="large" />
-          </IconButton>
-        </Box>
+        <TitleAndCloseIcon
+          breadCrumbOrigin={
+            isAddSite
+              ? `DASHBOARD / ${location?.state?.orgName.toUpperCase()} ORG / EDIT
+              ORG `
+              : `DASHBOARD / ${location?.state?.orgName?.toUpperCase()} ORG / EDIT
+              ORG / EDIT SITES `
+          }
+          breadCrumbTitle={isAddSite ? 'Add New Site' : site?.siteName}
+          onClickButton={closeSiteForm}
+        />
       </Grid>
       <Grid item xs={12}>
         <Grid container paddingX={3}>
