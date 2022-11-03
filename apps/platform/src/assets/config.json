@@ -1,6 +1,6 @@
 {
     "platformBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
-    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout",
+    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/SSOLogout",
     "postLogoutRedirectUri":"https://ssotest.walgreens.com/idp/idpLogout",
      "oidcConfig": {
       "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",

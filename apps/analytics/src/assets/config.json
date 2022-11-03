@@ -1,6 +1,6 @@
 {
     "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
-    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/SSOLogout",
+    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/SSOLogout",
     "postLogoutRedirectUri":"https://ssotest.walgreens.com/idp/idpLogout",
      "oidcConfig": {
       "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
@@ -10,5 +10,5 @@
     },
     "instrumentationKey": "8f2e56e0-9ec2-491d-80bb-42f37ada0f5f",
     "REACT_APP_SUITES_URL":"https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/GetSuitesByPermission",
-    "REACT_APP_POWERBI_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/powerbi-node-dev/getReport"
+    "REACT_APP_POWERBI_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/Reports/Report"
 }
