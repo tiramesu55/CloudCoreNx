@@ -27,6 +27,11 @@ interface selectReportAction{
   payload : IUiReport
 }
 
+interface selectReportMarketplaceAction{
+  type : ActionType.SELECT_REPORT_MARKETPLACE;
+  payload : string | null
+}
+
 interface selectFilterItemSelectedAction{
   type : ActionType.SET_SLICER_FILTER;
   payload : {
@@ -35,6 +40,6 @@ interface selectFilterItemSelectedAction{
   }
 }
 export type LoadReportsAction = loadReportsAction
-export type SelectReportAction = selectReportAction
+export type SelectReportAction = selectReportAction | selectReportMarketplaceAction;
 export type LoadingActions = loadingAction;
 export type SelectFilterItemSelectedAction = selectFilterItemSelectedAction;

@@ -10,6 +10,7 @@ export enum ActionType{
   //------------reports ------------------------------
      SET_REPORTS = "SET_REPORTS",
      SELECT_REPORT = "SELECT_REPORT",
+     SELECT_REPORT_MARKETPLACE = "SELECT_REPORT_MARKETPLACE",
      SET_SLICER_FILTER = "SET_SLICER_FILTER"
 }
 

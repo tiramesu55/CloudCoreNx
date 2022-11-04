@@ -5,7 +5,7 @@ import {GetConfig} from "./services/service";
 
 let appInsights: ApplicationInsights | null = null;
 const browserHistory = createBrowserHistory({ basename: '' } as BrowserHistoryOptions);
-const reactPlugin = new ReactPlugin();
+const reactPlugin = new ReactPlugin() as any;
 const appInsightsFunc = async () => { 
   const config = await GetConfig();
   appInsights  = new ApplicationInsights({

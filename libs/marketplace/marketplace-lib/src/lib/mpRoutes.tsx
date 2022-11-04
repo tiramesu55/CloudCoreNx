@@ -1,40 +1,88 @@
-import { useContext, useMemo } from 'react';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useContext, useMemo, useEffect } from 'react';
 import { Route } from 'react-router-dom';
-
-import {
-  ConfigCtx,
-  IConfig,
-  useClaimsAndSignout,
-} from '@cloudcore/okta-and-config';
+import { mainStore, reportsActions } from '@cloudcore/redux-store';
+import { ConfigCtx, useClaimsAndSignout } from '@cloudcore/okta-and-config';
 import { Header, NotAuthorized } from '@cloudcore/ui-shared';
-import { useHistory, useLocation } from 'react-router-dom';
 import InventorySettings from './components/inventorySettings';
 import LabelSettings from './components/labelSettings';
-import { Landing } from './marketplaceManagement/landing';
 import nexia_logo_img from '../../../../ui-shared/src/lib/assets/NexiaLogo.svg';
 import sign_out_img from '../../../../ui-shared/src/lib/assets/sign-out.svg';
 import PowerbiReport from './powerbi-report/powerbi-report';
 
 export const MpRoutes = () => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { signOut, initials, names, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
+  const { logoutSSO, postLogoutRedirectUri, isMainApp, marketplaceReports } =
+    useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { signOut, initials, names, permissions, email } = useClaimsAndSignout(
+    logoutSSO,
+    postLogoutRedirectUri
   );
 
   const mpPermissions =
     permissions.marketplace && permissions.marketplace?.length > 0;
-  const history = useHistory();
-  const loc = useLocation();
   const path = useMemo(() => {
-    return `${config.isMainApp ? '/marketplace/' : '/'}`;
-  }, [config.isMainApp]);
-  const ComponentLayout = (Component: any) => {
+    return `${isMainApp ? '/marketplace/' : '/'}`;
+  }, [isMainApp]);
+  const { useAppDispatch, useAppSelector } = mainStore;
+
+  const dispatch = useAppDispatch();
+  const {
+    openAlert,
+    loadingReportSingle,
+    selectFilterItemSelected,
+    selectReportMarketplace,
+  } = reportsActions;
+
+  const ComponentLayout = (Component: any, isReport?: boolean) => {
+    const { loadingSingleReport, reportFilter, selectedReportMarketplaceId } =
+      useAppSelector((state) => state.report);
+    useEffect(() => {
+      if (isReport && !selectedReportMarketplaceId) {
+        dispatch(selectReportMarketplace(marketplaceReports[0]));
+      }
+    }, [isReport]);
+    const handleOpenAlert = (message: string, status: number) =>
+      dispatch(openAlert(message, status));
+
+    const handleLoadingReportSingle = (data: boolean) =>
+      dispatch(loadingReportSingle(data));
+
+    const handleSelectFilterItemSelected = (
+      filter: string[],
+      operator: string
+    ) => dispatch(selectFilterItemSelected(filter, operator));
+
+    const ComponentToRender = useMemo(() => {
+      if (isReport) {
+        return (
+          <Component
+            selectedReportId={selectedReportMarketplaceId}
+            handleOpenAlert={handleOpenAlert}
+            handleLoadingReportSingle={handleLoadingReportSingle}
+            handleSelectFilterItemSelected={handleSelectFilterItemSelected}
+            reportFilter={reportFilter}
+            loadingSingleReport={loadingSingleReport}
+            userName={names ? names[0] : ''}
+            userEmail={email ?? ''}
+          />
+        );
+      } else {
+        return <Component />;
+      }
+    }, [
+      isReport,
+      selectedReportMarketplaceId,
+      reportFilter,
+      loadingSingleReport,
+      email,
+      names,
+    ]);
     return (
       <>
         {HeaderMerketplace}
-        <Component />
+        {ComponentToRender}
       </>
     );
   };
@@ -62,9 +110,14 @@ export const MpRoutes = () => {
             subMenuList: [
               {
                 label: 'Partner 1',
-                route: `${path}partner/1`,
+                route: path,
+                onClick: () => dispatch(selectReportMarketplace(marketplaceReports[1])),
               },
-              { label: 'Partner 2', route: `${path}partner/2` },
+              {
+                label: 'Partner 2',
+                route: path,
+                onClick: () => dispatch(selectReportMarketplace(marketplaceReports[2])),
+              },
             ],
           },
         ]}
@@ -91,16 +144,13 @@ export const MpRoutes = () => {
       {mpPermissions ? (
         <>
           <Route exact path={`${path}`}>
-            {ComponentLayout(PowerbiReport)}
+            {ComponentLayout(PowerbiReport, true)}
           </Route>
           <Route path={`${path}configuration/inventory`}>
             {ComponentLayout(InventorySettings)}
           </Route>
           <Route path={`${path}configuration/label`}>
             {ComponentLayout(LabelSettings)}
-          </Route>
-          <Route path={`${path}partner/:id`}>
-            {ComponentLayout(PowerbiReport)}
           </Route>
         </>
       ) : (

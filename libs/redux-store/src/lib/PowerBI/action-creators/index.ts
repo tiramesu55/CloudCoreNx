@@ -52,6 +52,14 @@ export const selectReport =
     });
 };
 
+export const selectReportMarketplace =
+  (reportState: string | null) => async (dispatch: Dispatch<SelectReportAction>) => {
+    dispatch({
+      type: ActionType.SELECT_REPORT_MARKETPLACE,
+      payload: reportState,
+    });
+};
+
 export const selectFilterItemSelected =
   (filterItem: string[], operator: string) => async (dispatch: Dispatch<SelectFilterItemSelectedAction>) => {
     dispatch({

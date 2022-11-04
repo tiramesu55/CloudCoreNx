@@ -17,6 +17,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import "./style.css";
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {

@@ -6,6 +6,7 @@ export interface IReportReducerState {
   loadingSingleReport: boolean;
   selectedReport: IUiReport;
   reports:IUiReportList[] | undefined; 
+  selectedReportMarketplaceId: string;
   reportFilter: IFilterReport | undefined;
 }
 
@@ -17,27 +18,27 @@ export const reportReducer = (
       reportId : "",
       reportName : "",
     },
+    selectedReportMarketplaceId: "",
     reports: undefined,
-    reportFilter: undefined
+    reportFilter: undefined,
   },
   action: AnyAction
 ): IReportReducerState => {
   switch (action.type) {
-
     case ActionType.SET_LOADING_REPORTS:
       return {
         ...state,
-        loadingReportsAll: action["payload"],
+        loadingReportsAll: action['payload'],
       };
     case ActionType.SET_LOADING_REPORT_SINGLE:
       return {
         ...state,
-        loadingSingleReport: action["payload"],
+        loadingSingleReport: action['payload'],
       };
-   case ActionType.SET_REPORTS:
+    case ActionType.SET_REPORTS:
       return {
         ...state,
-        reports: action["payload"],
+        reports: action['payload'],
         loadingReportsAll: false,
         selectedReport: {
           reportId : "",
@@ -57,8 +58,12 @@ export const reportReducer = (
                 operator: action["payload"].operator
               }
         }
+    case ActionType.SELECT_REPORT_MARKETPLACE:
+      return {
+        ...state,
+        selectedReportMarketplaceId: action['payload'],
+      };
     default:
       return state;
   }
 };
-

@@ -73,20 +73,27 @@ export default class ReportEmbedding {
       .catch((err) => {
         loadingReportSingle(false);
         console.error('getReportEmbedModel') //@
-        const errorData = JSON.parse(err.message);
         let errorText;
         try {
+          const errorData = JSON.parse(err.message);
           errorText = JSON.parse(errorData.text);
+          handleErrorOrLogResponse({
+            type: errorData.type? errorData.type : "GetReportError",
+            message: errorText.message? errorText.message : errorText,
+            status: errorData.status,
+            justEventSend: false,
+            messageToShow: errorText.messageToShow? errorText.messageToShow : errorText
+          });
         } catch (e) {
           errorText = err.text;
-        }  
-        handleErrorOrLogResponse({
-          type: errorData.type? errorData.type : "GetReportError",
-          message: errorText.message? errorText.message : errorText,
-          status: errorData.status,
-          justEventSend: false,
-          messageToShow: errorText.messageToShow? errorText.messageToShow : errorText
-        });
+          handleErrorOrLogResponse({
+            type: "GetReportError",
+            message: errorText,
+            status: 501,
+            justEventSend: false,
+            messageToShow: errorText
+          });
+        }        
       });
   }
 
