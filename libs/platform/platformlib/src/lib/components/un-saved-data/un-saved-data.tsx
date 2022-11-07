@@ -120,7 +120,7 @@ export const UnsavedData = (props: Props) => {
           <Box>
             <Typography
               component={'span'}
-              variant="h5"
+              variant="h6"
               fontWeight={'bold'}
               sx={{
                 color: 'red',

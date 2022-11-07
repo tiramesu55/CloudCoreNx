@@ -2,12 +2,12 @@ import { AppBar, Toolbar, Typography, Divider, Box } from '@mui/material';
 import { useContext, useState } from 'react';
 import { ReportIssue } from '../ReportIssue/ReportIssue';
 import { UserMenu } from './UserMenu';
-import NavBar from './NavBar';
 import reportIssueIcon from '../assets/report-issue.svg';
 import { useTheme } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
 import AppsMenu from './AppsMenu';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import NavBar from './NavBar';
 
 interface headerProps {
   title: string;
@@ -209,7 +209,7 @@ export const Header = (props: headerProps) => {
                 {props.title}
               </Box>
             )}
-            <NavBar navigationProps={navLinkList} />
+            {<NavBar navigationPropsArray={navLinkList} />}
           </Box>
           <Box sx={{ display: { xs: 'inline-flex', md: 'inline-flex' } }}>
             {props.reportIssue ? (

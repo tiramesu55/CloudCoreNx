@@ -196,7 +196,7 @@ export const OrgDomainModal = (props: Props) => {
                   }}
                 >
                   <Typography
-                    fontSize={theme.typography.h5.fontSize}
+                    fontSize={theme.typography.h6.fontSize}
                     fontWeight="bold"
                   >
                     {domain}

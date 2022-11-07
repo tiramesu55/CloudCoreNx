@@ -41,7 +41,7 @@ export const IdlePopUp = ({
     >
       <DialogTitle>
         <Box>
-          <Typography component="span" variant="h5" fontWeight={'bold'}>
+          <Typography component="span" variant="h6" fontWeight={'bold'}>
             Session Timeout
             <IconButton
               sx={{

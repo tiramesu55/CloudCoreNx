@@ -173,7 +173,7 @@ export const ReportBiClientComponent = ({
     setTimer(timerTmp);
   };
 
-  const throttlesetActualHeight = throttle(500, false, () => {
+  const throttlesetActualHeight = throttle(100, false, () => {
     const { innerHeight: height } = window;
     if (containerCurrent) {
       containerCurrent.style.height = `${height - 100}px`;

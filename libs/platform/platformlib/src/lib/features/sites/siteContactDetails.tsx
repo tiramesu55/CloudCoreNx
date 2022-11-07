@@ -14,7 +14,7 @@ export const SiteContactDetails = (props: Props) => {
     <>
       <Typography
         sx={{
-          fontSize: theme.typography.h5.fontSize,
+          fontSize: theme.typography.h6.fontSize,
           my: 3,
           fontWeight: 'bold',
         }}

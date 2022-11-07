@@ -1,7 +1,7 @@
-import { Box, Typography, Menu, MenuItem } from '@mui/material';
-import { useState } from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useTheme } from '@mui/material';
+import { useTheme, Theme } from '@mui/material/styles';
 import { useContext } from 'react';
 import {
   ConfigCtx,
@@ -10,6 +10,7 @@ import {
 } from '@cloudcore/okta-and-config';
 import betaIcon from '../assets/betaIcon.png';
 import { useHistory } from 'react-router-dom';
+import { makeStyles } from '@mui/styles';
 
 interface AppsMenuProps {
   title: string;
@@ -17,10 +18,7 @@ interface AppsMenuProps {
 }
 
 const AppsMenu = (props: AppsMenuProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [index, setIndex] = useState<null | number>(null);
   const history = useHistory();
-  const openMenu = Boolean(anchorEl);
   const theme = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const config: IConfig = useContext(ConfigCtx)!;
@@ -52,26 +50,113 @@ const AppsMenu = (props: AppsMenuProps) => {
     (app) => app.name.toLowerCase() !== props.title.toLowerCase()
   );
 
+  const useStyles = makeStyles((theme: Theme) => ({
+    menuItems: {
+      position: 'relative',
+      fontSize: theme.typography.subtitle1.fontSize,
+      display: 'block',
+      color: 'inherit',
+      textDecoration: 'none',
+    },
+    subMenuList: {
+      padding: theme.spacing(1),
+      fontSize: theme.typography.body1.fontSize,
+      color: theme.palette.text.primary,
+      '&:hover': {
+        backgroundColor: '#E6E8F3',
+      },
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      border: 'none',
+      backgroundColor: 'transparent',
+      cursor: 'pointer',
+    },
+    disabledList: {
+      padding: theme.spacing(1),
+      fontSize: theme.typography.body1.fontSize,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      border: 'none',
+      backgroundColor: 'transparent',
+      color: '#b7b7b7',
+    },
+    dropdown: {
+      position: 'absolute',
+      right: '0',
+      left: 'auto',
+      zIndex: '9999',
+      width: 'max-content',
+      padding: '0',
+      listSstyle: 'none',
+      backgroundColor: '#fff',
+      borderRadius: '0.5rem',
+      top: '100%',
+      boxShadow: '0px 2px 5px #333',
+      border: '0px solid grey',
+      '.dropdown-submenu': {
+        position: 'absolute',
+        left: '100%',
+      },
+    },
+  }));
+
+  const classes = useStyles();
+  const ref: any = useRef();
+  const [dropdown, setDropdown] = useState(false);
+  const onMouseEnter = () => {
+    setDropdown(true);
+  };
+
+  const onMouseLeave = () => {
+    setDropdown(false);
+  };
+
+  const closeDropdown = () => {
+    dropdown && setDropdown(false);
+  };
+
+  useEffect(() => {
+    const handler = (event: any) => {
+      if (dropdown && ref.current && !ref.current.contains(event.target)) {
+        setDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, [dropdown]);
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box
-        sx={{
-          ml: 3,
+    <Box
+      sx={{ display: 'flex', alignItems: 'center' }}
+      className={classes.menuItems}
+      ref={ref}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={closeDropdown}
+    >
+      <Button
+        aria-haspopup="menu"
+        disableFocusRipple={true}
+        disableTouchRipple={true}
+        aria-expanded={dropdown ? 'true' : 'false'}
+        onClick={() => setDropdown((prev) => !prev)}
+        style={{
+          color: dropdown ? '#8141f2' : '#58595B',
+          fontSize: theme.typography.h6.fontSize,
+          fontWeight: 'normal',
+          textTransform: 'inherit',
           display: 'flex',
-          alignItems: 'center',
-          height: '64px',
-        }}
-        onMouseEnter={(e) => {
-          setAnchorEl(e.currentTarget);
-          // setIndex(1);
-        }}
-        onMouseLeave={(e) => {
-          setAnchorEl(null);
-          //setIndex(null);
+          padding: '0px',
         }}
       >
         <Typography
-          variant="h6"
           sx={{
             color: theme.palette.primary.main,
             display: 'flex',
@@ -79,7 +164,10 @@ const AppsMenu = (props: AppsMenuProps) => {
             height: '64px',
             cursor: 'default',
             fontWeight: 'normal',
+            pl: theme.spacing(2),
           }}
+          component="span"
+          variant="h5"
         >
           {props.title}
           {props.betaIcon ? (
@@ -90,13 +178,11 @@ const AppsMenu = (props: AppsMenuProps) => {
                 alt="Beta version"
                 sx={{
                   background: '#6513f0',
-                  border: '1px solid #8141f2',
+                  border: theme.palette.primary.light,
                   padding: '5px',
                   borderRadius: '5px',
-                  marginLeft: '13px',
+                  marginLeft: theme.spacing(1.5),
                   height: 'fit-content',
-                  marginTop: '4px',
-                  marginRight: '12px',
                 }}
               />
             </Box>
@@ -107,48 +193,28 @@ const AppsMenu = (props: AppsMenuProps) => {
             <KeyboardArrowDownIcon sx={{ mt: 1 }} />
           </Box>
         </Typography>
+      </Button>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={openMenu}
-          onClose={() => setAnchorEl(null)}
-          autoFocus={false}
-          MenuListProps={{
-            'aria-labelledby': 'basic-button',
-            onMouseLeave: () => setAnchorEl(null),
-          }}
-          sx={{
-            width: '252px',
-            '& .MuiMenu-list': {
-              paddingTop: '0px',
-              paddingBottom: '0px',
-            },
-          }}
-        >
-          {availableApps.map((app) => {
-            return (
-              <MenuItem
-                onClick={() => {
-                  history.push(app.url);
-                }}
-                key={app.name}
-                disabled={!app.permission}
-                sx={{
-                  width: '252px',
-                  '&:hover': {
-                    backgroundColor: theme.palette.menuHoverColor.main,
-                  },
-                  '&:active': {
-                    backgroundColor: theme.palette.menuHoverColor.main,
-                  },
-                  backgroundColor: theme.palette.secondary.main,
-                }}
-              >
-                {app.name}
-              </MenuItem>
-            );
-          })}
-        </Menu>
+      <Box
+        className={classes.dropdown}
+        sx={dropdown ? { display: 'block' } : { display: 'none' }}
+      >
+        {availableApps.map((app) => {
+          return (
+            <Box
+              component={'button'}
+              onClick={(e: React.MouseEvent) => {
+                app.permission ? history.push(app.url) : e.preventDefault();
+              }}
+              key={app.name}
+              className={
+                app.permission ? classes.subMenuList : classes.disabledList
+              }
+            >
+              {app.name}
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );

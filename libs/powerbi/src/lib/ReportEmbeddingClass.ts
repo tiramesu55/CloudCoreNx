@@ -285,6 +285,6 @@ export default class ReportEmbedding {
   private showReport(hostContainer: HTMLDivElement): void {
     window.setTimeout(() => {
       hostContainer.style.visibility = 'visible';
-    }, 300);
+    }, 50);
   }
 }

@@ -1,43 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
-import { createTheme } from "@mui/material/styles";
-import { grey } from "@mui/material/colors";
+import React from 'react';
+import { createTheme } from '@mui/material/styles';
+import { grey } from '@mui/material/colors';
 
-declare module "@mui/material/styles" {
+declare module '@mui/material/styles' {
   interface Theme {
     breadcrumLink: {
-      primary: React.CSSProperties["color"];
+      primary: React.CSSProperties['color'];
     };
   }
 
   interface Palette {
-    navbarBorder: Palette["primary"];
-    userMenuBackground: Palette["primary"];
-    userMenuColor: Palette["primary"];
-    defaultCardBackground: Palette["primary"];
-    dataTableBackground: Palette["primary"];
-    inputBorder: Palette["primary"];
-    cardBorder: Palette["primary"];
-    chipYellow: Palette["primary"];
-    linkBlue: Palette["primary"];
-    linearProgress: Palette["primary"];
-    greyButton: Palette["primary"];
-    blackFont: Palette["primary"];
+    navbarBorder: Palette['primary'];
+    userMenuBackground: Palette['primary'];
+    userMenuColor: Palette['primary'];
+    defaultCardBackground: Palette['primary'];
+    dataTableBackground: Palette['primary'];
+    inputBorder: Palette['primary'];
+    cardBorder: Palette['primary'];
+    chipYellow: Palette['primary'];
+    linkBlue: Palette['primary'];
+    linearProgress: Palette['primary'];
+    greyButton: Palette['primary'];
+    blackFont: Palette['primary'];
     menuHoverColor: Palette['primary'];
   }
   interface PaletteOptions {
-    navbarBorder: PaletteOptions["primary"];
-    userMenuBackground: PaletteOptions["primary"];
-    userMenuColor: PaletteOptions["primary"];
-    defaultCardBackground: PaletteOptions["primary"];
-    dataTableBackground: PaletteOptions["primary"];
-    inputBorder: PaletteOptions["primary"];
-    cardBorder: PaletteOptions["primary"];
-    chipYellow: PaletteOptions["primary"];
-    linkBlue: PaletteOptions["primary"];
-    linearProgress: PaletteOptions["primary"];
-    greyButton: PaletteOptions["primary"];
-    blackFont: PaletteOptions["primary"];
+    navbarBorder: PaletteOptions['primary'];
+    userMenuBackground: PaletteOptions['primary'];
+    userMenuColor: PaletteOptions['primary'];
+    defaultCardBackground: PaletteOptions['primary'];
+    dataTableBackground: PaletteOptions['primary'];
+    inputBorder: PaletteOptions['primary'];
+    cardBorder: PaletteOptions['primary'];
+    chipYellow: PaletteOptions['primary'];
+    linkBlue: PaletteOptions['primary'];
+    linearProgress: PaletteOptions['primary'];
+    greyButton: PaletteOptions['primary'];
+    blackFont: PaletteOptions['primary'];
     menuHoverColor: PaletteOptions['primary'];
   }
 
@@ -49,7 +49,7 @@ declare module "@mui/material/styles" {
   }
   interface ThemeOptions {
     breadcrumLink: {
-      primary: React.CSSProperties["color"];
+      primary: React.CSSProperties['color'];
     };
   }
   interface BreakpointOverrides {
@@ -72,54 +72,54 @@ export const theme = createTheme({
     },
   },
   breadcrumLink: {
-    primary: "#3A3A3A",
+    primary: '#3A3A3A',
   },
   palette: {
-    mode: "light",
+    mode: 'light',
     primary: {
-      main: "#6513F0",
-      light: "#8141F2",
-      dark: "#310282",
-      contrastText: "#fff",
+      main: '#6513F0',
+      light: '#8141F2',
+      dark: '#310282',
+      contrastText: '#fff',
     },
     secondary: {
       /* main: "#73417D",
       light: "#816C85",
       dark: "#69017D", */
-      main: "#ffffff",
+      main: '#ffffff',
     },
     error: {
-      light: "#ef350",
-      main: "#d32f2f",
-      dark: "#c62828",
+      light: '#ef350',
+      main: '#d32f2f',
+      dark: '#c62828',
       contrastText: grey[800],
     },
     success: {
-      main: "#2e7d32",
-      light: "#4caf50",
-      dark: "1b5e20",
-      contrastText: "#fff",
+      main: '#2e7d32',
+      light: '#4caf50',
+      dark: '1b5e20',
+      contrastText: '#fff',
     },
     warning: {
-      light: "#ff9800",
-      main: "#ed6c02",
-      dark: "#e65100",
+      light: '#ff9800',
+      main: '#ed6c02',
+      dark: '#e65100',
       contrastText: grey[800],
     },
     info: {
-      main: "#0288d1",
-      light: "#03adf4",
-      dark: "#01579b",
+      main: '#0288d1',
+      light: '#03adf4',
+      dark: '#01579b',
     },
     text: {
-      primary: "#58595b",
+      primary: '#58595b',
       secondary: grey[700],
-      disabled: "#F0F0F0",
+      disabled: '#F0F0F0',
     },
-    divider: "rgba(0,0,0,0.38)",
+    divider: 'rgba(0,0,0,0.38)',
 
     background: {
-      default: "#F8F8F8",
+      default: '#F8F8F8',
       paper: grey[200],
     },
     common: {
@@ -128,44 +128,44 @@ export const theme = createTheme({
     },
     tonalOffset: 0.2,
     navbarBorder: {
-      main: "#0000000D",
+      main: '#0000000D',
     },
     userMenuBackground: {
-      main: "#6513F0",
+      main: '#6513F0',
     },
     userMenuColor: {
-      main: "#F5F5F5",
+      main: '#F5F5F5',
     },
     action: {
       activatedOpacity: 1,
-      active: "rgba(0,0,0,0)",
+      active: 'rgba(0,0,0,0)',
     },
     defaultCardBackground: {
-      main: "#ffffff",
+      main: '#ffffff',
     },
     dataTableBackground: {
-      main: "#E0E2E5",
+      main: '#E0E2E5',
     },
     inputBorder: {
-      main: "#A7A9AC",
+      main: '#A7A9AC',
     },
     cardBorder: {
-      main: "#E0E2E5",
+      main: '#E0E2E5',
     },
     chipYellow: {
-      main: "#EEB20E",
+      main: '#EEB20E',
     },
     linkBlue: {
-      main: "#2CA1FA",
+      main: '#2CA1FA',
     },
     linearProgress: {
-      main: "#2CA1FA",
+      main: '#2CA1FA',
     },
     greyButton: {
-      main: "#808184",
+      main: '#808184',
     },
     blackFont: {
-      main: "#000000",
+      main: '#000000',
     },
     menuHoverColor: {
       main: '#E6E8F3',
@@ -174,55 +174,54 @@ export const theme = createTheme({
   typography: {
     fontFamily: `"Roboto", sans-serif`,
     subtitle1: {
-      fontSize: "18px",
+      fontSize: '18px',
     },
     subtitle2: {
-      fontSize: "16px",
+      fontSize: '16px',
     },
     h1: {
-      fontSize: "48px",
-      lineHeight: "64px",
-      fontWeight: "bold",
+      fontSize: '48px',
+      lineHeight: '64px',
+      fontWeight: 'bold',
     },
     h2: {
-      fontSize: "32px",
-      fontWeight: "bold",
-      lineHeight: "46px",
+      fontSize: '32px',
+      fontWeight: 'bold',
+      lineHeight: '46px',
     },
     h3: {
-      fontSize: "24px",
-      lineHeight: "36px",
-      fontWeight: "bold",
+      fontSize: '24px',
+      lineHeight: '36px',
+      fontWeight: 'bold',
     },
     h4: {
-      fontSize: "24px",
-      lineHeight: "36px",
+      fontSize: '24px',
+      lineHeight: '36px',
     },
     h5: {
-      fontSize: "18px",
-      lineHeight: "27px",
+      fontSize: '20px',
+      lineHeight: '27px',
     },
     h6: {
-      fontSize: "18px",
-      lineHeight: "27px",
-      fontWeight: "bold",
+      fontSize: '18px',
+      lineHeight: '27px',
     },
     body1: {
-      fontSize: "18px",
-      lineHeight: "27px",
+      fontSize: '18px',
+      lineHeight: '27px',
     },
     body2: {
-      fontSize: "14px",
-      lineHeight: "21px",
+      fontSize: '14px',
+      lineHeight: '21px',
     },
     button: {
-      fontSize: "16px",
-      lineHeight: "24px",
-      fontWeight: "bold",
+      fontSize: '16px',
+      lineHeight: '24px',
+      fontWeight: 'bold',
     },
     caption: {
-      fontSize: "12px",
-      lineHeight: "18px",
+      fontSize: '12px',
+      lineHeight: '18px',
     },
   },
   shape: {
@@ -232,30 +231,30 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         contained: {
-          borderRadius: "full",
-          paddingTop: "8px",
-          paddingBottom: "8px",
-          paddingLeft: "25px",
-          paddingRight: "25px",
-          fontSize: "16px",
+          borderRadius: 'full',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          paddingLeft: '25px',
+          paddingRight: '25px',
+          fontSize: '16px',
         },
         outlined: {
-          borderRadius: "full",
-          paddingTop: "8px",
-          paddingBottom: "8px",
-          paddingLeft: "25px",
-          paddingRight: "25px",
-          fontSize: "16px",
-          color: "#8141F2",
-          "&:hover": {
-            background: "#6513F0",
-            color: "#ffffff",
-            border: "1px solid #ffffff",
+          borderRadius: 'full',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          paddingLeft: '25px',
+          paddingRight: '25px',
+          fontSize: '16px',
+          color: '#8141F2',
+          '&:hover': {
+            background: '#6513F0',
+            color: '#ffffff',
+            border: '1px solid #ffffff',
           },
-          "&:disabled": {
-            color: "#A7A9AC",
-            border: "1px solid #A7A9AC",
-            background: "transparent",
+          '&:disabled': {
+            color: '#A7A9AC',
+            border: '1px solid #A7A9AC',
+            background: 'transparent',
           },
         },
       },
@@ -263,42 +262,42 @@ export const theme = createTheme({
     MuiToolbar: {
       styleOverrides: {
         root: {
-          paddingLeft: "20px",
-          paddingRight: "20px",
+          paddingLeft: '20px',
+          paddingRight: '20px',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: "#ffffff",
+          backgroundColor: '#ffffff',
         },
       },
     },
     MuiDialogActions: {
       styleOverrides: {
         root: {
-          padding: "16px",
+          padding: '16px',
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         root: {
-          fontSize: "18px",
+          fontSize: '18px',
         },
       },
     },
     MUIDataTableBodyRow: {
       styleOverrides: {
         root: {
-          "&:nth-of-type( even )": {
-            backgroundColor: "#FBF8FF",
+          '&:nth-of-type( even )': {
+            backgroundColor: '#FBF8FF',
           },
-          "&:nth-of-type(odd)": {
-            backgroundColor: "#ffffff",
+          '&:nth-of-type(odd)': {
+            backgroundColor: '#ffffff',
           },
-          "&:hover": {
+          '&:hover': {
             // backgroundColor: "transparent !important",
           },
         },
@@ -307,38 +306,38 @@ export const theme = createTheme({
     MUIDataTable: {
       styleOverrides: {
         responsiveScroll: {
-          maxHeight: "380 px",
-          overflow: "scroll",
+          maxHeight: '380 px',
+          overflow: 'scroll',
         },
         root: {
-          backgroundColor: "white",
+          backgroundColor: 'white',
           // maxHeight : "450px",
           // overflow : "scroll"
         },
         paper: {
-          boxShadow: "none",
+          boxShadow: 'none',
         },
       },
     },
     MUIDataTableToolBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#f6f5f7",
+          backgroundColor: '#f6f5f7',
         },
       },
     },
     MuiDataTableCell: {
       styleOverrides: {
         root: {
-          padding: "8px",
+          padding: '8px',
         },
       },
     },
     MUIDataTableHeadCell: {
       styleOverrides: {
         root: {
-          fontWeight: "bold !important",
-          backgroundColor: "#e0e2e5 !important",
+          fontWeight: 'bold !important',
+          backgroundColor: '#e0e2e5 !important',
           zIndex: 5,
         },
       },
@@ -346,7 +345,7 @@ export const theme = createTheme({
     MUIDataTableHead: {
       styleoverrides: {
         root: {
-          backgroundColor: "red !important",
+          backgroundColor: 'red !important',
         },
       },
     },
@@ -354,4 +353,4 @@ export const theme = createTheme({
   spacing: 8,
 });
 
-export default theme
+export default theme;

@@ -1,0 +1,116 @@
+import React, { useState, useEffect, useRef } from 'react';
+import Dropdown from './Dropdown';
+import { NavLink } from 'react-router-dom';
+import { Box, Button } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { navigationProps } from './NavBar';
+import { Theme, useTheme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles';
+
+interface Props {
+  navigationProps: navigationProps;
+}
+
+const useStyles = makeStyles((theme: Theme) => ({
+  navLink: {
+    textDecoration: 'none',
+    color: theme.palette.text.primary,
+    fontSize: theme.typography.subtitle1.fontSize,
+    marginLeft: theme.spacing(4),
+  },
+  menuItems: {
+    position: 'relative',
+    fontSize: theme.typography.subtitle1.fontSize,
+    display: 'block',
+    color: 'inherit',
+    textDecoration: 'none',
+  },
+}));
+
+const MenuItems = (props: Props) => {
+  const classes = useStyles();
+  const theme = useTheme();
+  const [dropdown, setDropdown] = useState(false);
+  const ref: any = useRef();
+
+  useEffect(() => {
+    const handler = (event: any) => {
+      if (dropdown && ref.current && !ref.current.contains(event.target)) {
+        setDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      // Cleanup the event listener
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, [dropdown]);
+
+  const onMouseEnter = () => {
+    setDropdown(true);
+  };
+
+  const onMouseLeave = () => {
+    setDropdown(false);
+  };
+
+  const closeDropdown = () => {
+    dropdown && setDropdown(false);
+  };
+
+  return (
+    <Box
+      sx={{ display: 'flex', alignItems: 'center' }}
+      className={classes.menuItems}
+      ref={ref}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={closeDropdown}
+    >
+      {props.navigationProps?.label && props.navigationProps?.subMenuList ? (
+        <>
+          <Button
+            aria-haspopup="menu"
+            disableFocusRipple={true}
+            disableTouchRipple={true}
+            aria-expanded={dropdown ? 'true' : 'false'}
+            onClick={() => setDropdown((prev) => !prev)}
+            style={{
+              color: dropdown ? '#8141f2' : '#58595B',
+              fontSize: theme.typography.h6.fontSize,
+              fontWeight: 'normal',
+              textTransform: 'inherit',
+              display: 'flex',
+              marginLeft: theme.spacing(2),
+            }}
+          >
+            {props.navigationProps?.label}
+            <KeyboardArrowDownIcon />
+          </Button>
+          <Dropdown
+            submenus={props.navigationProps?.subMenuList}
+            dropdown={dropdown}
+          />
+        </>
+      ) : (
+        <NavLink
+          to={props.navigationProps?.route}
+          exact
+          key={props.navigationProps?.route}
+          activeClassName="selected"
+          className={classes.navLink}
+          activeStyle={{
+            color: theme.palette.primary.main,
+          }}
+          onClick={props.navigationProps?.onClick}
+        >
+          {props.navigationProps.label}
+        </NavLink>
+      )}
+    </Box>
+  );
+};
+
+export default MenuItems;

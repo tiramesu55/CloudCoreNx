@@ -51,7 +51,7 @@ export const ApplicationBySites = (props: Props) => {
             container
             xs={12}
             sx={{
-              fontSize: theme.typography.h5.fontSize,
+              fontSize: theme.typography.h6.fontSize,
               mt: theme.spacing(2),
             }}
             key={key}
