@@ -10,6 +10,7 @@ import {
   useAppInsightHook,
   IErrorTypeResponse,
   IUiReport,
+  ITracker
 } from '@cloudcore/common-lib';
 import { ErrorBoundary } from 'react-error-boundary';
 import {
@@ -59,17 +60,61 @@ export const ReportBiClientComponent = ({
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [containerCurrent, setContainerCurrent] =
     useState<HTMLDivElement | null>(null);
-  const { HandleUserEvent } = useAppInsightHook();
+  const { HandleReportEvent } = useAppInsightHook();
 
+  const UseTrackEvent = ({name, user, message} : ITracker) => {
+    if(name === "GetReportLoading"){
+        const loadData = message? JSON.parse(message) : {
+            reportId: "",
+            reportName: "",
+            reportLoadTime: 0
+        };
+        HandleReportEvent({
+            type: name,
+            properties: {
+                userName: user?.name,
+                emailId: user?.email,
+                reportId: loadData.reportId,
+                reportName: loadData.reportName, 
+                reportLoadTime: loadData.reportLoadTime
+            }
+        })
+    } else if((name === "Open Report")){
+        const loadData = message? JSON.parse(message) : {
+            reportId: "",
+            reportName: ""
+        };
+        HandleReportEvent({
+            type: name,
+            properties: {
+                userName: user?.name,
+                emailId: user?.email,
+                reportId: loadData.reportId, 
+                reportName: loadData.reportName, 
+            }
+        })
+    }
+     else {
+        HandleReportEvent({
+            type: name,
+            properties: {
+                userName: user?.name,
+                emailId: user?.email,
+                message,
+            }
+        })
+    }       
+  }
   const handleErrorOrLogResponse = (err: IErrorTypeResponse) => {
     console.log('handleErrorResponse function', err);
-    HandleUserEvent(
-      {
+    UseTrackEvent({
+      user: {
         name: userName,
         email: userEmail,
       },
-      err?.message,
-      err?.type
+      message: err?.message ? err?.message : "Error!!!",
+      name: err?.type ? err?.type : "errorType"
+    }
     );
     if (!err.justEventSend) {
       openAlert(

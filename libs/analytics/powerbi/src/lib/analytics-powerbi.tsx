@@ -61,17 +61,17 @@ export const AnalyticsPowerbi = () => {
   const { loadingSingleReport, selectedReport, reportFilter, reports } =
     useAppSelector((state) => state.report);
 
-  const { HandleUserEvent } = useAppInsightHook();
+  const { HandleReportEvent } = useAppInsightHook();
   const anltPermissions = permissions.analytics?.length > 0;
   const handleErrorResponse = (err: IErrorTypeResponse) => {
-    HandleUserEvent(
-      {
-        name: names ? names[0] + ' ' + names[1] : '',
-        email: email,
+    HandleReportEvent({
+      properties: {
+        userName: names ? names[0] + ' ' + names[1] : '',
+        emailId: email,
+        message: err?.message,
       },
-      err?.message,
-      err?.type
-    );
+      type: err?.type? err.type : "ErrorType"
+    });
     dispatch(
       openAlert(
         err?.message ? err.message : 'Error response',
@@ -138,17 +138,15 @@ export const AnalyticsPowerbi = () => {
         reportName: reportName,
       })
     );
-    HandleUserEvent(
-      {
-        name: names ? names[0] + ' ' + names[1] : '',
-        email: email,
-      },
-      JSON.stringify({
+    HandleReportEvent({
+      properties: {
+        userName: names ? names[0] + ' ' + names[1] : '',
+        emailId: email,
         reportId: reportId,
         reportName: reportName,
-      }),
-      'Open Report'
-    );
+      },
+      type: 'Open Report'
+    });
   };
 
   useEffect(() => {

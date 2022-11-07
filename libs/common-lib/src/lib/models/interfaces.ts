@@ -36,6 +36,19 @@ export interface ITracker {
   reportInfo?: IUiReport;
 }
 
+interface IProperties {
+  userName: string | undefined;
+  emailId: string | undefined;
+  reportId?: string;
+  reportName?: string; 
+  reportLoadTime?: number;
+  message?: string;
+}
+export interface IAppInsight {
+  type?: string;
+  properties: IProperties;
+}
+
 export interface IFilterReport {
   filterItem: string[];
   operator?: string;
