@@ -133,15 +133,13 @@ export const Header = (props: headerProps) => {
           label: item.label,
           route: item.route,
           onClick: item.onClick,
-          subMenuList: item.subMenuList
-            ? item.subMenuList.map((item) => {
-                return {
-                  label: item.label,
-                  onClick: item.onClick,
-                  route: item.route,
-                };
-              })
-            : [],
+          subMenuList: item.subMenuList?.map((item) => {
+            return {
+              label: item.label,
+              onClick: item.onClick,
+              route: item.route,
+            };
+          }),
         };
       })
     : [

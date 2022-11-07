@@ -71,15 +71,16 @@ export const Routes = () => {
     (state) => state.applications.status === 'loading'
   );
 
-  const backDrop: any =
-    disableBackDrop === false
+  const backDrop = () => {
+   const x = disableBackDrop === false
       ? orgLoadingState ||
         userLoadingState ||
         dashboardLoadingState ||
         siteLoadingState ||
         applicationLoadingState
       : false;
-
+      return x;
+  }
   const { signOut, token, initials, names, permissions } = useClaimsAndSignout(
     config.logoutSSO,
     config.postLogoutRedirectUri
@@ -160,6 +161,7 @@ export const Routes = () => {
   const ComponentLayout = (Component: any) => {
     return (
       <>
+      <Backdrop open = {backDrop()} />
         {HeaderPlatform}
         <Component />
       </>
@@ -198,7 +200,7 @@ export const Routes = () => {
             handleNavigation(e, 'users'),
         },
         {
-          label: 'CUSTOM REPORTS',
+          label: 'SUITE MANAGEMENT',
           route: `${path}customReports`,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
             handleNavigation(e, 'customReports'),
@@ -264,7 +266,7 @@ export const Routes = () => {
   return (
     <>
       {platformPermissions ? (
-        <Backdrop open={backDrop} contextValue={handleDisableBackDrop}>
+ <>
           <Route exact path={`${path}`}>
             {ComponentLayout(Dashboard)}
           </Route>
@@ -305,7 +307,7 @@ export const Routes = () => {
               {ComponentLayout(CustomReports)}
             </Route>
           )}
-        </Backdrop>
+        </>
       ) : (
         <Route path={path}>
           <NotAuthorized signOut={signOut} />

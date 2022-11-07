@@ -15,4 +15,5 @@
   "REACT_APP_SUITES_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/GetSuitesByPermission",
   "REACT_APP_POWERBI_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/Reports/Report",
   "marketplaceReports":["26f42171-0528-4e24-8592-fad82f6327f2","e618da69-bf63-49c4-a375-d9a78e466acc","1d37f257-9dd3-4417-9389-3638e76834c9"  ]
+
 }

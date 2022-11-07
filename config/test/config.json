@@ -13,5 +13,6 @@
   },
   "instrumentationKey": "8f2e56e0-9ec2-491d-80bb-42f37ada0f5f",
   "REACT_APP_SUITES_URL": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/platform-api/GetSuitesByPermission",
-  "REACT_APP_POWERBI_URL": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/platform-api/Reports/Report"
+  "REACT_APP_POWERBI_URL": "https://apim-nexiacc-qa-eastus2-bc3b3cf0.azure-api.net/platform-api/Reports/Report",
+  "marketplaceReports":["96b2a43c-0fce-4998-a209-da0d4b7be847","40ada8d4-6ccd-4ddb-9046-ca198d46f0d4","aa20421e-3ff4-4186-9434-cccd71aa5e17"  ]
 }

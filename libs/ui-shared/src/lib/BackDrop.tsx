@@ -3,8 +3,6 @@ import {
   CircularProgress,
   BackdropProps,
 } from '@mui/material';
-import { createContext } from 'react';
-export const BackDropContext = createContext(null);
 
 interface Props extends BackdropProps {
   open: boolean;
@@ -12,21 +10,25 @@ interface Props extends BackdropProps {
 }
 export const Backdrop = (props: Props) => {
   return (
-    <BackDropContext.Provider value={props.contextValue}>
-      {props.children}
-      <MaterialBackdrop
-        open={props.open}
-        invisible={false}
-        sx={{ zIndex: '10', color: 'yellow' }}
-      >
-        <CircularProgress
+    <MaterialBackdrop
+      sx={{
+        color: '#fff',
+        zIndex: (theme) => theme.zIndex.drawer - 1,   //@is drawer an internal subcomponent of backdrop?
+      }}
+      open={props.open}
+      style={{
+        position: 'absolute',
+        backgroundColor: 'white',
+      }}
+    >
+             <CircularProgress
           thickness={4}
           size={60}
           disableShrink
           sx={{ color: 'primary', animationDuration: '600ms' }}
           value={100}
         />
-      </MaterialBackdrop>
-    </BackDropContext.Provider>
+    </MaterialBackdrop>
   );
-};
+}
+

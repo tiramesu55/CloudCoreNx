@@ -1,5 +1,5 @@
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
-import { BackdropPowerBi } from '@cloudcore/analytics/powerbi';
+import { Backdrop as BackdropPowerBi } from '@cloudcore/ui-shared';
 import { IFilterReport } from '@cloudcore/common-lib';
 
 export interface PowerbiReportProps {
@@ -37,7 +37,7 @@ export function PowerbiReport(props: PowerbiReportProps) {
         selectedReport={{ reportId: selectedReportId, reportName: '' }}
         reportFilter={reportFilter}
       />
-      <BackdropPowerBi loadingState={loadingSingleReport} />
+      <BackdropPowerBi open={loadingSingleReport} />
       </>
   );
 }

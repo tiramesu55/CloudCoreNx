@@ -17,7 +17,7 @@ import {
   nexia_logo_img,
   sign_out_img,
 } from '@cloudcore/ui-shared';
-import { BackdropPowerBi } from './components/BackDrop/Backdrop';
+import { Backdrop as BackdropPowerBi } from '@cloudcore/ui-shared';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import { Box } from '@mui/system';
 import { useIdleTimer } from 'react-idle-timer';
@@ -237,7 +237,7 @@ export const AnalyticsPowerbi = () => {
               selectedReport={selectedReport}
               reportFilter={reportFilter}
             />
-            <BackdropPowerBi loadingState={loadingSingleReport} />
+            <BackdropPowerBi open={loadingSingleReport} />
           </>
         )}
       </div>

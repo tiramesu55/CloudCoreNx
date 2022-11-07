@@ -179,24 +179,29 @@ export const SelectSites = (props: Props) => {
           }
 
           //Roles and Sites are returned for the particular application
-          const application = selectedApps.find(
-            (p) => p?.appCode.toLowerCase() === appDetail.appCode.toLowerCase()
-          );
+          const application =
+            selectedApps &&
+            selectedApps.find(
+              (p) =>
+                p?.appCode.toLowerCase() === appDetail.appCode.toLowerCase()
+            );
 
-          const selectedSites = application
-            ? application.sites.map((x) => ({
-                name: x.siteCode,
-                value: x.siteId,
-              }))
-            : [];
+          const selectedSites =
+            application && application.sites
+              ? application.sites.map((x) => ({
+                  name: x.siteCode,
+                  value: x.siteId,
+                }))
+              : [];
 
-          const selectedAppRoles = application
-            ? application.roles.map((x) => ({
-                name: x.role,
-                value: x.role,
-                permissions: x.permissions,
-              }))
-            : [];
+          const selectedAppRoles =
+            application && application.roles
+              ? application.roles.map((x) => ({
+                  name: x.role,
+                  value: x.role,
+                  permissions: x.permissions,
+                }))
+              : [];
 
           return (
             <React.Fragment key={appDetail.appCode}>

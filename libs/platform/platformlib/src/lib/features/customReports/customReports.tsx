@@ -575,7 +575,7 @@ const CustomReports = () => {
         <TitleAndCloseIcon
           onClickButton={closeCustomReport}
           breadCrumbOrigin={'DASHBOARD'}
-          breadCrumbTitle={'CUSTOM REPORTS'}
+          breadCrumbTitle={'SUITE MANAGEMENT'}
         />
       </Grid>
       <Grid item xs={12}>
@@ -598,7 +598,7 @@ const CustomReports = () => {
                   fontWeight="bold"
                   color={theme.palette.blackFont.main}
                 >
-                  Manage Custom Reports
+                  Suite Management
                 </Typography>
               </Box>
             </Grid>

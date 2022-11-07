@@ -36,13 +36,12 @@ export const MpRoutes = () => {
   } = reportsActions;
 
   const ComponentLayout = (Component: any, isReport?: boolean) => {
-    const { loadingSingleReport, reportFilter, selectedReportMarketplaceId } =
-      useAppSelector((state) => state.report);
-    useEffect(() => {
-      if (isReport && !selectedReportMarketplaceId) {
-        dispatch(selectReportMarketplace(marketplaceReports[0]));
-      }
-    }, [isReport]);
+    const { loadingSingleReport, reportFilter, selectedReportMarketplaceId } =  useAppSelector((state) => state.report);
+    // useEffect(() => {
+    //   if (isReport && !selectedReportMarketplaceId) {
+    //     dispatch(selectReportMarketplace(marketplaceReports[0]));
+    //   }
+    // }, [isReport]);
     const handleOpenAlert = (message: string, status: number) =>
       dispatch(openAlert(message, status));
 
@@ -137,7 +136,9 @@ export const MpRoutes = () => {
     ),
     [initials, names, path, signOut]
   );
-
+   useEffect(() => {
+       dispatch(selectReportMarketplace(marketplaceReports[0]));
+ }, []);
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
