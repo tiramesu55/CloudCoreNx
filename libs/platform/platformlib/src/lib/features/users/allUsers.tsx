@@ -19,6 +19,7 @@ import {
   selectUserID,
   fetchUsers,
   allUsers,
+  applicationMapping,
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
@@ -57,7 +58,7 @@ export const ListUsers = (props: Props) => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-
+  const allApps = useAppSelector(applicationMapping);
   const users = useAppSelector(allUsers);
   const orgData = useAppSelector(selectOrganizations);
   const usersWithOrg = users.map((user) => {
@@ -70,7 +71,7 @@ export const ListUsers = (props: Props) => {
       userName: `${user.firstName} ${user.lastName}`,
       applications:
         user.applications !== null
-          ? user.applications.map((app) => app.appCode)
+          ? user.applications.map((app) => allApps && allApps.get(app.appCode))
           : '--',
     };
   });

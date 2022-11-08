@@ -57,12 +57,12 @@ export const SelectSites = (props: Props) => {
 
   //function that filters sites based on appCode and subscription
   const appSites = (app: string): { name: string; value: string }[] => {
-    const rawSites =
-      allSites !== null
-        ? allSites.filter((p) =>
-            p.applications.map((x) => x.appCode).includes(app)
-          )
-        : [];
+    const rawSites = allSites
+      ? allSites.filter(
+          (p) =>
+            p.applications && p.applications.map((x) => x.appCode).includes(app)
+        )
+      : [];
     const rtn = rawSites.map((p) => ({ name: p.siteName, value: p.id! }));
     return rtn;
   };
@@ -151,7 +151,7 @@ export const SelectSites = (props: Props) => {
           </Typography>
         </Grid>
       </Grid>
-      {allApps !== null &&
+      {allApps &&
         props.orgCode !== '' &&
         allApps.map((appDetail) => {
           const justRoles: Option[] = [];
