@@ -89,7 +89,6 @@ export default class ReportEmbedding {
             justEventSend: false,
             messageToShow: errorText
           });
-          throw Error(errorText);
        
       }
   }

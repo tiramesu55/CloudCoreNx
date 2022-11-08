@@ -222,14 +222,11 @@ export const ReportBiClientComponent = ({
         selectedReport.reportId,
         reportContainer.current,
         isMobileViewport
-      ).catch(e => {
-        setErr (e.message);
-      });
+      )
       handleTokenExpiration(reportContainer.current);
       setContainerCurrent(reportContainer.current);
     }
-    if(err)
-      throw new Error(err);
+  
   }, [selectedReport.reportId]);
   // if(err) throw new Error(err);
   return (
@@ -245,6 +242,6 @@ export const ReportBiClientComponent = ({
         className={classes.container}
         // onClick={() => console.log('From container')}
       />
-    </>
+   </>
   )
 };
