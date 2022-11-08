@@ -12,7 +12,7 @@ import {
   IUiReport,
   ITracker
 } from '@cloudcore/common-lib';
-import { ErrorBoundary } from 'react-error-boundary';
+
 import {
   ConfigCtx,
   IConfig,
@@ -61,7 +61,7 @@ export const ReportBiClientComponent = ({
   const [containerCurrent, setContainerCurrent] =
     useState<HTMLDivElement | null>(null);
   const { HandleReportEvent } = useAppInsightHook();
-
+  const [err, setErr] = useState('');
   const UseTrackEvent = ({name, user, message} : ITracker) => {
     if(name === "GetReportLoading"){
         const loadData = message? JSON.parse(message) : {
@@ -106,7 +106,7 @@ export const ReportBiClientComponent = ({
     }       
   }
   const handleErrorOrLogResponse = (err: IErrorTypeResponse) => {
-    console.log('handleErrorResponse function', err);
+
     UseTrackEvent({
       user: {
         name: userName,
@@ -138,7 +138,7 @@ export const ReportBiClientComponent = ({
       const data = await response.json();
       reportContainer &&
         reportEmbedding.setActualToken(reportContainer, data.accessToken);
-      await handleTokenExpiration(reportContainer);
+        handleTokenExpiration(reportContainer);  //@ todo Check this await
     } catch (err) {
       if (err instanceof Error) {
         const errorData = JSON.parse(err.message);
@@ -189,49 +189,50 @@ export const ReportBiClientComponent = ({
   const isMobileViewport = false;
 
   const classes = useStyles();
-  const embeding = (
-    selectedReportId: string,
-    reportContainer: HTMLDivElement,
-    isMobileViewport: boolean
-  ): void => {
-    reportEmbedding.resetElem(reportContainer);
-    reportContainer.style.visibility = 'visible';
-    //actually run report
-    reportEmbedding.embedReport(
-      selectedReport,
-      reportContainer,
-      isMobileViewport,
-      token ? token : '',
-      config ? config.REACT_APP_POWERBI_URL! : '',
-      handleErrorOrLogResponse,
-      loadingReportSingle,
-      reportFilter,
-      selectFilterItemSelected,
-      reset
-    );
-  };
+ 
 
   useEffect(() => {
+    //declate embedding
+    const  embeding = async (
+      selectedReportId: string,
+      reportContainer: HTMLDivElement,
+      isMobileViewport: boolean
+    ): Promise<void> => {
+      reportEmbedding.resetElem(reportContainer);
+      reportContainer.style.visibility = 'visible';
+      //actually run report
+      await reportEmbedding.embedReport(
+        selectedReport,
+        reportContainer,
+        isMobileViewport,
+        token ? token : '',
+        config ? config.REACT_APP_POWERBI_URL! : '',
+        handleErrorOrLogResponse,
+        loadingReportSingle,
+        reportFilter,
+        selectFilterItemSelected,
+        reset
+      );
+    };
+    //call embedding
     if (reportContainer?.current && selectedReport.reportId) {
       embeding(
         selectedReport.reportId,
         reportContainer.current,
         isMobileViewport
-      );
+      ).catch(e => {
+        setErr (e.message);
+      });
       handleTokenExpiration(reportContainer.current);
       setContainerCurrent(reportContainer.current);
     }
+    if(err)
+      throw new Error(err);
   }, [selectedReport.reportId]);
-
+  if(err)
+  throw new Error(err);
   return (
-    <ErrorBoundary
-      fallbackRender={({ error, resetErrorBoundary }) => (
-        <div>
-          <h1>An error occurred: {error.message}</h1>
-          <button onClick={resetErrorBoundary}>Try again</button>
-        </div>
-      )}
-    >
+   
       <div
         style={{
           display: 'flex',
@@ -242,6 +243,5 @@ export const ReportBiClientComponent = ({
         className={classes.container}
         onClick={() => console.log('From container')}
       />
-    </ErrorBoundary>
-  );
+  )
 };

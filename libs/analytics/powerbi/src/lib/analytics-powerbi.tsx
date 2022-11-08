@@ -10,6 +10,8 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   Header,
   NotAuthorized,
@@ -224,7 +226,14 @@ export const AnalyticsPowerbi = () => {
           ]}
         />
         {selectedReport.reportId && (
-          <>
+          <ErrorBoundary
+          fallbackRender={({ error, resetErrorBoundary }) => (
+            <div>
+              <h1>An error occurred</h1>
+              <button onClick={resetErrorBoundary}>Try again</button>
+            </div>
+          )}
+        >
             <ReportBiClientComponent
               userName={names ? names[0] + ' ' + names[1] : ''}
               userEmail={email ?? ''}
@@ -236,7 +245,7 @@ export const AnalyticsPowerbi = () => {
               reportFilter={reportFilter}
             />
             <BackdropPowerBi open={loadingSingleReport} />
-          </>
+            </ErrorBoundary>
         )}
       </div>
     ),

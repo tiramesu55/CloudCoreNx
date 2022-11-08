@@ -37,7 +37,7 @@ export default class ReportEmbedding {
     this.pbiService.reset(hostContainer);
   }
 
-  public embedReport(
+  public async embedReport(
     reportInfo: IUiReport,
     hostContainer: HTMLDivElement,
     showMobileLayout: boolean,
@@ -48,16 +48,17 @@ export default class ReportEmbedding {
     actualReportFilter: IFilterReport | undefined,
     selectFilterItemSelected: (t: string[], p: string) => void,
     reset: () => void
-  ): void {
+  ): Promise<void> {
     const timeStartLoad = new Date().getTime();
    //getReportEmbedModel actually calls HTTP fetch
-    this.getReportEmbedModel(reportInfo, token, powerbiUrl, loadingReportSingle)
-      .then((apiResponse) => this.getReportEmbedModelFromResponse(apiResponse))
-      .then((responseContent) =>
-        this.buildReportEmbedConfiguration(responseContent, showMobileLayout)
-      )
-      .then((reportConfiguration) =>
-        this.runEmbedding(
+   try{ 
+   const apiResponse = await this.getReportEmbedModel(reportInfo, token, powerbiUrl, loadingReportSingle);
+    
+   const responseContent = await this.getReportEmbedModelFromResponse(apiResponse);
+
+   const reportConfiguration = this.buildReportEmbedConfiguration(responseContent, showMobileLayout);
+
+   this.runEmbedding(
           reportConfiguration,
           hostContainer,
           reportInfo,
@@ -68,36 +69,32 @@ export default class ReportEmbedding {
           handleErrorOrLogResponse,
           timeStartLoad,
           reset
-        )
-      )
-      .catch((err) => {
+        );
+   } catch(err: any) {
         loadingReportSingle(false);
-        console.error('getReportEmbedModel') //@
         let errorText;
+        let status;
         try {
           const errorData = JSON.parse(err.message);
-          errorText = JSON.parse(errorData.text);
-          handleErrorOrLogResponse({
-            type: errorData.type? errorData.type : "GetReportError",
-            message: errorText.message? errorText.message : errorText,
-            status: errorData.status,
-            justEventSend: false,
-            messageToShow: errorText.messageToShow? errorText.messageToShow : errorText
-          });
+          errorText = errorData.error?? 'Unknown PowerBi Error' ;
+          status = errorData.status;
         } catch (e) {
-          errorText = err.text;
+          errorText = 'Unspecified PowerBi Error'
+          status = 501
+        }
           handleErrorOrLogResponse({
             type: "GetReportError",
-            message: errorText,
-            status: 501,
+            message:  errorText,
+            status: status,
             justEventSend: false,
             messageToShow: errorText
           });
-        }        
-      });
+          throw Error(errorText);
+       
+      }
   }
 
-  private getReportEmbedModel(
+  private async getReportEmbedModel(
     reportInfo: IUiReport,
     token: string,
     powerbiUrl: string,
@@ -112,15 +109,16 @@ export default class ReportEmbedding {
       body: JSON.stringify({ reportId : reportInfo.reportId }),
     });
     loadingReportSingle(true);
-    return fetch(request);
+    return await fetch(request);
   }
 
-  private getReportEmbedModelFromResponse(response: Response): Promise<any> {
+  private async getReportEmbedModelFromResponse(response: Response): Promise<any> {
     if(!response.ok) {
-      return response.text().then(text => { throw new Error(JSON.stringify({ text, status: response.status })) })
+      const error = await response.text();
+      throw new Error(JSON.stringify({ error, status: response.status }));
      }
     else {
-     return response.json();
+      return await response.json();
    } 
   }
 
@@ -152,7 +150,7 @@ export default class ReportEmbedding {
     } as IEmbedConfiguration;
   }
 
-  private runEmbedding(
+  private  runEmbedding(
     reportConfiguration: IEmbedConfiguration,
     hostContainer: HTMLDivElement,
     _reportInfo: IUiReport,
@@ -212,7 +210,7 @@ export default class ReportEmbedding {
 
         console.log('Embedded Error: ', error);
         handleErrororLogResponse({
-          type: "GetReportError",
+          type: "ReportError",
           message: error.detailedMessage,
           status: 0,
           messageToShow: error.detailedMessage
