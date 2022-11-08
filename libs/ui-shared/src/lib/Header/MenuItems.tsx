@@ -21,9 +21,11 @@ const useStyles = makeStyles((theme: Theme) => ({
   menuItems: {
     position: 'relative',
     fontSize: theme.typography.subtitle1.fontSize,
-    display: 'block',
+    display: 'inherit',
     color: 'inherit',
     textDecoration: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));
 
@@ -62,7 +64,7 @@ const MenuItems = (props: Props) => {
 
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center' }}
+      sx={{ display: 'flex', alignItems: 'center', mr: 1 }}
       className={classes.menuItems}
       ref={ref}
       onMouseEnter={onMouseEnter}
@@ -83,7 +85,6 @@ const MenuItems = (props: Props) => {
               fontWeight: 'normal',
               textTransform: 'inherit',
               display: 'flex',
-              marginLeft: theme.spacing(2),
             }}
           >
             {props.navigationProps?.label}

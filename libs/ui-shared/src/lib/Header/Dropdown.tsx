@@ -29,18 +29,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     right: '0',
     left: 'auto',
     zIndex: '9999',
+    minWidth: '-webkit-fill-available',
     width: 'max-content',
     padding: '0',
-    listSstyle: 'none',
     backgroundColor: '#fff',
     borderRadius: '0.5rem',
     top: '100%',
     boxShadow: '0px 2px 5px #333',
     border: '0px solid grey',
-    '.dropdown-submenu': {
-      position: 'absolute',
-      left: '100%',
-    },
   },
 }));
 

@@ -87,18 +87,14 @@ const AppsMenu = (props: AppsMenuProps) => {
       right: '0',
       left: 'auto',
       zIndex: '9999',
+      minWidth: '-webkit-fill-available',
       width: 'max-content',
       padding: '0',
-      listSstyle: 'none',
       backgroundColor: '#fff',
       borderRadius: '0.5rem',
       top: '100%',
       boxShadow: '0px 2px 5px #333',
       border: '0px solid grey',
-      '.dropdown-submenu': {
-        position: 'absolute',
-        left: '100%',
-      },
     },
   }));
 
@@ -134,7 +130,7 @@ const AppsMenu = (props: AppsMenuProps) => {
 
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center' }}
+      sx={{ display: 'flex', alignItems: 'center', mx: 2 }}
       className={classes.menuItems}
       ref={ref}
       onMouseEnter={onMouseEnter}
@@ -147,7 +143,7 @@ const AppsMenu = (props: AppsMenuProps) => {
         disableTouchRipple={true}
         aria-expanded={dropdown ? 'true' : 'false'}
         onClick={() => setDropdown((prev) => !prev)}
-        style={{
+        sx={{
           color: dropdown ? '#8141f2' : '#58595B',
           fontSize: theme.typography.h6.fontSize,
           fontWeight: 'normal',
@@ -164,7 +160,6 @@ const AppsMenu = (props: AppsMenuProps) => {
             height: '64px',
             cursor: 'default',
             fontWeight: 'normal',
-            pl: theme.spacing(2),
           }}
           component="span"
           variant="h5"
