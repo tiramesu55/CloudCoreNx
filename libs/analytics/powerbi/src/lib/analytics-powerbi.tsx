@@ -60,8 +60,17 @@ export const AnalyticsPowerbi = () => {
   const handleSelectFilterItemSelected = (filter: string[], operator: string) =>
     dispatch(selectFilterItemSelected(filter, operator));
 
-  const { loadingSingleReport, selectedReport, reportFilter, reports } =
+  const { loadingSingleReport, selectedReportId, reportFilter, reports } =
     useAppSelector((state) => state.report);
+    
+  const selectedReportName = useMemo(() => {
+    const selectedRoport = reports?.filter( report => report.reports.find( item => item.reportId === selectedReportId ) )
+    if(selectedRoport?.length === 1){
+      const report = selectedRoport[0].reports.find( report => report.reportId === selectedReportId )
+      return report?.reportName? report?.reportName : ""
+    }
+    return "";
+  }, [reports, selectedReportId])
 
   const { HandleReportEvent } = useAppInsightHook();
   const anltPermissions = permissions.analytics?.length > 0;
@@ -135,10 +144,7 @@ export const AnalyticsPowerbi = () => {
 
   const handleReportClick = (reportId: string, reportName: string) => {
     dispatch(
-      selectReport({
-        reportId: reportId,
-        reportName: reportName,
-      })
+      selectReport(reportId)
     );
     HandleReportEvent({
       properties: {
@@ -164,10 +170,7 @@ export const AnalyticsPowerbi = () => {
 
       if (slaDashId) {
         dispatch(
-          selectReport({
-            reportId: slaDashId,
-            reportName: 'SLA Dashboard',
-          })
+          selectReport(slaDashId)
         );
         break;
       }
@@ -225,7 +228,7 @@ export const AnalyticsPowerbi = () => {
             },
           ]}
         />
-        {selectedReport.reportId && (
+        {selectedReportId && (
           <ErrorBoundary
           fallbackRender={({ error, resetErrorBoundary }) => (
             <div>
@@ -241,7 +244,10 @@ export const AnalyticsPowerbi = () => {
               openAlert={handleOpenAlert}
               loadingReportSingle={handleLoadingReportSingle}
               selectFilterItemSelected={handleSelectFilterItemSelected}
-              selectedReport={selectedReport}
+              selectedReport={{
+                reportId: selectedReportId,
+                reportName: selectedReportName
+              }}
               reportFilter={reportFilter}
             />
             <BackdropPowerBi open={loadingSingleReport} />
@@ -249,7 +255,7 @@ export const AnalyticsPowerbi = () => {
         )}
       </div>
     ),
-    [names, email, selectedReport.reportId, reportFilter, loadingSingleReport]
+    [names, email, selectedReportId, reportFilter, loadingSingleReport]
   );
 
   return (

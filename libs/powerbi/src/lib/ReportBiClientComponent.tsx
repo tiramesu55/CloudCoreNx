@@ -12,7 +12,7 @@ import {
   IUiReport,
   ITracker
 } from '@cloudcore/common-lib';
-
+import { Snackbar } from '@cloudcore/ui-shared';
 import {
   ConfigCtx,
   IConfig,
@@ -34,7 +34,7 @@ export const ReportBiClientComponent = ({
   userName,
   userEmail,
   reset,
-  openAlert,
+  // openAlert,
   loadingReportSingle,
   selectFilterItemSelected,
   selectedReport,
@@ -62,6 +62,8 @@ export const ReportBiClientComponent = ({
     useState<HTMLDivElement | null>(null);
   const { HandleReportEvent } = useAppInsightHook();
   const [err, setErr] = useState('');
+  const [snackState, setSnackState] = useState(false);
+
   const UseTrackEvent = ({name, user, message} : ITracker) => {
     if(name === "GetReportLoading"){
         const loadData = message? JSON.parse(message) : {
@@ -106,7 +108,6 @@ export const ReportBiClientComponent = ({
     }       
   }
   const handleErrorOrLogResponse = (err: IErrorTypeResponse) => {
-
     UseTrackEvent({
       user: {
         name: userName,
@@ -117,10 +118,11 @@ export const ReportBiClientComponent = ({
     }
     );
     if (!err.justEventSend) {
-      openAlert(
-        err?.messageToShow ? err.messageToShow : 'Error response',
-        err.status ? err.status : 0
-      );
+      // setAlert({
+      //   error: err?.messageToShow ? err.messageToShow : 'Error response',
+      //   status: err.status ? err.status : 0
+      // });
+      setSnackState(true);
     }
   };
   //this gets a PowerBi auth token
@@ -229,10 +231,10 @@ export const ReportBiClientComponent = ({
     if(err)
       throw new Error(err);
   }, [selectedReport.reportId]);
-  if(err)
-  throw new Error(err);
+  // if(err) throw new Error(err);
   return (
-   
+   <>
+      {snackState && <Snackbar type="failure" content="fetchError" onClose={() => setSnackState(false)} duration={5000}/>}
       <div
         style={{
           display: 'flex',
@@ -241,7 +243,8 @@ export const ReportBiClientComponent = ({
         id="container"
         ref={reportContainer}
         className={classes.container}
-        onClick={() => console.log('From container')}
+        // onClick={() => console.log('From container')}
       />
+    </>
   )
 };

@@ -45,7 +45,7 @@ export const loadReports =
 };
 
 export const selectReport =
-  (reportState: IUiReport) => async (dispatch: Dispatch<SelectReportAction>) => {
+  (reportState: string) => async (dispatch: Dispatch<SelectReportAction>) => {
     dispatch({
       type: ActionType.SELECT_REPORT,
       payload: reportState,

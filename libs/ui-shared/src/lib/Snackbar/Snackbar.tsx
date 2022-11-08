@@ -6,6 +6,7 @@ interface Props {
   type?: string;
   content?: string;
   duration?: number;
+  onClose?: () => void
 }
 
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
@@ -24,6 +25,9 @@ export const Snackbar = (props: Props) => {
       sx={{ width: '50%' }}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       onClose={(event, reason) => {
+        if(props.onClose){
+          props.onClose();
+        }
         if (reason === 'clickaway') {
           return;
         }

@@ -1,4 +1,4 @@
-import { IUiReport ,IUiReportList, ActionType } from '@cloudcore/common-lib';
+import { IUiReportList, ActionType } from '@cloudcore/common-lib';
 
 interface AlertOpenAction {
   type: ActionType.SET_OPEN;
@@ -24,7 +24,7 @@ interface loadReportsAction{
 }
 interface selectReportAction{
   type : ActionType.SELECT_REPORT;
-  payload : IUiReport
+  payload : string;
 }
 
 interface selectReportMarketplaceAction{

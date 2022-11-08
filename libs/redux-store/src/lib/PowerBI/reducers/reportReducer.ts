@@ -1,10 +1,10 @@
 import { AnyAction } from "redux";
-import { IUiReport, IUiReportList, IFilterReport, ActionType } from '@cloudcore/common-lib';
+import { IUiReportList, IFilterReport, ActionType } from '@cloudcore/common-lib';
 
 export interface IReportReducerState {
   loadingReportsAll: boolean;
   loadingSingleReport: boolean;
-  selectedReport: IUiReport;
+  selectedReportId: string;
   reports:IUiReportList[] | undefined; 
   selectedReportMarketplaceId: string;
   reportFilter: IFilterReport | undefined;
@@ -14,10 +14,7 @@ export const reportReducer = (
   state: IReportReducerState = {
     loadingReportsAll: false,
     loadingSingleReport: false,
-    selectedReport: {
-      reportId : "",
-      reportName : "",
-    },
+    selectedReportId: "",
     selectedReportMarketplaceId: "",
     reports: undefined,
     reportFilter: undefined,
@@ -40,15 +37,12 @@ export const reportReducer = (
         ...state,
         reports: action['payload'],
         loadingReportsAll: false,
-        selectedReport: {
-          reportId : "",
-          reportName : "",
-        }
+        selectedReportId: ""
       };
      case ActionType.SELECT_REPORT:
         return {
           ...state,
-          selectedReport: action["payload"],
+          selectedReportId: action["payload"],
         };
       case ActionType.SET_SLICER_FILTER: 
         return {
