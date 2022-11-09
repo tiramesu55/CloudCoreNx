@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useMemo, useEffect } from 'react';
 import { Route } from 'react-router-dom';
-import { mainStore, reportsActions } from '@cloudcore/redux-store';
+import { mainStore, reportsActions, openAlertAction, closeAlertAction } from '@cloudcore/redux-store';
 import { ConfigCtx, useClaimsAndSignout } from '@cloudcore/okta-and-config';
 import { Header, NotAuthorized } from '@cloudcore/ui-shared';
 import InventorySettings from './components/inventorySettings';
@@ -10,6 +10,7 @@ import LabelSettings from './components/labelSettings';
 import nexia_logo_img from '../../../../ui-shared/src/lib/assets/NexiaLogo.svg';
 import sign_out_img from '../../../../ui-shared/src/lib/assets/sign-out.svg';
 import PowerbiReport from './powerbi-report/powerbi-report';
+import { IAlert } from '@cloudcore/common-lib';
 
 export const MpRoutes = () => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -29,21 +30,23 @@ export const MpRoutes = () => {
 
   const dispatch = useAppDispatch();
   const {
-    openAlert,
     loadingReportSingle,
     selectFilterItemSelected,
-    selectReportMarketplace,
+    selectReport,
   } = reportsActions;
 
   const ComponentLayout = (Component: any, isReport?: boolean) => {
-    const { loadingSingleReport, reportFilter, selectedReportMarketplaceId } =  useAppSelector((state) => state.report);
+    const { loadingSingleReport, reportFilter, selectedReports } =  useAppSelector((state) => state.report);
+    const { openAlert, type, content } =  useAppSelector((state) => state.common);
     // useEffect(() => {
     //   if (isReport && !selectedReportMarketplaceId) {
     //     dispatch(selectReportMarketplace(marketplaceReports[0]));
     //   }
     // }, [isReport]);
-    const handleOpenAlert = (message: string, status: number) =>
-      dispatch(openAlert(message, status));
+    const handleOpenAlert = (payload: IAlert) =>
+      dispatch(openAlertAction(payload));
+      const handleCloseAlert = () =>
+      dispatch(closeAlertAction());
 
     const handleLoadingReportSingle = (data: boolean) =>
       dispatch(loadingReportSingle(data));
@@ -57,7 +60,7 @@ export const MpRoutes = () => {
       if (isReport) {
         return (
           <Component
-            selectedReportId={selectedReportMarketplaceId}
+            selectedReportId={selectedReports["selectedReportMarketplaceId"]}
             handleOpenAlert={handleOpenAlert}
             handleLoadingReportSingle={handleLoadingReportSingle}
             handleSelectFilterItemSelected={handleSelectFilterItemSelected}
@@ -65,6 +68,12 @@ export const MpRoutes = () => {
             loadingSingleReport={loadingSingleReport}
             userName={names ? names[0] : ''}
             userEmail={email ?? ''}
+            handleCloseAlert={handleCloseAlert}
+            alertData={{
+              openAlert, 
+              type, 
+              content
+            }}
           />
         );
       } else {
@@ -72,11 +81,12 @@ export const MpRoutes = () => {
       }
     }, [
       isReport,
-      selectedReportMarketplaceId,
+      selectedReports["selectedReportMarketplaceId"],
       reportFilter,
       loadingSingleReport,
       email,
       names,
+      openAlert
     ]);
     return (
       <>
@@ -110,12 +120,18 @@ export const MpRoutes = () => {
               {
                 label: 'Partner 1',
                 route: path,
-                onClick: () => dispatch(selectReportMarketplace(marketplaceReports[1])),
+                onClick: () => dispatch(selectReport({
+                  key: 'selectedReportMarketplaceId',
+                  value: marketplaceReports[1]
+                })),
               },
               {
                 label: 'Partner 2',
                 route: path,
-                onClick: () => dispatch(selectReportMarketplace(marketplaceReports[2])),
+                onClick: () => dispatch(selectReport({
+                  key: 'selectedReportMarketplaceId',
+                  value: marketplaceReports[2]
+                })),
               },
             ],
           },
@@ -137,7 +153,10 @@ export const MpRoutes = () => {
     [initials, names, path, signOut]
   );
    useEffect(() => {
-       dispatch(selectReportMarketplace(marketplaceReports[0]));
+       dispatch(selectReport({
+        key: 'selectedReportMarketplaceId',
+        value: marketplaceReports[0]
+      }));
  }, []);
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment

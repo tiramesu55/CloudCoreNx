@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
-import { reportReducer } from "./PowerBI/reducers/reportReducer"
+import { reportReducer } from "./PowerBI/reducers/reportReducer";
+import { commonReducer } from "./Common/commonSlice";
 import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 export const store = configureStore({
    reducer:{
-      report: reportReducer
+      report: reportReducer,
+      common: commonReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers

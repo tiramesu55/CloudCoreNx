@@ -24,7 +24,10 @@ interface loadReportsAction{
 }
 interface selectReportAction{
   type : ActionType.SELECT_REPORT;
-  payload : string;
+  payload : {
+    key: string;
+    value: string;
+  };
 }
 
 interface selectReportMarketplaceAction{

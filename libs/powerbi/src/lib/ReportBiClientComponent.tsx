@@ -10,9 +10,11 @@ import {
   useAppInsightHook,
   IErrorTypeResponse,
   IUiReport,
-  ITracker
+  ITracker,
+  IAlert,
+  IAlertData
 } from '@cloudcore/common-lib';
-import { Snackbar } from '@cloudcore/ui-shared';
+import { SnackbarComponent } from '@cloudcore/ui-shared';
 import {
   ConfigCtx,
   IConfig,
@@ -34,20 +36,24 @@ export const ReportBiClientComponent = ({
   userName,
   userEmail,
   reset,
-  // openAlert,
+  openAlert,
+  closeAlert,
   loadingReportSingle,
   selectFilterItemSelected,
   selectedReport,
   reportFilter,
+  alertData
 }: {
   userName: string;
   userEmail: string;
   reset: () => void;
-  openAlert: (message: string, type: number) => void;
+  openAlert: (message: IAlert) => void;
+  closeAlert: () => void;
   loadingReportSingle: (v: boolean) => void;
   selectFilterItemSelected: (filter: string[], operator: string) => void;
   selectedReport: IUiReport;
   reportFilter: any;
+  alertData: IAlertData;
 }) => {
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const { token } = useClaimsAndSignout(
@@ -61,9 +67,7 @@ export const ReportBiClientComponent = ({
   const [containerCurrent, setContainerCurrent] =
     useState<HTMLDivElement | null>(null);
   const { HandleReportEvent } = useAppInsightHook();
-  const [err, setErr] = useState('');
-  const [snackState, setSnackState] = useState(false);
-
+ 
   const UseTrackEvent = ({name, user, message} : ITracker) => {
     if(name === "GetReportLoading"){
         const loadData = message? JSON.parse(message) : {
@@ -118,11 +122,10 @@ export const ReportBiClientComponent = ({
     }
     );
     if (!err.justEventSend) {
-      // setAlert({
-      //   error: err?.messageToShow ? err.messageToShow : 'Error response',
-      //   status: err.status ? err.status : 0
-      // });
-      setSnackState(true);
+      openAlert({
+        content: err?.messageToShow ? err.messageToShow : 'Error response',
+        type: "error"
+      });
     }
   };
   //this gets a PowerBi auth token
@@ -228,10 +231,10 @@ export const ReportBiClientComponent = ({
     }
   
   }, [selectedReport.reportId]);
-  // if(err) throw new Error(err);
+
   return (
    <>
-      {snackState && <Snackbar type="failure" content="fetchError" onClose={() => setSnackState(false)} duration={5000}/>}
+      <SnackbarComponent open={alertData.openAlert} type={alertData.type} content={alertData.content} onClose={closeAlert} duration={3000}/>
       <div
         style={{
           display: 'flex',
@@ -240,7 +243,6 @@ export const ReportBiClientComponent = ({
         id="container"
         ref={reportContainer}
         className={classes.container}
-        // onClick={() => console.log('From container')}
       />
    </>
   )

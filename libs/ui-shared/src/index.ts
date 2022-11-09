@@ -12,6 +12,7 @@ export * from './lib/Card/Card';
 export * from './lib/List/List';
 export * from './lib/themes';
 export * from './lib/Snackbar/Snackbar';
+export * from './lib/SnackbarComponent/SnackbarComponent';
 export * from './lib/Header/AppsMenu';
 export * from './lib/BackDrop';
 /* Export images from shared */

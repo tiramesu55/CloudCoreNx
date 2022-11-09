@@ -27,8 +27,9 @@ import {
   useAppInsightHook,
   IErrorTypeResponse,
   requests,
+  IAlert
 } from '@cloudcore/common-lib';
-import { analyticsStore, reportsActions } from '@cloudcore/redux-store';
+import { analyticsStore, reportsActions, openAlertAction, closeAlertAction } from '@cloudcore/redux-store';
 import { Route } from 'react-router-dom';
 
 /* eslint-disable-next-line */
@@ -43,7 +44,6 @@ export const AnalyticsPowerbi = () => {
 
   const {
     loadReports,
-    openAlert,
     loadingReportSingle,
     selectFilterItemSelected,
     selectReport,
@@ -53,24 +53,26 @@ export const AnalyticsPowerbi = () => {
   const { signOut, token, initials, names, permissions, email } =
     useClaimsAndSignout(config.logoutSSO, config.postLogoutRedirectUri);
 
-  const handleOpenAlert = (message: string, status: number) =>
-    dispatch(openAlert(message, status));
+  const handleOpenAlert = (payload: IAlert) =>
+    dispatch(openAlertAction(payload));
+  const handleCloseAlert = () => dispatch(closeAlertAction());
+
   const handleLoadingReportSingle = (data: boolean) =>
     dispatch(loadingReportSingle(data));
   const handleSelectFilterItemSelected = (filter: string[], operator: string) =>
     dispatch(selectFilterItemSelected(filter, operator));
 
-  const { loadingSingleReport, selectedReportId, reportFilter, reports } =
+  const { loadingSingleReport, selectedReports, reportFilter, reports } =
     useAppSelector((state) => state.report);
-    
+  const { openAlert, content, type } = useAppSelector((state) => state.common); 
   const selectedReportName = useMemo(() => {
-    const selectedRoport = reports?.filter( report => report.reports.find( item => item.reportId === selectedReportId ) )
+    const selectedRoport = reports?.filter( report => report.reports.find( item => item.reportId === selectedReports['selectedReportId'] ) )
     if(selectedRoport?.length === 1){
-      const report = selectedRoport[0].reports.find( report => report.reportId === selectedReportId )
+      const report = selectedRoport[0].reports.find( report => report.reportId === selectedReports['selectedReportId'] )
       return report?.reportName? report?.reportName : ""
     }
     return "";
-  }, [reports, selectedReportId])
+  }, [reports, selectedReports['selectedReportId']])
 
   const { HandleReportEvent } = useAppInsightHook();
   const anltPermissions = permissions.analytics?.length > 0;
@@ -83,12 +85,10 @@ export const AnalyticsPowerbi = () => {
       },
       type: err?.type? err.type : "ErrorType"
     });
-    dispatch(
-      openAlert(
-        err?.message ? err.message : 'Error response',
-        err.status ? err.status : 0
-      )
-    );
+      handleOpenAlert({
+        content: err?.messageToShow ? err.messageToShow : 'Error response',
+        type: "error"
+      });
   };
 
   useEffect(() => {
@@ -144,7 +144,10 @@ export const AnalyticsPowerbi = () => {
 
   const handleReportClick = (reportId: string, reportName: string) => {
     dispatch(
-      selectReport(reportId)
+      selectReport({
+        key: 'selectedReportId',
+        value: reportId
+      })
     );
     HandleReportEvent({
       properties: {
@@ -170,7 +173,10 @@ export const AnalyticsPowerbi = () => {
 
       if (slaDashId) {
         dispatch(
-          selectReport(slaDashId)
+          selectReport({
+            key: 'selectedReportId',
+            value: slaDashId
+          })
         );
         break;
       }
@@ -228,7 +234,7 @@ export const AnalyticsPowerbi = () => {
             },
           ]}
         />
-        {selectedReportId && (
+        {selectedReports['selectedReportId'] && (
           <ErrorBoundary
           fallbackRender={({ error, resetErrorBoundary }) => (
             <div>
@@ -242,20 +248,26 @@ export const AnalyticsPowerbi = () => {
               userEmail={email ?? ''}
               reset={reset}
               openAlert={handleOpenAlert}
+              closeAlert={handleCloseAlert}
               loadingReportSingle={handleLoadingReportSingle}
               selectFilterItemSelected={handleSelectFilterItemSelected}
               selectedReport={{
-                reportId: selectedReportId,
+                reportId: selectedReports['selectedReportId'],
                 reportName: selectedReportName
               }}
               reportFilter={reportFilter}
+              alertData={{
+                openAlert, 
+                content, 
+                type
+              }}
             />
             <BackdropPowerBi open={loadingSingleReport} />
             </ErrorBoundary>
         )}
       </div>
     ),
-    [names, email, selectedReportId, reportFilter, loadingSingleReport]
+    [names, email, selectedReports['selectedReportId'], reportFilter, loadingSingleReport, openAlert]
   );
 
   return (

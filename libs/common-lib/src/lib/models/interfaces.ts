@@ -62,3 +62,13 @@ export interface IErrorTypeResponse {
   justEventSend?: boolean;
 }
 
+export interface IAlert {
+  type: 'success' | 'info' | 'error' | 'warning';
+  content: string;
+}
+
+export interface IAlertData {
+  openAlert: boolean;
+  type: 'success' | 'info' | 'error' | 'warning';
+  content: string;
+}

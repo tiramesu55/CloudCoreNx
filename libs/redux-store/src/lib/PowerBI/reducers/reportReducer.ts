@@ -4,9 +4,10 @@ import { IUiReportList, IFilterReport, ActionType } from '@cloudcore/common-lib'
 export interface IReportReducerState {
   loadingReportsAll: boolean;
   loadingSingleReport: boolean;
-  selectedReportId: string;
+  selectedReports: {
+    [key: string]: string
+  };
   reports:IUiReportList[] | undefined; 
-  selectedReportMarketplaceId: string;
   reportFilter: IFilterReport | undefined;
 }
 
@@ -14,8 +15,10 @@ export const reportReducer = (
   state: IReportReducerState = {
     loadingReportsAll: false,
     loadingSingleReport: false,
-    selectedReportId: "",
-    selectedReportMarketplaceId: "",
+    selectedReports: {
+      selectedReportId: "",
+      selectedReportMarketplaceId: "",
+    },
     reports: undefined,
     reportFilter: undefined,
   },
@@ -37,12 +40,18 @@ export const reportReducer = (
         ...state,
         reports: action['payload'],
         loadingReportsAll: false,
-        selectedReportId: ""
+        selectedReports: {
+          ...state.selectedReports,
+          selectedReportId: ""
+        }
       };
      case ActionType.SELECT_REPORT:
         return {
           ...state,
-          selectedReportId: action["payload"],
+          selectedReports: {
+            ...state.selectedReports,
+            [action["payload"]["key"]]: action["payload"]["value"]
+          }
         };
       case ActionType.SET_SLICER_FILTER: 
         return {
@@ -52,11 +61,6 @@ export const reportReducer = (
                 operator: action["payload"].operator
               }
         }
-    case ActionType.SELECT_REPORT_MARKETPLACE:
-      return {
-        ...state,
-        selectedReportMarketplaceId: action['payload'],
-      };
     default:
       return state;
   }

@@ -8,6 +8,7 @@ import { organizationsReducer } from './Platform-UI/organizations/organizationsS
 import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 import { customReportsReducer } from "./Platform-UI/custom-reports/customReportsSlice";
 import { configReducer } from "./marketplace/configuration/configurationSlice";
+import { commonReducer } from "./Common/commonSlice";
 
 export const store = configureStore({
    reducer:{
@@ -18,7 +19,8 @@ export const store = configureStore({
       sites: sitesReducer,
       dashboard: dashboardReduser,
       organizations: organizationsReducer,
-      customReports : customReportsReducer
+      customReports : customReportsReducer,
+      common: commonReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers
