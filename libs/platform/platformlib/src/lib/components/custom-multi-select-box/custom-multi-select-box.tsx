@@ -9,6 +9,7 @@ import {
   ListItemIcon,
   InputBase,
   Select,
+  FormHelperText,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { useTheme } from '@mui/material';
@@ -17,14 +18,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import { Option } from '../../components/select-sites/select-sites';
 import { Theme } from '@mui/material/styles';
+import { App } from '../../Maintenance/editMaintenance';
 
 interface Props {
   application: string;
-  inputList: Option[];
-  totalList: Option[];
+  inputList?: Option[];
+  totalList?: Option[];
   customSelectLabel: string;
-  handleChange: (app: string, ent: string, updatedList: Option[]) => void;
+  handleChange?: (app: string, ent: string, updatedList: Option[]) => void;
   title?: any;
+  appsList?: App[];
+  handleAppChange?: (updatedList: any) => void;
+  invalid ?: boolean;
+  helperText ?: string;
+  inputAppList ? : App[];
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -67,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export const CustomMultiSelectBox = (props: Props) => {
   const theme = useTheme();
-  const SelectInput = styled(InputBase)(() => ({
+  const SelectInput = styled(InputBase)(({error, placeholder } : {error : boolean | undefined, placeholder : string}) => ({
     'label + &': {
       marginTop: theme.spacing(3),
     },
@@ -75,7 +82,7 @@ export const CustomMultiSelectBox = (props: Props) => {
       borderRadius: 4,
       position: 'relative',
       backgroundColor: theme.palette.secondary.main,
-      border: `1px solid ${theme.palette.inputBorder.main}`,
+      border: error ? `1px solid red` : `1px solid ${theme.palette.inputBorder.main}`,
       fontSize: 16,
       padding: '10px 26px 10px 12px',
       transition: theme.transitions.create(['border-color', 'box-shadow']),
@@ -114,32 +121,55 @@ export const CustomMultiSelectBox = (props: Props) => {
   };
 
   const [currentList, setCurrentList] = useState<string[]>(
-    props.inputList.map((el) => {
+    props.inputAppList ? props.inputAppList.map((ele) => {
+      return ele['name'];
+    }) : props.inputList ? props.inputList.map((el) => {
       return el['name'];
-    })
+    }) : []
   );
 
   const permissions = new Map<string, string>();
 
   const [totalList, setTotalList] = useState<string[]>(
-    props.totalList.map((el) => {
+    props.totalList ? props.totalList.map((el) => {
       permissions.set(
         el.name,
         el.permissions === undefined ? '' : el.permissions.toString()
       );
       return el['name'];
-    })
+    }) : props.appsList ? props.appsList.map(ele => {
+      return ele['name']
+    }) : []
   );
 
   const isAllSelected =
     totalList.length > 0 && currentList.length === totalList.length;
+
+  const handleAppchange = (event: SelectChangeEvent<typeof currentList>) => {
+    const onChangeList = event.target.value;
+    if (onChangeList[onChangeList.length - 1] === 'all') {
+      setCurrentList(currentList.length === totalList.length ? [] : totalList);
+      (props.appsList && props.handleAppChange) && props.handleAppChange(
+        currentList.length === totalList.length ? [] : props.appsList
+      );
+      return;
+    }
+    setCurrentList(
+      typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
+    );
+    (props.appsList && props.handleAppChange) && props.handleAppChange(
+      props.appsList.filter((el) => {
+        return onChangeList.indexOf(el.name) > -1;
+      })
+    );
+  }
 
   const handleChange = (event: SelectChangeEvent<typeof currentList>) => {
     const onChangeList = event.target.value;
     if (onChangeList[onChangeList.length - 1] === 'all') {
       setCurrentList(currentList.length === totalList.length ? [] : totalList);
 
-      props.handleChange(
+      (props.totalList && props.handleChange) && props.handleChange(
         props.application,
         props.customSelectLabel,
         currentList.length === totalList.length ? [] : props.totalList
@@ -149,7 +179,7 @@ export const CustomMultiSelectBox = (props: Props) => {
     setCurrentList(
       typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
     );
-    props.handleChange(
+    (props.totalList && props.handleChange) && props.handleChange(
       props.application,
       props.customSelectLabel,
       props.totalList.filter((el) => {
@@ -165,7 +195,7 @@ export const CustomMultiSelectBox = (props: Props) => {
       } else return true;
     });
     setCurrentList(filterList);
-    props.handleChange(
+    (props.totalList && props.handleChange) && props.handleChange(
       props.application,
       props.customSelectLabel,
       props.totalList.filter((el) => {
@@ -177,14 +207,14 @@ export const CustomMultiSelectBox = (props: Props) => {
   return (
     <>
       <CustomSelectCss />
-      <FormControl sx={{ my: 1, width: 300 }} className={classes.formControl}>
+      <FormControl sx={{ my: 1, width: 300 }} className={classes.formControl} error={props.invalid}>
         <Select
           labelId="demo-multiple-checkbox-label"
           id="demo-multiple-checkbox"
           multiple
           value={[...currentList]}
-          onChange={handleChange}
-          input={<SelectInput placeholder="input" />}
+          onChange={props.appsList ? handleAppchange : handleChange}
+          input={<SelectInput placeholder="input" error = {props.invalid}/>}
           renderValue={(selected) => {
             const selectedArr: string[] = [];
             selected.map((ele) => {
@@ -233,43 +263,46 @@ export const CustomMultiSelectBox = (props: Props) => {
           })}
           Apply
         </Select>
+        { props.invalid && <FormHelperText>{props.helperText}</FormHelperText>}
       </FormControl>
-      <Box component="div">
-        <>
-          {currentList.map((value, index) => {
-            return (
-              <Chip
-                key={index}
-                variant="outlined"
-                label={value}
-                title={permissions.get(value)}
-                clickable
-                deleteIcon={
-                  currentList.indexOf(value) > -1 ? (
-                    <CloseIcon
-                      sx={{
-                        color: `${theme.palette.chipYellow.main} !important`,
-                      }}
-                    />
-                  ) : (
-                    <CloseIcon
-                      sx={{
-                        color: `${theme.palette.linkBlue.main} !important`,
-                      }}
-                    />
-                  )
-                }
-                onDelete={(e) => handleDelete(e, value)}
-                className={
-                  currentList.indexOf(value) > -1
-                    ? classes.initialChip
-                    : classes.newChip
-                }
-              />
-            );
-          })}
-        </>
-      </Box>
+      {
+        props.totalList && <Box component="div">
+          <>
+            {currentList.map((value, index) => {
+              return (
+                <Chip
+                  key={index}
+                  variant="outlined"
+                  label={value}
+                  title={permissions.get(value)}
+                  clickable
+                  deleteIcon={
+                    currentList.indexOf(value) > -1 ? (
+                      <CloseIcon
+                        sx={{
+                          color: `${theme.palette.chipYellow.main} !important`,
+                        }}
+                      />
+                    ) : (
+                      <CloseIcon
+                        sx={{
+                          color: `${theme.palette.linkBlue.main} !important`,
+                        }}
+                      />
+                    )
+                  }
+                  onDelete={(e) => handleDelete(e, value)}
+                  className={
+                    currentList.indexOf(value) > -1
+                      ? classes.initialChip
+                      : classes.newChip
+                  }
+                />
+              );
+            })}
+          </>
+        </Box>
+      }
     </>
   );
 };

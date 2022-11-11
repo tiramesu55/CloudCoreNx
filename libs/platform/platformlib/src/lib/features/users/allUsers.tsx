@@ -14,7 +14,6 @@ import { Snackbar } from '@cloudcore/ui-shared';
 import { Card } from '@cloudcore/ui-shared';
 import Tooltip from '@mui/material/Tooltip';
 import {
-  getApplications,
   selectOrganizations,
   selectUserID,
   fetchUsers,
@@ -90,23 +89,6 @@ export const ListUsers = (props: Props) => {
 
   useEffect(() => {
     if (platformBaseUrl) {
-      dispatch(
-        getApplications({
-          url: platformBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
-          }
-        );
       dispatch(
         fetchUsers({
           url: platformBaseUrl,
@@ -313,7 +295,7 @@ export const ListUsers = (props: Props) => {
     pagination: true,
     page: currentPage,
     rowsPerPage,
-    tableBodyMaxHeight: '75vh',
+    tableBodyMaxHeight: '72vh',
     filter: true,
     viewColumns: false,
     print: false,
@@ -384,8 +366,8 @@ export const ListUsers = (props: Props) => {
       <>
         {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <CustomTableCss />
-        <Grid item xs={12} sx={{ paddingTop: theme.spacing(2) }}>
-          <Card sx={{ margin: '0px 24px', border: 'none' }}>
+        <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
+          <Card sx={{ border: 'none' }}>
             <MUIDataTable
               title={
                 <Box sx={{ fontSize: theme.typography.subtitle1.fontSize }}>

@@ -3,11 +3,13 @@ import { useContext, useState } from 'react';
 import { ReportIssue } from '../ReportIssue/ReportIssue';
 import { UserMenu } from './UserMenu';
 import reportIssueIcon from '../assets/report-issue.svg';
+import maintenanceIcon from '../assets/maintenanceIcon.svg';
 import { useTheme } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
 import AppsMenu from './AppsMenu';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 import NavBar from './NavBar';
+import Maintenance from './Maintenance';
 
 interface headerProps {
   title: string;
@@ -17,6 +19,7 @@ interface headerProps {
   reportIssue?: boolean;
   userMenu?: userMenuProps;
   userMenuList?: userMenuListProps[];
+  maintenance?: maintenanceProps;
 }
 
 interface logoProps {
@@ -47,6 +50,11 @@ interface subMenuListProps {
   label: string;
   route?: string;
   onClick?: () => void;
+}
+
+interface maintenanceProps {
+  showMaintenance : boolean,
+  handleMaintenanceDialog : (value : boolean) => void
 }
 
 export const Header = (props: headerProps) => {
@@ -232,6 +240,11 @@ export const Header = (props: headerProps) => {
             ) : (
               <Box component={'span'}></Box>
             )}
+            {
+              (props.title === "PLATFORM" && props.maintenance?.showMaintenance) && 
+              <Maintenance handleMaintenanceDialog= {props.maintenance.handleMaintenanceDialog}/>
+            }
+
             <UserMenu
               userMenuProps={{
                 userName: props.userMenu ? props.userMenu.userName : '',

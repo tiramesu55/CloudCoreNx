@@ -3,8 +3,7 @@ import { useState, useEffect, useContext, useMemo } from 'react';
 import 'react-phone-number-input/style.css';
 import { useHistory, useLocation } from 'react-router-dom';
 import { platformStore } from '@cloudcore/redux-store';
-import { Grid, Typography, Button, Box, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Grid, Typography, Button, Box } from '@mui/material';
 import { useTheme } from '@mui/material';
 import {
   InputTextWithLabel,
@@ -75,6 +74,7 @@ export const UserForm = () => {
   const [lastName, setLastName] = useState('');
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
+  const [state, setState] = useState('');
   const [zip, setZip] = useState('');
   const [phone, setPhone] = useState('');
   const [title, setTitle] = useState('');
@@ -142,17 +142,18 @@ export const UserForm = () => {
   };
   const onStreetChanged = (value: string) => {
     setStreet(value);
-    // setModifiedData(true);
     dispatch(setUserFormModified(true));
   };
   const onCityChanged = (value: string) => {
     setCity(value);
-    // setModifiedData(true);
+    dispatch(setUserFormModified(true));
+  };
+  const onStateChanged = (value: string) => {
+    setState(value);
     dispatch(setUserFormModified(true));
   };
   const onZipChanged = (value: string) => {
     setZip(value);
-    // setModifiedData(true);
     dispatch(setUserFormModified(true));
   };
   const onPhoneChanged = (value: string) => {
@@ -206,6 +207,7 @@ export const UserForm = () => {
         updatedUserInfo.lastName = lastName;
         updatedUserInfo.address.street = street;
         updatedUserInfo.address.city = city;
+        updatedUserInfo.address.state = state;
         updatedUserInfo.address.zip = zip;
         updatedUserInfo.phone = phone;
         updatedUserInfo.title = title;
@@ -270,6 +272,7 @@ export const UserForm = () => {
         address: {
           street: street,
           city: city,
+          state: state,
           zip: zip,
         },
         phone: phone,
@@ -345,6 +348,7 @@ export const UserForm = () => {
       setLastName(user.lastName);
       setStreet(user.address.street);
       setCity(user.address.city);
+      setState(user.address.state);
       setZip(user.address.zip);
       setPhone(user.phone);
       setTitle(user.title);
@@ -352,12 +356,21 @@ export const UserForm = () => {
     }
   }, [selectedId, user, isEditUser, isAddUser, org]);
 
-  window.onbeforeunload = function () {
-    if (isAddUser || isEditUser) {
-      return 'Do you want to reload the page?';
+  /* Code to provide popup on reload of Add/edit user page, when data is modified */
+  useEffect(() => {
+    const preventUnload = (event: BeforeUnloadEvent) => {
+      // NOTE: This message isn't used in modern browsers, but is required
+      const message = 'Sure you want to leave?';
+      event.preventDefault();
+      event.returnValue = message;
+    };
+    if (userFormModified) {
+      window.addEventListener('beforeunload', preventUnload);
     }
-    return null;
-  };
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, [userFormModified]);
 
   const handleValidate = (value: any) => {
     const isValid = isPossiblePhoneNumber(value);
@@ -413,7 +426,37 @@ export const UserForm = () => {
                     disabled={true}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2.5}>
+                  <InputTextWithLabel
+                    label="First Name"
+                    id="firstName"
+                    formWidth="90%"
+                    fieldName="firstName"
+                    value={firstName}
+                    changeHandler={onFirstNameChanged}
+                    error={firstNameInvalid}
+                    required={true}
+                    helperText={
+                      firstNameInvalid ? 'First Name is Required' : ''
+                    }
+                    focusHandler={onFirstNameFocused}
+                  />
+                </Grid>
+                <Grid item xs={2.5}>
+                  <InputTextWithLabel
+                    label="Last Name"
+                    id="lastName"
+                    formWidth="90%"
+                    fieldName="lastName"
+                    value={lastName}
+                    changeHandler={onLastNameChanged}
+                    error={lastNameInvalid}
+                    required={true}
+                    helperText={lastNameInvalid ? 'Last Name is Required' : ''}
+                    focusHandler={onLastNameFocused}
+                  />
+                </Grid>
+                <Grid item xs={2}>
                   <InputTextWithLabel
                     label="Title"
                     id="title"
@@ -423,7 +466,7 @@ export const UserForm = () => {
                     changeHandler={onTitleChanged}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <PhoneInput
                     style={{ alignItems: 'normal' }}
                     defaultCountry="US"
@@ -445,48 +488,8 @@ export const UserForm = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={3}>
-                  <InputTextWithLabel
-                    label="Zip Code"
-                    id="zipCode"
-                    value={zip}
-                    formWidth="90%"
-                    fieldName="zip"
-                    changeHandler={onZipChanged}
-                  />
-                </Grid>
               </Grid>
               <Grid container item xs={12} mt={2}>
-                <Grid item xs={3}>
-                  <InputTextWithLabel
-                    label="First Name"
-                    id="firstName"
-                    formWidth="90%"
-                    fieldName="firstName"
-                    value={firstName}
-                    changeHandler={onFirstNameChanged}
-                    error={firstNameInvalid}
-                    required={true}
-                    helperText={
-                      firstNameInvalid ? 'First Name is Required' : ''
-                    }
-                    focusHandler={onFirstNameFocused}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <InputTextWithLabel
-                    label="Last Name"
-                    id="lastName"
-                    formWidth="90%"
-                    fieldName="lastName"
-                    value={lastName}
-                    changeHandler={onLastNameChanged}
-                    error={lastNameInvalid}
-                    required={true}
-                    helperText={lastNameInvalid ? 'Last Name is Required' : ''}
-                    focusHandler={onLastNameFocused}
-                  />
-                </Grid>
                 <Grid item xs={3}>
                   <InputTextWithLabel
                     label="Street"
@@ -497,7 +500,7 @@ export const UserForm = () => {
                     changeHandler={onStreetChanged}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2.5}>
                   <InputTextWithLabel
                     label="City"
                     id="city"
@@ -505,6 +508,26 @@ export const UserForm = () => {
                     formWidth="90%"
                     fieldName="city"
                     changeHandler={onCityChanged}
+                  />
+                </Grid>
+                <Grid item xs={2.5}>
+                  <InputTextWithLabel
+                    label="State/Prov"
+                    id="state"
+                    value={state}
+                    formWidth="90%"
+                    fieldName="state"
+                    changeHandler={onStateChanged}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <InputTextWithLabel
+                    label="Zip Code"
+                    id="zipCode"
+                    value={zip}
+                    formWidth="90%"
+                    fieldName="zip"
+                    changeHandler={onZipChanged}
                   />
                 </Grid>
               </Grid>

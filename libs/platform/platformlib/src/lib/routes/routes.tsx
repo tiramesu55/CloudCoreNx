@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 
 //@TODO get rid of OKTA
-import { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { UserForm } from '../features/users/userForm';
 import { AddUserForm as UserEmail } from '../features/users/userEmail';
@@ -17,7 +17,11 @@ import {
   Backdrop,
 } from '@cloudcore/ui-shared';
 import { ListUsers } from '../features/users/allUsers';
-import { getOrganizationsAsync, platformStore } from '@cloudcore/redux-store';
+import {
+  getApplications,
+  platformStore,
+  selectAppRoles,
+} from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
 import { Sites } from '../features/sites/sites';
 import { nexia_logo_img } from '@cloudcore/ui-shared';
@@ -30,18 +34,18 @@ import {
 import CustomReports from '../features/customReports/customReports';
 import { UnsavedData } from '../components';
 import { useIdleTimer } from 'react-idle-timer';
+import EditMaintenanceMode from '../Maintenance/editMaintenance';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Routes = () => {
   const config: IConfig = useContext(ConfigCtx)!;
-  const [disableBackDrop, setDisableBackDrop] = useState(false);
-  const handleDisableBackDrop: any = (value: boolean) => {
-    setDisableBackDrop(value);
-  };
+  const disableBackDrop = false;
+
   const orgFormModified = useAppSelector(
     (state) => state.organizations.orgFormModified
   );
+
   const userFormModified = useAppSelector(
     (state) => state.user.userFormModified
   );
@@ -72,15 +76,16 @@ export const Routes = () => {
   );
 
   const backDrop = () => {
-   const x = disableBackDrop === false
-      ? orgLoadingState ||
-        userLoadingState ||
-        dashboardLoadingState ||
-        siteLoadingState ||
-        applicationLoadingState
-      : false;
-      return x;
-  }
+    const x =
+      disableBackDrop === false
+        ? orgLoadingState ||
+          userLoadingState ||
+          dashboardLoadingState ||
+          siteLoadingState ||
+          applicationLoadingState
+        : false;
+    return x;
+  };
   const { signOut, token, initials, names, permissions } = useClaimsAndSignout(
     config.logoutSSO,
     config.postLogoutRedirectUri
@@ -97,7 +102,14 @@ export const Routes = () => {
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
+  const allApps = useAppSelector(selectAppRoles).map((app) => {
+    return {
+      appCode: app.appCode,
+      name: app.name,
+    };
+  });
   const showCustomReports =
     permissions.admin && permissions.admin?.includes('global') ? true : false;
 
@@ -132,10 +144,14 @@ export const Routes = () => {
     setDialogBoxOpen(open);
   };
 
+  const handleMaintenanceDialog = (value: boolean) => {
+    setMaintenanceDialogOpen(value);
+  };
+
   useEffect(() => {
     if (platformBaseUrl) {
       dispatch(
-        getOrganizationsAsync({
+        getApplications({
           url: platformBaseUrl,
           token: token,
         })
@@ -161,7 +177,7 @@ export const Routes = () => {
   const ComponentLayout = (Component: any) => {
     return (
       <>
-      <Backdrop open = {backDrop()} />
+        <Backdrop open={backDrop()} />
         {HeaderPlatform}
         <Component />
       </>
@@ -178,10 +194,28 @@ export const Routes = () => {
     ) {
       setDialogBoxOpen(true);
       setRedirectUrl(loc);
+      setModifiedDataLogout(false);
     } else {
       loc === 'dashboard' && history.push(`${path}`);
       loc === 'users' && history.push(`${path}user`);
       loc === 'customReports' && history.push(`${path}customReports`);
+      setModifiedDataLogout(false);
+    }
+  };
+
+  const [modifiedDataLogout, setModifiedDataLogout] = useState(false);
+
+  const handleLogout = () => {
+    if (
+      orgFormModified === true ||
+      siteFormModified === true ||
+      userFormModified === true ||
+      suiteFormModified === true
+    ) {
+      setModifiedDataLogout(true);
+      setDialogBoxOpen(true);
+    } else {
+      signOut();
     }
   };
 
@@ -230,7 +264,7 @@ export const Routes = () => {
         )}
         <UnsavedData
           open={dialogBoxOpen}
-          location={redirectUrl}
+          location={modifiedDataLogout ? 'logout' : redirectUrl}
           handleLeave={handleDialogBox}
         />
         <IdlePopUp
@@ -240,6 +274,11 @@ export const Routes = () => {
           minutes={5}
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
+        />
+        <EditMaintenanceMode
+          open={maintenanceDialogOpen}
+          handleClose={handleMaintenanceDialog}
+          allApps={allApps}
         />
         <Header
           title={'PLATFORM'}
@@ -255,9 +294,13 @@ export const Routes = () => {
             {
               icon: sign_out_img,
               label: 'Logout',
-              onClick: signOut,
+              onClick: () => handleLogout(),
             },
           ]}
+          maintenance={{
+            showMaintenance: showCustomReports,
+            handleMaintenanceDialog,
+          }}
         />
       </>
     ),
@@ -266,7 +309,7 @@ export const Routes = () => {
   return (
     <>
       {platformPermissions ? (
- <>
+        <>
           <Route exact path={`${path}`}>
             {ComponentLayout(Dashboard)}
           </Route>

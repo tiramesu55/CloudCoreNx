@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "cloudcore",
   "affected": {
-    "defaultBase": "master"
+    "defaultBase": "dev"
   },
   "tasksRunnerOptions": {
     "default": {
@@ -65,5 +65,5 @@
       }
     }
   },
-  "defaultProject": "analytics"
+  "defaultProject": "main"
 }

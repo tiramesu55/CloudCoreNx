@@ -27,9 +27,14 @@ import {
   useAppInsightHook,
   IErrorTypeResponse,
   requests,
-  IAlert
+  IAlert,
 } from '@cloudcore/common-lib';
-import { analyticsStore, reportsActions, openAlertAction, closeAlertAction } from '@cloudcore/redux-store';
+import {
+  analyticsStore,
+  reportsActions,
+  openAlertAction,
+  closeAlertAction,
+} from '@cloudcore/redux-store';
 import { Route } from 'react-router-dom';
 
 /* eslint-disable-next-line */
@@ -64,15 +69,23 @@ export const AnalyticsPowerbi = () => {
 
   const { loadingSingleReport, selectedReports, reportFilter, reports } =
     useAppSelector((state) => state.report);
-  const { openAlert, content, type } = useAppSelector((state) => state.common); 
+  const { openAlert, content, type } = useAppSelector((state) => state.common);
   const selectedReportName = useMemo(() => {
-    const selectedRoport = reports?.filter( report => report.reports.find( item => item.reportId === selectedReports['selectedReportId'] ) )
-    if(selectedRoport?.length === 1){
-      const report = selectedRoport[0].reports.find( report => report.reportId === selectedReports['selectedReportId'] )
-      return report?.reportName? report?.reportName : ""
+    const selectedRoport = reports?.filter(
+      (report) =>
+        report.reports &&
+        report.reports.find(
+          (item) => item.reportId === selectedReports['selectedReportId']
+        )
+    );
+    if (selectedRoport?.length === 1) {
+      const report = selectedRoport[0].reports.find(
+        (report) => report.reportId === selectedReports['selectedReportId']
+      );
+      return report?.reportName ? report?.reportName : '';
     }
-    return "";
-  }, [reports, selectedReports['selectedReportId']])
+    return '';
+  }, [reports, selectedReports['selectedReportId']]);
 
   const { HandleReportEvent } = useAppInsightHook();
   const anltPermissions = permissions.analytics?.length > 0;
@@ -83,12 +96,12 @@ export const AnalyticsPowerbi = () => {
         emailId: email,
         message: err?.message,
       },
-      type: err?.type? err.type : "ErrorType"
+      type: err?.type ? err.type : 'ErrorType',
     });
-      handleOpenAlert({
-        content: err?.messageToShow ? err.messageToShow : 'Error response',
-        type: "error"
-      });
+    handleOpenAlert({
+      content: err?.messageToShow ? err.messageToShow : 'Error response',
+      type: 'error',
+    });
   };
 
   useEffect(() => {
@@ -146,7 +159,7 @@ export const AnalyticsPowerbi = () => {
     dispatch(
       selectReport({
         key: 'selectedReportId',
-        value: reportId
+        value: reportId,
       })
     );
     HandleReportEvent({
@@ -156,7 +169,7 @@ export const AnalyticsPowerbi = () => {
         reportId: reportId,
         reportName: reportName,
       },
-      type: 'Open Report'
+      type: 'Open Report',
     });
   };
 
@@ -175,7 +188,7 @@ export const AnalyticsPowerbi = () => {
         dispatch(
           selectReport({
             key: 'selectedReportId',
-            value: slaDashId
+            value: slaDashId,
           })
         );
         break;
@@ -187,11 +200,13 @@ export const AnalyticsPowerbi = () => {
     return reports
       ? reports?.map((item) => ({
           label: item.name,
-          subMenuList: item.reports.map((report) => ({
-            label: report.reportName,
-            onClick: () =>
-              handleReportClick(report.reportId, report.reportName),
-          })),
+          subMenuList:
+            item.reports &&
+            item.reports.map((report) => ({
+              label: report.reportName,
+              onClick: () =>
+                handleReportClick(report.reportId, report.reportName),
+            })),
         }))
       : [];
   }, [reports]);
@@ -236,13 +251,13 @@ export const AnalyticsPowerbi = () => {
         />
         {selectedReports['selectedReportId'] && (
           <ErrorBoundary
-          fallbackRender={({ error, resetErrorBoundary }) => (
-            <div>
-              <h1>An error occurred</h1>
-              <button onClick={resetErrorBoundary}>Try again</button>
-            </div>
-          )}
-        >
+            fallbackRender={({ error, resetErrorBoundary }) => (
+              <div>
+                <h1>An error occurred</h1>
+                <button onClick={resetErrorBoundary}>Try again</button>
+              </div>
+            )}
+          >
             <ReportBiClientComponent
               userName={names ? names[0] + ' ' + names[1] : ''}
               userEmail={email ?? ''}
@@ -253,21 +268,28 @@ export const AnalyticsPowerbi = () => {
               selectFilterItemSelected={handleSelectFilterItemSelected}
               selectedReport={{
                 reportId: selectedReports['selectedReportId'],
-                reportName: selectedReportName
+                reportName: selectedReportName,
               }}
               reportFilter={reportFilter}
               alertData={{
-                openAlert, 
-                content, 
-                type
+                openAlert,
+                content,
+                type,
               }}
             />
             <BackdropPowerBi open={loadingSingleReport} />
-            </ErrorBoundary>
+          </ErrorBoundary>
         )}
       </div>
     ),
-    [names, email, selectedReports['selectedReportId'], reportFilter, loadingSingleReport, openAlert]
+    [
+      names,
+      email,
+      selectedReports['selectedReportId'],
+      reportFilter,
+      loadingSingleReport,
+      openAlert,
+    ]
   );
 
   return (

@@ -4,10 +4,12 @@ import { InputTextWithLabel } from '../components/input-text-with-label/input-te
 import { UnsavedData } from '../components/un-saved-data/un-saved-data';
 import { SelectSites } from '../components/select-sites/select-sites';
 import { PhoneInput } from '../components/phone-input/phone-input';
+import { DateAndTimeInput } from '../components/date-and-time-input/dateAndTimeInput'
 
 export {
   CustomMultiSelectBox,
   DateInput,
+  DateAndTimeInput,
   InputTextWithLabel,
   PhoneInput,
   UnsavedData,

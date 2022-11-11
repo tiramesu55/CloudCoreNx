@@ -7,7 +7,14 @@ import {
   createEntityAdapter,
 } from "@reduxjs/toolkit";
 import { RootState } from '../../store-platform';
-import axios from "axios";
+import {
+  getOrganizationsAPI,
+  updateOrganizationAPI,
+  addOrganizationAPI,
+  deleteOrganizationAPI,
+  getOrganizationStatsAPI,
+  getAllOrganizationDomainsAPI
+} from "./organizationsAPI";
 
 export interface Organization {
   name: string;
@@ -86,20 +93,25 @@ interface IActionUpdateField {
   value: string | object | [];
 }
 
+interface IOrgCall {
+  organization: Organization;
+  url: string;
+  token: string;
+}
+
+interface IOrgCode {
+  url: string;
+  orgCode: string;
+  token: string;
+}
+
 export const getOrganizationsAsync = createAsyncThunk<
   OrgsGetAction,
   any,
   { state: RootState }
 >("organizations/getOrganizations", async ({ url, token } : {url: string, token: string}, { getState }) => {
   if (!token) return { data: [], type: "getAll" };
-  const response = await axios.get<any>(
-    `${url}/Platform/PlatformOrganization`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await getOrganizationsAPI(url, token);
   // The value we return becomes the `fulfilled` action payload
   return {
     data: response.data,
@@ -107,11 +119,7 @@ export const getOrganizationsAsync = createAsyncThunk<
   };
 });
  
-interface IOrgCall {
-  organization: Organization;
-  url: string;
-  token: string;
-}
+
 export const updateOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
@@ -121,15 +129,8 @@ export const updateOrganizationAsync = createAsyncThunk<
   async ( orgData: IOrgCall , { getState }) => {
     const { url, organization, token } = orgData;
     if (!token) return { data: null, type: "updateOne" };
-    const response = await axios.put(
-      `${url}/UpdateOrganization`,
-      organization,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await updateOrganizationAPI(url, token , organization);
+
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,
@@ -147,15 +148,7 @@ export const createOrganizationAsync = createAsyncThunk<
   async ( orgData: IOrgCall, { getState }) => {
     const { url, organization, token } = orgData;
     if (!token) return { data: null, type: "addOne" };
-    const response = await axios.post(
-      `${url}/Platform/Add/PlatformOrganization`,
-      organization,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await addOrganizationAPI(url, token , organization);
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,
@@ -163,30 +156,19 @@ export const createOrganizationAsync = createAsyncThunk<
     };
   }
 );
-interface IOrgCode {
-  url: string;
-  orgCode: string;
-  token: string;
-}
+
 export const deleteOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
   { state: RootState }
 >("organizations/deleteOrganization", async (orgData: IOrgCode, { getState }) => {
   const { url, orgCode, token } = orgData;
-  if (!token) return { data: null, type: "deleteOne" };
-  const response = await axios.delete(
-    `${url}/Platform/PlatformOrganization/${orgCode}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  if (!token) return { data: null, type: "updateOne" };
+  const response = await deleteOrganizationAPI(url, token, orgCode);
   // The value we return becomes the `fulfilled` action payload
   return {
     data: response.data,
-    type: "deleteOne",
+    type: "updateOne",
   };
 });
 
@@ -197,14 +179,7 @@ export const getOrganizationStatsAsync = createAsyncThunk<
 >("organizations/organizationStats", async (orgData: IOrgCode, { getState }) => {
   const { url, orgCode, token } = orgData;
   if (!token) return { data: null, type: "getStats" };
-  const response = await axios.get(
-    `${url}/Statistics/Organization/${orgCode}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await getOrganizationStatsAPI(url, token, orgCode);
   // The value we return becomes the `fulfilled` action payload
   return {
     data: response.data,
@@ -218,11 +193,7 @@ export const getAllOrganizationsDomains = createAsyncThunk<
   { state: RootState }
 >("organizations/organizationDomains", async ({ url, token } : { url: string, token: string }, { getState }) => {
   if (!token) return { data: null, type: "getAllDomains" };
-  const response = await axios.get(`${url}/Platform/Domain/All`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await getAllOrganizationDomainsAPI(url, token);
 
   // The value we return becomes the `fulfilled` action payload
   return {
@@ -321,10 +292,11 @@ export const organizationsSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getOrganizationsAsync.fulfilled, (state, action) => {
+
+        state.organizations = action.payload.data;
+        state.selectedId = action.payload.data[0].id;
+        organizationAdapter.upsertMany(state, action.payload.data as Organization[]);
         state.status = "idle";
-        state.organizations = action?.payload?.data;
-        state.selectedId = action?.payload?.data[0]?.id;
-        organizationAdapter.upsertMany(state, action?.payload?.data!);
       })
       .addCase(getOrganizationsAsync.rejected, (state) => {
         state.status = "failed";

@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext, useState, useMemo, useEffect } from 'react';
 import { UnsavedData } from '../../components/un-saved-data/un-saved-data';
 import { Snackbar, theme } from '@cloudcore/ui-shared';
 import Stepper from '@mui/material/Stepper';
@@ -255,12 +255,21 @@ const UserOnboarding = () => {
     setActiveStep(1);
   };
 
-  window.onbeforeunload = function () {
-    if (isUserOnboarding) {
-      return 'Do you want to reload the page?';
+  /* Code to provide popup on reload of page, when data is modified */
+  useEffect(() => {
+    const preventUnload = (event: BeforeUnloadEvent) => {
+      // NOTE: This message isn't used in modern browsers, but is required
+      const message = 'Sure you want to leave?';
+      event.preventDefault();
+      event.returnValue = message;
+    };
+    if (formModified) {
+      window.addEventListener('beforeunload', preventUnload);
     }
-    return null;
-  };
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, [formModified]);
 
   function updateOrgCode(data: string) {
     const org = orgWithCodes.find((p) => p.name?.includes(data));

@@ -71,14 +71,16 @@ export const OrganizationDataProfile = () => {
   };
 
   useEffect(() => {
-    dispatch(
-      getOrganizationStatsAsync({
-        orgCode: organization?.orgCode,
-        url: platformBaseUrl,
-        token: token,
-      })
-    );
-  }, [selectId]);
+    if (organization && organization.orgCode && organization.orgCode !== '') {
+      dispatch(
+        getOrganizationStatsAsync({
+          orgCode: organization.orgCode,
+          url: platformBaseUrl,
+          token: token,
+        })
+      );
+    }
+  }, [dispatch, selectId]);
 
   return (
     <Grid
@@ -94,7 +96,7 @@ export const OrganizationDataProfile = () => {
           paddingLeft: '15px',
         },
         paddingY: '30px',
-        border: `1px solid ${theme.palette.cardBorder.main}`,
+        borderLeft: `1px solid ${theme.palette.cardBorder.main}`,
       }}
     >
       <Grid item sm={12} md={12} lg={12}>

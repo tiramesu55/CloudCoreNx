@@ -18,7 +18,11 @@ import {
   setSuiteFormModified,
   setResetForm,
 } from '@cloudcore/redux-store';
-import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 
 interface Props {
   open: boolean;
@@ -28,6 +32,10 @@ interface Props {
 
 export const UnsavedData = (props: Props) => {
   const config: IConfig = useContext(ConfigCtx)!;
+  const { signOut } = useClaimsAndSignout(
+    config.logoutSSO,
+    config.postLogoutRedirectUri
+  );
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
@@ -92,6 +100,12 @@ export const UnsavedData = (props: Props) => {
       dispatch(setUserFormModified(false));
       dispatch(setSuiteFormModified(false));
       dispatch(setResetForm(true));
+    } else if (props.location === 'logout') {
+      dispatch(setOrgFormModified(false));
+      dispatch(setSiteFormModified(false));
+      dispatch(setUserFormModified(false));
+      dispatch(setSuiteFormModified(false));
+      signOut();
     } else {
       history.goBack();
     }
@@ -143,7 +157,9 @@ export const UnsavedData = (props: Props) => {
               display="flex"
               align="center"
             >
-              Are you sure you want to go back? Unsaved changes will be lost!
+              {props.location === 'logout'
+                ? 'Are you sure you want to go logout? Unsaved changes will be lost!'
+                : 'Are you sure you want to go back? Unsaved changes will be lost!'}
             </Typography>
           </Box>
         </DialogContent>
@@ -169,7 +185,7 @@ export const UnsavedData = (props: Props) => {
             sx={{ color: 'white', borderRadius: '5px' }}
             autoFocus
           >
-            Leave
+            {props.location === 'logout' ? 'Logout' : 'Leave'}
           </Button>
         </DialogActions>
       </Dialog>

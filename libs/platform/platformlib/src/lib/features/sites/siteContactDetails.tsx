@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, Divider } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { Address } from '@cloudcore/redux-store';
 
@@ -14,15 +14,17 @@ export const SiteContactDetails = (props: Props) => {
     <>
       <Typography
         sx={{
-          fontSize: theme.typography.h6.fontSize,
-          my: 3,
+          fontSize: theme.typography.subtitle1.fontSize,
+          paddingTop: theme.spacing(4),
+          paddingBottom: theme.spacing(2),
           fontWeight: 'bold',
         }}
       >
         Site Contact Details:
+        <Divider />
       </Typography>
       <Grid item container>
-        <Grid item xs={6}>
+        <Grid item xs={4}>
           <Typography
             sx={{
               paddingBottom: theme.spacing(1.5),
@@ -40,7 +42,7 @@ export const SiteContactDetails = (props: Props) => {
             {props.address?.street}
           </Typography>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2.5}>
           <Typography
             sx={{
               paddingBottom: theme.spacing(1.5),
@@ -58,7 +60,25 @@ export const SiteContactDetails = (props: Props) => {
             {props.address?.city}
           </Typography>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2.5}>
+          <Typography
+            sx={{
+              paddingBottom: theme.spacing(1.5),
+              fontSize: theme.typography.subtitle1.fontSize,
+              fontWeight: 'bold',
+            }}
+          >
+            State/Prov
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: theme.typography.subtitle1.fontSize,
+            }}
+          >
+            {props.address?.state}
+          </Typography>
+        </Grid>
+        <Grid item xs={2.5}>
           <Typography
             sx={{
               paddingBottom: theme.spacing(1.5),
@@ -76,7 +96,7 @@ export const SiteContactDetails = (props: Props) => {
             {props.address?.zip}
           </Typography>
         </Grid>
-        <Grid item xs={6} sx={{ paddingTop: theme.spacing(4) }}>
+        <Grid item xs={4} sx={{ paddingTop: theme.spacing(4) }}>
           <Typography
             sx={{
               paddingBottom: theme.spacing(1.5),
@@ -94,7 +114,7 @@ export const SiteContactDetails = (props: Props) => {
             {props.sitePhone}
           </Typography>
         </Grid>
-        <Grid item xs={6} sx={{ paddingTop: theme.spacing(4) }}>
+        <Grid item xs={4} sx={{ paddingTop: theme.spacing(4) }}>
           <Typography
             sx={{
               paddingBottom: theme.spacing(1.5),

@@ -2,9 +2,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Grid, Box, Typography, IconButton, Button } from '@mui/material';
+import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import { useHistory } from 'react-router-dom';
 import { platformStore } from '@cloudcore/redux-store';
 import {
@@ -29,7 +28,6 @@ import {
   updateSite,
   updateSiteAdress,
   updateSiteField,
-  getApplications,
 } from '@cloudcore/redux-store';
 import { ActivateDeactivateSite } from './activate-deactivate-site';
 import {
@@ -72,8 +70,7 @@ export const SiteForm = () => {
   const dispatch = useAppDispatch();
   const location: any = useLocation();
   const isAddSite =
-    location.state?.from === 'addSite' ||
-    location.state?.from === 'dashboard';
+    location.state?.from === 'addSite' || location.state?.from === 'dashboard';
   const isEditSite = location.state?.from === 'editSite';
   const history = useHistory();
   const selected = useAppSelector(selectedId);
@@ -109,28 +106,6 @@ export const SiteForm = () => {
   const [datesInvalid, setDatesInvalid] = useState(false);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const siteFormModified = useAppSelector(getSiteFormModified);
-
-  useEffect(() => {
-    if (platformBaseUrl) {
-      dispatch(
-        getApplications({
-          url: platformBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
-          }
-        );
-    }
-  }, [dispatch, platformBaseUrl, token]);
 
   useEffect(() => {
     setSiteApplications(site.applications);
@@ -267,13 +242,21 @@ export const SiteForm = () => {
     val === '' ? setZipInvalid(true) : setZipInvalid(false);
     dispatch(setSiteFormModified(true));
   };
-  /* Code to provide popup on reload of Add/edit org page */
-  window.onbeforeunload = function () {
-    if (isAddSite || isEditSite) {
-      return 'Do you want to reload the page?';
+  /* Code to provide popup on reload of Add/edit site page, when data is modified */
+  useEffect(() => {
+    const preventUnload = (event: BeforeUnloadEvent) => {
+      // NOTE: This message isn't used in modern browsers, but is required
+      const message = 'Sure you want to leave?';
+      event.preventDefault();
+      event.returnValue = message;
+    };
+    if (siteFormModified) {
+      window.addEventListener('beforeunload', preventUnload);
     }
-    return null;
-  };
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, [siteFormModified]);
 
   window.history.replaceState({ from: 'siteForm' }, document.title);
   useEffect(() => {
@@ -509,11 +492,7 @@ export const SiteForm = () => {
         <UnsavedData
           open={dialogBoxOpen}
           handleLeave={handleDialogBox}
-          location={
-            location.state?.from === 'dashboard'
-              ? 'dashboard'
-              : 'site'
-          }
+          location={location.state?.from === 'dashboard' ? 'dashboard' : 'site'}
         />
       }
       {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}

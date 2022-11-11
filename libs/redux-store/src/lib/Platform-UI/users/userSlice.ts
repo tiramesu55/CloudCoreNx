@@ -4,9 +4,6 @@ import {
   PayloadAction,
   createEntityAdapter,
   createSelector,
-  isPending,
-  isFulfilled,
-  isRejected,
 } from "@reduxjs/toolkit";
 import { RootState } from "../../store-platform";
 import {
@@ -40,6 +37,7 @@ interface UserFileUploadAction{
 
 interface Iaddress {
   street: string;
+  state: string;
   city: string;
   zip: string;
 }
@@ -246,7 +244,7 @@ const usersSlice = createSlice({
       const app: ApplicationUser = {
         appCode: action.payload.appCode,
         roles: ((roles === null) || (roles === undefined)) ? [] : roles,
-        sites: action.payload.sites,
+        sites: action.payload.sites,  
       };
       if((roles && roles.length > 0) ||(action.payload.sites && action.payload.sites.length > 0))
       {

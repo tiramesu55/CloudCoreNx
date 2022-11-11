@@ -1,15 +1,18 @@
-import { Divider, Grid } from '@mui/material';
+import { Divider, Grid, useTheme } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useTheme } from '@mui/material';
-import { ApplicationSite } from '@cloudcore/redux-store';
+import { platformStore } from '@cloudcore/redux-store';
+import { ApplicationSite, applicationMapping } from '@cloudcore/redux-store';
 import dateFormat from 'dateformat';
 
 interface Props {
   applications: ApplicationSite[] | undefined;
 }
 
+const { useAppSelector } = platformStore;
+
 export const ApplicationBySites = (props: Props) => {
   const theme = useTheme();
+  const allApps = useAppSelector(applicationMapping);
   const [applications, setApplications] = useState<ApplicationSite[]>([]);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export const ApplicationBySites = (props: Props) => {
             key={key}
           >
             <Grid item xs={6}>
-              {app.appCode}
+              {allApps && allApps.get(app.appCode)}
             </Grid>
             <Grid item xs={3}>
               {dateFormat(app.subscriptionStart?.toString(), 'dd mmmm yyyy')}

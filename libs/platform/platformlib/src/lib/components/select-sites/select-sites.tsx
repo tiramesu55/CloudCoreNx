@@ -59,15 +59,15 @@ export const SelectSites = (props: Props) => {
   const appSites = (app: string): { name: string; value: string }[] => {
     const rawSites = allSites
       ? allSites.filter(
-          (p) =>
-            p.applications && p.applications.map((x) => x.appCode).includes(app)
-        )
+        (p) =>
+          p.applications && p.applications.map((x) => x.appCode).includes(app)
+      )
       : [];
-    const rtn = rawSites.map((p) => ({ name: p.siteName, value: p.id! }));
+    const rtn = rawSites.map((p) => ({ name: p.siteName, value: p.id!, code: p.siteCode }));
     return rtn;
   };
 
-  const appChange = (appCode: string, entity: string, updated: Option[]) => {
+  const appChange = (appCode: string, entity: string, updated: any[]) => {
     //todo updated shouldn't be a string[]. it should be an array of objects
     if (entity === 'Roles') {
       const payload: PartialApplication = {
@@ -85,7 +85,7 @@ export const SelectSites = (props: Props) => {
       //sites
       const payload: PartialSite = {
         appCode: appCode,
-        sites: updated.map((p) => ({ siteCode: p.name, siteId: p.value })),
+        sites: updated.map((p) => ({ siteCode: p.code, siteId: p.value })),
       }; //updated should be an array of proper objects
       dispatch(updatePartialSite(payload));
     }
@@ -121,7 +121,7 @@ export const SelectSites = (props: Props) => {
 
   return (
     <>
-      <Grid container item xs={12} mt={5}>
+      <Grid container item xs={12} mt={3}>
         {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
         <Grid item xs={2}>
           <Typography
@@ -186,21 +186,19 @@ export const SelectSites = (props: Props) => {
                 p?.appCode.toLowerCase() === appDetail.appCode.toLowerCase()
             );
 
-          const selectedSites =
-            application && application.sites
-              ? application.sites.map((x) => ({
-                  name: x.siteCode,
-                  value: x.siteId,
-                }))
-              : [];
+          const selectedSitesCode = application && application.sites
+            ? application.sites.map(site => site.siteCode) : [];
+
+          const selectedSites = allSites.filter(site => (selectedSitesCode.indexOf(site.siteCode) > -1))
+            .map((site => ({ name: site.siteName, value: site.id, })))
 
           const selectedAppRoles =
             application && application.roles
               ? application.roles.map((x) => ({
-                  name: x.role,
-                  value: x.role,
-                  permissions: x.permissions,
-                }))
+                name: x.role,
+                value: x.role,
+                permissions: x.permissions,
+              }))
               : [];
 
           return (

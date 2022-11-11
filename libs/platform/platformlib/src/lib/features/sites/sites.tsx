@@ -117,7 +117,7 @@ export const Sites = () => {
   };
 
   return (
-    <Grid container spacing={1}>
+    <Grid>
       {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
       <Grid xs={12} item>
         <TitleAndCloseIcon
@@ -129,14 +129,10 @@ export const Sites = () => {
           addBtnText="Add New Site"
         />
       </Grid>
-      <Grid item xs={12} sx={{ paddingRIght: '20px' }}>
+      <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
         <Card
           sx={{
-            marginBottom: theme.spacing(3),
-            marginLeft: theme.spacing(2.5),
-            marginRight: theme.spacing(3),
             borderColor: theme.palette.cardBorder.main,
-            minHeight: '75vh',
           }}
         >
           <Grid container direction="row">

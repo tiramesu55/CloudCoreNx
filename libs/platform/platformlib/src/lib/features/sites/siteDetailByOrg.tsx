@@ -65,10 +65,10 @@ export const SiteDetailByOrg = () => {
           paddingLeft: '15px',
         },
         paddingY: '30px',
-        border: `1px solid ${theme.palette.cardBorder.main}`,
+        borderLeft: `1px solid ${theme.palette.cardBorder.main}`,
       }}
     >
-      <Grid item sm={12} md={12} lg={12} sx={{ mr: 4, minHeight: '68vh' }}>
+      <Grid item sm={12} md={12} lg={12} sx={{ mr: 4, minHeight: '50vh' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ flex: '1 0 auto', width: 'auto' }} component="span">
             <Box sx={{ display: 'flex' }}>

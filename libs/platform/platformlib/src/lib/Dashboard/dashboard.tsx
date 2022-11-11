@@ -15,6 +15,7 @@ import {
   selectedId,
   selectedIdOrganization,
   selectOrganizations,
+  getOrganizationsAsync,
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
@@ -22,6 +23,7 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import TitleAndCloseIcon from '../components/TitleAndClose/TitleAndClose';
+import DisplayMiantenance from 'libs/ui-shared/src/lib/DisplayMaintenance/displayMaintenance';
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Dashboard = () => {
@@ -42,6 +44,7 @@ export const Dashboard = () => {
   const [snackbar, setSnackbar] = useState(false);
   const [snackbarType, setSnackBarType] = useState('');
   const [snackBarMsg, setSnackBarMsg] = useState('');
+  const [displayMaintenance, setDisplayMaintenance] = useState(false);
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);
@@ -56,6 +59,23 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (platformBaseUrl) {
+      dispatch(
+        getOrganizationsAsync({
+          url: platformBaseUrl,
+          token: token,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            setSnackbar(true);
+            setSnackBarMsg('fetchError');
+            setSnackBarType('failure');
+          }
+        );
       dispatch(
         getDashboardStats({
           url: platformBaseUrl,
@@ -84,9 +104,19 @@ export const Dashboard = () => {
     });
   };
 
+  const handleDisplayMaintenanceDialog = (value: boolean) => {
+    setDisplayMaintenance(value);
+  };
+
   return (
-    <Grid container spacing={1}>
+    <Grid>
       {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      {
+        <DisplayMiantenance
+          open={displayMaintenance}
+          handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
+        />
+      }
       <Grid item xs={12}>
         <TitleAndCloseIcon
           breadCrumbOrigin={'DASHBOARD'}
@@ -116,8 +146,8 @@ export const Dashboard = () => {
                                 <img src={info} alt="information"/>
                             </InfoTooltip> */}
       </Grid>
-      <Grid item xs={12} sx={{ paddingRight: '20px' }}>
-        <Grid container spacing={3} paddingLeft="20px">
+      <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
+        <Grid container spacing={3}>
           <Grid item xs={6} md={4}>
             <InfoCard
               image={organizations_img}
@@ -133,13 +163,9 @@ export const Dashboard = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={12} sx={{ paddingRIght: '20px' }}>
+      <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
         <Card
           sx={{
-            marginTop: theme.spacing(2),
-            marginBottom: theme.spacing(3),
-            marginLeft: theme.spacing(2.5),
-            marginRight: theme.spacing(2),
             borderColor: theme.palette.cardBorder.main,
           }}
         >

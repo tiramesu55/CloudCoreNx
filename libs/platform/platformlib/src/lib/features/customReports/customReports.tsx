@@ -3,14 +3,12 @@ import {
   Grid,
   Box,
   Typography,
-  IconButton,
   Button,
   Checkbox,
   FormGroup,
   FormControlLabel,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import { Card, Snackbar } from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import InputSelectWithLabel from '../../components/InputSelectWithLabel/InputSelectWithLabel';
@@ -19,7 +17,6 @@ import {
   Organization,
   selectOrganizations,
   organizationList,
-  setOrganization,
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
@@ -252,13 +249,11 @@ const CustomReports = () => {
 
   const suiteChangeHandler = (event: any) => {
     setSuiteName(event.trim());
-    // setFormEdited(true);
     dispatch(setSuiteFormModified(true));
   };
 
   const workspaceIdChangeHandler = (event: any) => {
     setWorkspaceId(event.trim());
-    // setFormEdited(true);
     dispatch(setSuiteFormModified(true));
     event.trim() ? setDisableDeleteSuite(false) : setDisableDeleteSuite(true);
   };
@@ -420,18 +415,6 @@ const CustomReports = () => {
     }
   }, [currentSuite]);
 
-  const handleSnackbar = (value: boolean) => {
-    setSnackbar(value);
-  };
-
-  const handleSnackbarType = (value: string) => {
-    setSnackBarType(value);
-  };
-
-  const handleSnackbarMsg = (value: string) => {
-    setSnackBarMsg(value);
-  };
-
   const handleDelete = () => {
     try {
       handleDialogBox(false);
@@ -554,6 +537,22 @@ const CustomReports = () => {
       );
     }
   }, [currentReports]);
+
+  /* Code to provide popup on reload of Add/edit user page, when data is modified */
+  useEffect(() => {
+    const preventUnload = (event: BeforeUnloadEvent) => {
+      // NOTE: This message isn't used in modern browsers, but is required
+      const message = 'Sure you want to leave?';
+      event.preventDefault();
+      event.returnValue = message;
+    };
+    if (suiteFormModified) {
+      window.addEventListener('beforeunload', preventUnload);
+    }
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, [suiteFormModified]);
 
   return (
     <Grid container spacing={1}>

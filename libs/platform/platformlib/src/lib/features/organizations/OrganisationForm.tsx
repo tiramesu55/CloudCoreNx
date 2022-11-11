@@ -333,13 +333,21 @@ export const OrganizationForm = () => {
     return isValid;
   };
 
-  /* Code to provide popup on reload of Add/edit org page */
-  window.onbeforeunload = function () {
-    if (isAddOrganization || isEditOrganization || isEditOrganizationRedirect) {
-      return 'Do you want to reload the page?';
+  /* Code to provide popup on reload of Add/edit org page, when data is modified */
+  useEffect(() => {
+    const preventUnload = (event: BeforeUnloadEvent) => {
+      // NOTE: This message isn't used in modern browsers, but is required
+      const message = 'Sure you want to leave?';
+      event.preventDefault();
+      event.returnValue = message;
+    };
+    if (orgFormModified) {
+      window.addEventListener('beforeunload', preventUnload);
     }
-    return null;
-  };
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, [orgFormModified]);
 
   window.history.replaceState({ from: 'userForm' }, document.title);
 
@@ -490,7 +498,13 @@ export const OrganizationForm = () => {
           validState &&
           validZipCode
         ) {
-          dispatch(createOrganizationAsync(newOrganization))
+          dispatch(
+            createOrganizationAsync({
+              organization: newOrganization,
+              url: platformBaseUrl,
+              token: token,
+            })
+          )
             .unwrap()
             .then(
               () => {
@@ -901,7 +915,7 @@ export const OrganizationForm = () => {
                         <Button
                           size="small"
                           onClick={() => handleOrgDomainDialog(true)}
-                          sx={{ height: '45px', marginTop: '20px' }}
+                          sx={{ height: '45px', marginTop: theme.spacing(2.5) }}
                         >
                           {isAddOrganization ? 'Add' : 'Edit'}
                         </Button>

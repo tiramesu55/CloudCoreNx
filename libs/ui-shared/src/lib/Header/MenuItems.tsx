@@ -71,7 +71,9 @@ const MenuItems = (props: Props) => {
       onMouseLeave={onMouseLeave}
       onClick={closeDropdown}
     >
-      {props.navigationProps?.label && props.navigationProps?.subMenuList ? (
+      {props.navigationProps &&
+      props.navigationProps.label &&
+      props.navigationProps.subMenuList ? (
         <>
           <Button
             aria-haspopup="menu"
@@ -87,28 +89,31 @@ const MenuItems = (props: Props) => {
               display: 'flex',
             }}
           >
-            {props.navigationProps?.label}
+            {props.navigationProps.label}
             <KeyboardArrowDownIcon />
           </Button>
           <Dropdown
-            submenus={props.navigationProps?.subMenuList}
+            submenus={props.navigationProps.subMenuList}
             dropdown={dropdown}
           />
         </>
       ) : (
-        <NavLink
-          to={props.navigationProps?.route}
-          exact
-          key={props.navigationProps?.route}
-          activeClassName="selected"
-          className={classes.navLink}
-          activeStyle={{
-            color: theme.palette.primary.main,
-          }}
-          onClick={props.navigationProps?.onClick}
-        >
-          {props.navigationProps.label}
-        </NavLink>
+        props.navigationProps &&
+        props.navigationProps.route && (
+          <NavLink
+            to={props.navigationProps.route}
+            exact
+            key={props.navigationProps.route}
+            activeClassName="selected"
+            className={classes.navLink}
+            activeStyle={{
+              color: theme.palette.primary.main,
+            }}
+            onClick={props.navigationProps.onClick}
+          >
+            {props.navigationProps.label}
+          </NavLink>
+        )
       )}
     </Box>
   );
