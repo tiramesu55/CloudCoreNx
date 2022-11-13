@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { Security, SecureRoute, LoginCallback } from '@okta/okta-react';
+import { Security, SecureRoute, LoginCallback } from './OKTA';
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 interface oidc {
   issuer: string | undefined;
@@ -17,16 +17,7 @@ export function OktaCode(props: OktaAndConfigProps) {
   const history = useHistory();
   const [oktaAuthClient] = useState<OktaAuth>(
     new OktaAuth({
-      // transformAuthState: async (oktaAuth, authState) => {
-      //   if (!authState.isAuthenticated) {
-      //     return authState;
-      //   }
-      //   // extra requirement: user must have valid Okta SSO session
-      //   const user = await oktaAuth.token.getUserInfo();
-      //   authState.isAuthenticated = !!user; // convert to boolean
-      //   authState["user"] = user; // also store user object on authState
-      //   return authState;
-      // },
+
       issuer: props.oidc.issuer,
       clientId: props.oidc.clientId,
       redirectUri: props.oidc.redirectUri,
@@ -65,6 +56,8 @@ export function OktaCode(props: OktaAndConfigProps) {
     </Switch>
   );
   return (
+ <div>
+    {oktaAuthClient ? 
     <Security oktaAuth={oktaAuthClient} restoreOriginalUri={restoreOriginalUri}>
       <Route path="/login/callback" component={LoginCallback} />
       <SecureRoute
@@ -72,6 +65,8 @@ export function OktaCode(props: OktaAndConfigProps) {
         path="/"
         component={RouterComponent}
       />
-    </Security>
+    </Security> : null
+    }
+</div>
   );
 }

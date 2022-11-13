@@ -174,27 +174,28 @@ export const AnalyticsPowerbi = () => {
   };
 
   useEffect(() => {
-    openSlaDashboard();
+    console.log('xxxx')
+    //openSlaDashboard();
   }, [reports]);
 
-  const openSlaDashboard = useCallback(() => {
-    if (!reports) return;
-    for (const x of reports!) {
-      const slaDashId = x.reports?.find(
-        (p) => p.reportName === 'SLA Dashboard'
-      )?.reportId;
+  // const openSlaDashboard = useCallback(() => {
+  //   if (!reports) return;
+  //   for (const x of reports!) {
+  //     const slaDashId = x.reports?.find(
+  //       (p) => p.reportName === 'SLA Dashboard'
+  //     )?.reportId;
 
-      if (slaDashId) {
-        dispatch(
-          selectReport({
-            key: 'selectedReportId',
-            value: slaDashId,
-          })
-        );
-        break;
-      }
-    }
-  }, [reports]);
+  //     if (slaDashId) {
+  //       dispatch(
+  //         selectReport({
+  //           key: 'selectedReportId',
+  //           value: slaDashId,
+  //         })
+  //       );
+  //       break;
+  //     }
+  //   }
+  // }, [reports]);
 
   const navLinkMenuList = useMemo(() => {
     return reports

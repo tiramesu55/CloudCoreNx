@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback } from 'react';
-import { useOktaAuth } from "@okta/okta-react";
+import { useOktaAuth } from "../OKTA";
 import { CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
