@@ -59,12 +59,14 @@ export function OktaCode(props: OktaAndConfigProps) {
  <div>
     {oktaAuthClient ? 
     <Security oktaAuth={oktaAuthClient} restoreOriginalUri={restoreOriginalUri}>
-      <Route path="/login/callback" component={LoginCallback} />
-      <SecureRoute
-        onAuthRequired={customAuthHandler}
-        path="/"
-        component={RouterComponent}
-      />
+      <Switch>
+        <Route path="/login/callback" component={LoginCallback} />
+        <SecureRoute
+          onAuthRequired={customAuthHandler}
+          path="/"
+          component={RouterComponent}
+        />
+      </Switch>
     </Security> : null
     }
 </div>
