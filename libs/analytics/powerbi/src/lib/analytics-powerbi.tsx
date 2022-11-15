@@ -175,6 +175,7 @@ export const AnalyticsPowerbi = () => {
 
   useEffect(() => {
     console.log('xxxx')
+    console.log(reports)
     //openSlaDashboard();
   }, [reports]);
 
@@ -290,6 +291,7 @@ export const AnalyticsPowerbi = () => {
       reportFilter,
       loadingSingleReport,
       openAlert,
+      reports
     ]
   );
 
