@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import betaIcon from '../assets/betaIcon.png';
@@ -15,33 +16,31 @@ import { makeStyles } from '@mui/styles';
 interface AppsMenuProps {
   title: string;
   betaIcon?: boolean;
+  isFormModified?: boolean;
+  unSavedData?: (open: boolean, app: string) => void;
 }
 
 const AppsMenu = (props: AppsMenuProps) => {
   const history = useHistory();
   const theme = useTheme();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
+  const { permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
   const apps = [
     {
-      name: 'ANALYTICS',
+      name: 'Enterprise Analytics',
       url: config.isMainApp ? '/analytics' : '/',
-      permission: permissions?.analytics && permissions?.analytics.length > 0,
+      permission: (permissions.get('analytics') ?? []).length > 0,
     },
     {
-      name: 'MARKETPLACE',
+      name: 'Marketplace',
       url: config.isMainApp ? '/marketplace/' : '/',
-      permission:
-        permissions?.marketplace && permissions?.marketplace.length > 0,
+      permission: (permissions.get('marketplace') ?? []).length > 0,
     },
     {
-      name: 'PLATFORM',
+      name: 'Platform Management',
       url: config.isMainApp ? '/platform' : '/',
-      permission: permissions?.admin && permissions?.admin.length > 0,
+      permission: (permissions.get('admin') ?? []).length > 0,
     },
   ];
 
@@ -57,44 +56,6 @@ const AppsMenu = (props: AppsMenuProps) => {
       display: 'block',
       color: 'inherit',
       textDecoration: 'none',
-    },
-    subMenuList: {
-      padding: theme.spacing(1),
-      fontSize: theme.typography.body1.fontSize,
-      color: theme.palette.text.primary,
-      '&:hover': {
-        backgroundColor: '#E6E8F3',
-      },
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      border: 'none',
-      backgroundColor: 'transparent',
-      cursor: 'pointer',
-    },
-    disabledList: {
-      padding: theme.spacing(1),
-      fontSize: theme.typography.body1.fontSize,
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      border: 'none',
-      backgroundColor: 'transparent',
-      color: '#b7b7b7',
-    },
-    dropdown: {
-      position: 'absolute',
-      right: '0',
-      left: 'auto',
-      zIndex: '9999',
-      minWidth: '-webkit-fill-available',
-      width: 'max-content',
-      padding: '0',
-      backgroundColor: '#fff',
-      borderRadius: '0.5rem',
-      top: '100%',
-      boxShadow: '0px 2px 5px #333',
-      border: '0px solid grey',
     },
   }));
 
@@ -128,9 +89,17 @@ const AppsMenu = (props: AppsMenuProps) => {
     };
   }, [dropdown]);
 
+  const handleAppRouting = (app: string) => {
+    if (props.isFormModified && config.isMainApp) {
+      props?.unSavedData?.(true, app);
+    } else {
+      history.push(app);
+    }
+  };
+
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center', mx: 2 }}
+      sx={{ display: 'flex', alignItems: 'center', ml: 2, mr: 3 }}
       className={classes.menuItems}
       ref={ref}
       onMouseEnter={onMouseEnter}
@@ -150,6 +119,9 @@ const AppsMenu = (props: AppsMenuProps) => {
           textTransform: 'inherit',
           display: 'flex',
           padding: '0px',
+          '&:hover': {
+            backgroundColor: 'transparent',
+          },
         }}
       >
         <Typography
@@ -191,7 +163,7 @@ const AppsMenu = (props: AppsMenuProps) => {
       </Button>
 
       <Box
-        className={classes.dropdown}
+        className={`dropdown browserSpecific`}
         sx={dropdown ? { display: 'block' } : { display: 'none' }}
       >
         {availableApps.map((app) => {
@@ -199,11 +171,11 @@ const AppsMenu = (props: AppsMenuProps) => {
             <Box
               component={'button'}
               onClick={(e: React.MouseEvent) => {
-                app.permission ? history.push(app.url) : e.preventDefault();
+                app.permission ? handleAppRouting(app.url) : e.preventDefault();
               }}
               key={app.name}
               className={
-                app.permission ? classes.subMenuList : classes.disabledList
+                app.permission ? 'subMenuList' : `disabledList subMenuList`
               }
             >
               {app.name}

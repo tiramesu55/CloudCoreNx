@@ -20,7 +20,7 @@ const ConfigContext = ({ children, isMainApp }: any) => {
       }
     };
     getConfigData();
-  }, []);
+  }, [isMainApp]);
 
   return <ConfigCtx.Provider value={config}>{children}</ConfigCtx.Provider>;
 };

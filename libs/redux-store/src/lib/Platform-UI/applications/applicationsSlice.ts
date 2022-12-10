@@ -189,4 +189,24 @@ export const applicationMapping = (state: RootState) => {
   return new Map(state.applications.applications.map(p => { return [p.appCode, p.name]; }));
 }
 
+export const permissionsList = (state: RootState) => {
+  //returning all permissions for Analytics application
+  const permissionSet = new Set();
+
+  if(state.applications && state.applications.applications)
+  {
+    state.applications.applications.forEach(app => {
+      if(app.appCode === "analytics")
+      {
+        app.roles.forEach( role => {
+          role.permissions.forEach((permission) => permissionSet.add(permission));
+        }
+        )
+      }
+    });
+  }
+
+  return [...permissionSet] as string[];
+}
+
 export const applicationsReducer = applicationSlice.reducer;

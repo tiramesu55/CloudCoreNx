@@ -20,7 +20,7 @@ const TitleAndCloseIcon = (props: Props) => {
           justifyContent: 'space-between',
           alignItems: 'center',
           paddingX: theme.spacing(3),
-          paddingY: theme.spacing(2),
+          paddingY: theme.spacing(3),
         }}
       >
         <Typography
@@ -41,7 +41,7 @@ const TitleAndCloseIcon = (props: Props) => {
           {props.addBtn && (
             <Button
               variant="contained"
-              sx={{ marginRight: theme.spacing(2) }}
+              sx={{ marginRight: theme.spacing(0) }}
               onClick={props.onClickAddBtn}
             >
               {props.addBtnText}

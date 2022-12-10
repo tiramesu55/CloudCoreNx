@@ -16,15 +16,17 @@ import {
   checkIfRootOrganization,
   selectAppRoles,
 } from '@cloudcore/redux-store';
-import {
-  ConfigCtx,
-  IConfig,
-  useClaimsAndSignout,
-} from '@cloudcore/okta-and-config';
+import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
+
+import { useOktaAuth } from '@cloudcore/okta-and-config';
 
 interface Props {
   orgCode: string;
   modifiedData: (modifiedData: boolean) => void;
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
 }
 
 const { useAppDispatch, useAppSelector } = platformStore;
@@ -35,15 +37,10 @@ export interface Option {
 }
 
 export const SelectSites = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
+  const { oktaAuth } = useOktaAuth();
+  const token = oktaAuth?.getAccessToken(); // useClaimsAndSignout() as UseClaimsAndSignout ;
   const dispatch = useAppDispatch();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
   const allApps = useAppSelector(selectAppRoles);
   //selectedApps below are from the user. for new user it is empty.  See the state.applications section of the state
@@ -59,11 +56,15 @@ export const SelectSites = (props: Props) => {
   const appSites = (app: string): { name: string; value: string }[] => {
     const rawSites = allSites
       ? allSites.filter(
-        (p) =>
-          p.applications && p.applications.map((x) => x.appCode).includes(app)
-      )
+          (p) =>
+            p.applications && p.applications.map((x) => x.appCode).includes(app)
+        )
       : [];
-    const rtn = rawSites.map((p) => ({ name: p.siteName, value: p.id!, code: p.siteCode }));
+    const rtn = rawSites.map((p) => ({
+      name: p.siteName,
+      value: p.id!,
+      code: p.siteCode,
+    }));
     return rtn;
   };
 
@@ -110,9 +111,10 @@ export const SelectSites = (props: Props) => {
           },
           (reason: any) => {
             setLoadSite(false);
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -122,7 +124,13 @@ export const SelectSites = (props: Props) => {
   return (
     <>
       <Grid container item xs={12} mt={3}>
-        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+        <Snackbar
+          open={alertData.openAlert}
+          type={alertData.type}
+          content={alertData.content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <Grid item xs={2}>
           <Typography
             fontSize={theme.typography.subtitle1.fontSize}
@@ -186,19 +194,22 @@ export const SelectSites = (props: Props) => {
                 p?.appCode.toLowerCase() === appDetail.appCode.toLowerCase()
             );
 
-          const selectedSitesCode = application && application.sites
-            ? application.sites.map(site => site.siteCode) : [];
+          const selectedSitesCode =
+            application && application.sites
+              ? application.sites.map((site) => site.siteCode)
+              : [];
 
-          const selectedSites = allSites.filter(site => (selectedSitesCode.indexOf(site.siteCode) > -1))
-            .map((site => ({ name: site.siteName, value: site.id, })))
+          const selectedSites = allSites
+            .filter((site) => selectedSitesCode.indexOf(site.siteCode) > -1)
+            .map((site) => ({ name: site.siteName, value: site.id }));
 
           const selectedAppRoles =
             application && application.roles
               ? application.roles.map((x) => ({
-                name: x.role,
-                value: x.role,
-                permissions: x.permissions,
-              }))
+                  name: x.role,
+                  value: x.role,
+                  permissions: x.permissions,
+                }))
               : [];
 
           return (

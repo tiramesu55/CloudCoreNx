@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Dropdown from './Dropdown';
 import { NavLink } from 'react-router-dom';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { navigationProps } from './NavBar';
 import { Theme, useTheme } from '@mui/material/styles';
@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     textDecoration: 'none',
     color: theme.palette.text.primary,
     fontSize: theme.typography.subtitle1.fontSize,
-    marginLeft: theme.spacing(4),
+    marginRight: theme.spacing(3),
+    fontFamily: theme.typography.fontFamily,
   },
   menuItems: {
     position: 'relative',
@@ -81,12 +82,15 @@ const MenuItems = (props: Props) => {
             disableTouchRipple={true}
             aria-expanded={dropdown ? 'true' : 'false'}
             onClick={() => setDropdown((prev) => !prev)}
-            style={{
+            sx={{
               color: dropdown ? '#8141f2' : '#58595B',
               fontSize: theme.typography.h6.fontSize,
               fontWeight: 'normal',
               textTransform: 'inherit',
               display: 'flex',
+              '&:hover': {
+                backgroundColor: 'transparent',
+              },
             }}
           >
             {props.navigationProps.label}

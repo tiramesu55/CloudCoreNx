@@ -1,6 +1,5 @@
 import { useContext, useState, useMemo, useEffect } from 'react';
-import { UnsavedData } from '../../components/un-saved-data/un-saved-data';
-import { Snackbar, theme } from '@cloudcore/ui-shared';
+import { Snackbar, UnsavedData } from '@cloudcore/ui-shared';
 import Stepper from '@mui/material/Stepper';
 import {
   Alert,
@@ -16,6 +15,7 @@ import {
   Step,
   StepLabel,
   Typography,
+  useTheme,
 } from '@mui/material';
 import {
   platformStore,
@@ -23,7 +23,7 @@ import {
   organizationList,
   importUserFile,
 } from '@cloudcore/redux-store';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 import LowerButton from '../../components/LowerButtons/LowerButtons';
 import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
@@ -34,8 +34,10 @@ import ImportFile from '../../components/ImportFile/ImportFile';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const steps = [
   {
@@ -63,6 +65,12 @@ const style = {
     justifyContent: 'center',
   },
 };
+
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
 
 interface Record {
   id: string;
@@ -108,15 +116,15 @@ interface DisplayRecord {
   Email: string;
   Errors: string;
 }
-const UserOnboarding = () => {
-  const config: IConfig = useContext(ConfigCtx)!;
+
+const UserOnboarding = (props: Props) => {
+  const theme = useTheme();
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const { useAppDispatch, useAppSelector } = platformStore;
   const [org, setOrg] = useState('');
   const [orgCode, setOrgCode] = useState('');
@@ -131,18 +139,14 @@ const UserOnboarding = () => {
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [formModified, setFormModified] = useState(false);
 
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
-
-  const location: any = useLocation();
-  const isUserOnboarding = location.state?.from === 'onboarding';
+  //const location: any = useLocation();
+  //const isUserOnboarding = location.state?.from === 'onboarding';
   const orgList = useAppSelector(organizationList);
   const orgWithCodes = useAppSelector(getOrgCodeFromName);
   const dispatch = useAppDispatch();
   const history = useHistory();
 
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { platformBaseUrl } = config; // at this point config is not null (see app)
 
   const options: MUIDataTableOptions = {
     selectableRowsHideCheckboxes: true,
@@ -247,9 +251,6 @@ const UserOnboarding = () => {
     setAlertSev('error');
     setResponse(null);
     setDialogBoxOpen(false);
-    setSnackbar(false);
-    setSnackBarType('');
-    setSnackBarMsg('');
     //we don't want to force them to redonwload
     //if just stepping back
     setActiveStep(1);
@@ -383,18 +384,18 @@ const UserOnboarding = () => {
                 setAlert(true);
                 setAlertContent('importUserFileSuccess');
                 setAlertSev('success');
-
-                setSnackbar(true);
-                setSnackBarMsg('uploadUsersSuccess');
-                setSnackBarType('success');
+                handleOpenAlert({
+                  content: 'Users uploaded successfully',
+                  type: 'success',
+                });
               } else {
                 setAlert(true);
                 setAlertContent('importUserFileWarning');
                 setAlertSev('warning');
-
-                setSnackbar(true);
-                setSnackBarMsg('uploadUsersError');
-                setSnackBarType('failure');
+                handleOpenAlert({
+                  content: 'Error while uploading Users',
+                  type: 'error',
+                });
               }
               //Their state can't be reused so we don't care
               setFormModified(false);
@@ -407,10 +408,10 @@ const UserOnboarding = () => {
               setAlert(true);
               setAlertContent('importUserFileFailure - ' + reason.message);
               setAlertSev('error');
-
-              setSnackbar(true);
-              setSnackBarMsg('uploadUsersError');
-              setSnackBarType('failure');
+              handleOpenAlert({
+                content: reason.message,
+                type: 'error',
+              });
             }
           );
       } catch (err) {
@@ -428,19 +429,21 @@ const UserOnboarding = () => {
           location="onboarding"
         />
         <TitleAndCloseIcon
-          breadCrumbOrigin="ALL USERS"
+          breadCrumbOrigin="All Users"
           breadCrumbTitle="Import Users"
           onClickButton={backToUpload}
         />
-        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+        <Snackbar
+          open={alertData.openAlert}
+          type={alertData.type}
+          content={alertData.content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <Grid item xs={12}>
           <Grid container style={style.Grid} paddingX={3}>
             <Card style={style.Card}>
-              {alert ? (
-                <Alert severity={alertSev}>{alertContent}</Alert>
-              ) : (
-                <></>
-              )}
+              {alert && <Alert severity={alertSev}>{alertContent}</Alert>}
               <Grid py={4} px={2}>
                 <Typography
                   fontSize={theme.typography.h3.fontSize}
@@ -520,7 +523,7 @@ const UserOnboarding = () => {
                   <Grid item xs={4}>
                     {' '}
                   </Grid>
-                  {badRecords.length > 0 || goodRecords.length > 0 ? (
+                  {(badRecords.length > 0 || goodRecords.length > 0) && (
                     <>
                       <Grid item xs={2}>
                         {' '}
@@ -543,8 +546,6 @@ const UserOnboarding = () => {
                       </Grid>
                       <Grid item xs={2}></Grid>
                     </>
-                  ) : (
-                    <></>
                   )}
                 </Grid>
               </Grid>
@@ -590,11 +591,17 @@ const UserOnboarding = () => {
           location="onboarding"
         />
         <TitleAndCloseIcon
-          breadCrumbOrigin="ALL USERS"
+          breadCrumbOrigin="All Users"
           breadCrumbTitle="Import Users"
           onClickButton={backToUsers}
         ></TitleAndCloseIcon>
-        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+        <Snackbar
+          open={alertData.openAlert}
+          type={alertData.type}
+          content={alertData.content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <Grid item xs={12}>
           <Grid container paddingX={3} style={style.Grid}>
             <Card style={style.Card}>
@@ -680,8 +687,6 @@ const UserOnboarding = () => {
                       }}
                       onClick={(e) => {
                         e.preventDefault();
-                        //set the snackbar default to false
-                        setSnackbar(false);
                         handleUpload();
                       }}
                     >

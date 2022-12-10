@@ -22,15 +22,16 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { IAlert } from '@cloudcore/common-lib';
 
 interface Props {
   user: User | undefined;
   setActiveDate: (value: Date | null) => void;
-  setSnackbar: (value: boolean) => void;
-  setSnackBarType: (value: string) => void;
-  setSnackBarMsg: (value: string) => void;
+  openAlert: (payload: IAlert) => void;
+  closeAlert: () => void;
 }
 
 const { useAppDispatch, useAppSelector } = platformStore;
@@ -39,10 +40,7 @@ export const DeactivateUser = (props: Props) => {
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
 
   const theme = useTheme();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -62,6 +60,13 @@ export const DeactivateUser = (props: Props) => {
     setOpen(false);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
+
   const handleDeactivate = () => {
     setOpen(false);
 
@@ -77,18 +82,17 @@ export const DeactivateUser = (props: Props) => {
         .unwrap()
         .then(
           (value) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-
-            setTimeout(() => {
-              history.push(`${path}user`);
-            }, 1000);
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(history.push(`${path}user`));
           },
           (reason) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } catch (err) {
@@ -113,18 +117,17 @@ export const DeactivateUser = (props: Props) => {
         .unwrap()
         .then(
           (value) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-
-            setTimeout(() => {
-              history.push(`${path}user`);
-            }, 1000);
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(history.push(`${path}user`));
           },
           (reason) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useEffect, useMemo, useContext } from 'react';
 import { Grid, useTheme } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { platformStore } from '@cloudcore/redux-store';
@@ -17,21 +17,26 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
-export const Sites = () => {
-  const config: IConfig = useContext(ConfigCtx)!;
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+export const Sites = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { platformBaseUrl } = useContext(ConfigCtx)!;
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { platformBaseUrl } = config;
+  const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
   const theme = useTheme();
   const selectedSiteId = useAppSelector(selectSelectedId);
   const selectSiteByID = useSelector((state: any) =>
@@ -41,9 +46,6 @@ export const Sites = () => {
   const dispatch = useAppDispatch();
   const history = useHistory();
   const location: any = useLocation();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const getOrgData = () => {
     const retrieveData = window.localStorage.getItem('orgData');
     const updatedorgData = JSON.parse(retrieveData as any);
@@ -59,6 +61,9 @@ export const Sites = () => {
   const setSelectedId = (id: string) => {
     dispatch(selectedIdSite(id));
   };
+  const addSiteButtonEnabled = (permissions.get('admin') ?? []).includes(
+    'global'
+  );
 
   useEffect(() => {
     if (selectSiteByID !== undefined) {
@@ -81,9 +86,10 @@ export const Sites = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -118,13 +124,19 @@ export const Sites = () => {
 
   return (
     <Grid>
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={handleCloseAlert}
+        duration={3000}
+      />
       <Grid xs={12} item>
         <TitleAndCloseIcon
           onClickButton={closeSites}
-          breadCrumbOrigin={`DASHBOARD / ${storedOrgData?.orgName?.toUpperCase()} ORG / ORG`}
-          breadCrumbTitle={'EDIT SITES'}
-          addBtn={true}
+          breadCrumbOrigin={`Dashboard / ${storedOrgData?.orgName} Organization `}
+          breadCrumbTitle={'Edit Sites'}
+          addBtn={addSiteButtonEnabled}
           onClickAddBtn={addNewSite}
           addBtnText="Add New Site"
         />

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import warning_img from '../../../../../../ui-shared/src/lib/assets/warning.png';
+import { warning_img } from '@cloudcore/ui-shared';
 import {
   setOrgFormModified,
   setSiteFormModified,
@@ -21,6 +21,7 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 
@@ -28,21 +29,19 @@ interface Props {
   open: boolean;
   handleLeave: (open: boolean) => void;
   location?: string;
+  appSwitchUrl?: string;
 }
 
 export const UnsavedData = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { signOut } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
+  const { signOut } = useClaimsAndSignout() as UseClaimsAndSignout;
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
   const theme = useTheme();
   const { useAppDispatch } = platformStore;
   const history = useHistory();
-  const location: any = useLocation();
+  const location = useLocation();
   const dispatch = useAppDispatch();
 
   const handleStay = () => {
@@ -57,6 +56,14 @@ export const UnsavedData = (props: Props) => {
   const currentPage = location?.state?.currentPage;
   const rowsPerPage = location?.state?.rowsPerPage;
 
+  const setForms = () => {
+    dispatch(setOrgFormModified(false));
+    dispatch(setSiteFormModified(false));
+    dispatch(setUserFormModified(false));
+    dispatch(setSuiteFormModified(false));
+    dispatch(setResetForm(true));
+  };
+
   const handleLeave = () => {
     props.handleLeave(false);
     if (props.location === 'users') {
@@ -64,18 +71,10 @@ export const UnsavedData = (props: Props) => {
         currentPage: currentPage,
         rowsPerPage: rowsPerPage,
       });
-      dispatch(setOrgFormModified(false));
-      dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false));
-      dispatch(setSuiteFormModified(false));
-      dispatch(setResetForm(true));
+      setForms();
     } else if (props.location === 'dashboard') {
       history.push(path);
-      dispatch(setOrgFormModified(false));
-      dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false));
-      dispatch(setSuiteFormModified(false));
-      dispatch(setResetForm(true));
+      setForms();
     } else if (props.location === 'organization') {
       history.push(path);
       dispatch(setOrgFormModified(false));
@@ -93,19 +92,14 @@ export const UnsavedData = (props: Props) => {
         orgName: orgData.orgName,
       });
       dispatch(setSiteFormModified(false));
-    } else if (props.location === 'customReports') {
-      history.push(`${path}customReports`);
-      dispatch(setOrgFormModified(false));
-      dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false));
-      dispatch(setSuiteFormModified(false));
-      dispatch(setResetForm(true));
+    } else if (props.location === 'suiteManagement') {
+      history.push(`${path}suiteManagement`);
+      setForms();
     } else if (props.location === 'logout') {
-      dispatch(setOrgFormModified(false));
-      dispatch(setSiteFormModified(false));
-      dispatch(setUserFormModified(false));
-      dispatch(setSuiteFormModified(false));
       signOut();
+    } else if (props.location === 'appSwitch') {
+      history.push(props.appSwitchUrl);
+      setForms();
     } else {
       history.goBack();
     }
@@ -157,9 +151,8 @@ export const UnsavedData = (props: Props) => {
               display="flex"
               align="center"
             >
-              {props.location === 'logout'
-                ? 'Are you sure you want to go logout? Unsaved changes will be lost!'
-                : 'Are you sure you want to go back? Unsaved changes will be lost!'}
+              Are you sure you want to leave this page? Unsaved changes will be
+              lost!
             </Typography>
           </Box>
         </DialogContent>
@@ -185,7 +178,7 @@ export const UnsavedData = (props: Props) => {
             sx={{ color: 'white', borderRadius: '5px' }}
             autoFocus
           >
-            {props.location === 'logout' ? 'Logout' : 'Leave'}
+            Leave
           </Button>
         </DialogActions>
       </Dialog>

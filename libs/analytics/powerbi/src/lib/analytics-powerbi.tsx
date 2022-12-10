@@ -1,15 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable @nrwl/nx/enforce-module-boundaries */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import {
-  ConfigCtx,
-  IConfig,
-  useClaimsAndSignout,
-} from '@cloudcore/okta-and-config';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
 import {
@@ -21,8 +25,6 @@ import {
 } from '@cloudcore/ui-shared';
 import { Backdrop as BackdropPowerBi } from '@cloudcore/ui-shared';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
-import { Box } from '@mui/system';
-import { useIdleTimer } from 'react-idle-timer';
 import {
   useAppInsightHook,
   IErrorTypeResponse,
@@ -36,17 +38,25 @@ import {
   closeAlertAction,
 } from '@cloudcore/redux-store';
 import { Route } from 'react-router-dom';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
+import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 /* eslint-disable-next-line */
 export interface AnalyticsPowerbiProps {}
 
 export const AnalyticsPowerbi = () => {
+  const theme = useTheme();
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
 
   const [listReportLoading, setListReportLoading] = useState<boolean>(false);
   const [activityModal, setActivityModal] = useState<boolean>(false);
-
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
   const {
     loadReports,
     loadingReportSingle,
@@ -54,9 +64,8 @@ export const AnalyticsPowerbi = () => {
     selectReport,
   } = reportsActions;
 
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const { signOut, token, initials, names, permissions, email } =
-    useClaimsAndSignout(config.logoutSSO, config.postLogoutRedirectUri);
+    useClaimsAndSignout()!;
 
   const handleOpenAlert = (payload: IAlert) =>
     dispatch(openAlertAction(payload));
@@ -88,7 +97,8 @@ export const AnalyticsPowerbi = () => {
   }, [reports, selectedReports['selectedReportId']]);
 
   const { HandleReportEvent } = useAppInsightHook();
-  const anltPermissions = permissions.analytics?.length > 0;
+  const ap = permissions.get('analytics');
+  const anltPermissions = ap && ap.length > 0;
   const handleErrorResponse = (err: IErrorTypeResponse) => {
     HandleReportEvent({
       properties: {
@@ -130,31 +140,6 @@ export const AnalyticsPowerbi = () => {
     }
   }, []);
 
-  // Do some idle action like log out your user
-  const onIdle = () => {
-    signOut();
-  };
-
-  // Close Modal Prompt and reset the idleTimer
-  const onActive = () => {
-    setActivityModal(false);
-    reset();
-  };
-
-  // opens modal prompt on timeout
-  const onPrompt = () => {
-    setActivityModal(true);
-  };
-
-  const { reset } = useIdleTimer({
-    timeout: 1000 * 1500,
-    onIdle,
-    onActive,
-    debounce: 500,
-    onPrompt,
-    promptTimeout: 1000 * 299,
-  });
-
   const handleReportClick = (reportId: string, reportName: string) => {
     dispatch(
       selectReport({
@@ -179,20 +164,14 @@ export const AnalyticsPowerbi = () => {
 
   const openSlaDashboard = useCallback(() => {
     if (!reports) return;
-    for (const x of reports!) {
-      const slaDashId = x.reports?.find(
-        (p) => p.reportName === 'SLA Dashboard'
-      )?.reportId;
 
-      if (slaDashId) {
-        dispatch(
-          selectReport({
-            key: 'selectedReportId',
-            value: slaDashId,
-          })
-        );
-        break;
-      }
+    if (config.DEFAULT_REPORTID) {
+      dispatch(
+        selectReport({
+          key: 'selectedReportId',
+          value: config.DEFAULT_REPORTID,
+        })
+      );
     }
   }, [reports]);
 
@@ -215,6 +194,32 @@ export const AnalyticsPowerbi = () => {
     return `${config.isMainApp ? '/analytics' : '/'}`;
   }, [config.isMainApp]);
 
+  const resetTimerRef = useRef(null);
+
+  const ErrorFallback = ({ error, resetErrorBoundary }: any) => {
+    return (
+      <Grid xs={12} sx={{ textAlign: 'center', padding: theme.spacing(6) }}>
+        <Typography variant="h2" sx={{ color: theme.palette.error.main }}>
+          An error occurred
+        </Typography>
+        <Typography sx={{ padding: theme.spacing(2) }}>
+          {error.message}
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={resetErrorBoundary}
+          startIcon={
+            <RefreshIcon
+              sx={{ fontSize: `${theme.spacing(3.5)} !important` }}
+            />
+          }
+        >
+          Try again
+        </Button>
+      </Grid>
+    );
+  };
+
   const AnalitycsComponent = useMemo(
     () => (
       <div
@@ -224,15 +229,14 @@ export const AnalyticsPowerbi = () => {
         }}
       >
         <IdlePopUp
-          open={activityModal}
           logOut={signOut}
-          onActive={onActive}
+          sendResetData={resetTimerRef}
           minutes={5}
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
         />
         <Header
-          title={'Analytics'}
+          title={'Enterprise Analytics'}
           logo={{ img: nexia_logo_img, path }}
           betaIcon={true}
           reportIssue={false}
@@ -250,18 +254,11 @@ export const AnalyticsPowerbi = () => {
           ]}
         />
         {selectedReports['selectedReportId'] && (
-          <ErrorBoundary
-            fallbackRender={({ error, resetErrorBoundary }) => (
-              <div>
-                <h1>An error occurred</h1>
-                <button onClick={resetErrorBoundary}>Try again</button>
-              </div>
-            )}
-          >
+          <ErrorBoundary fallbackRender={ErrorFallback}>
             <ReportBiClientComponent
               userName={names ? names[0] + ' ' + names[1] : ''}
               userEmail={email ?? ''}
-              reset={reset}
+              reset={resetTimerRef.current}
               openAlert={handleOpenAlert}
               closeAlert={handleCloseAlert}
               loadingReportSingle={handleLoadingReportSingle}
@@ -289,6 +286,8 @@ export const AnalyticsPowerbi = () => {
       reportFilter,
       loadingSingleReport,
       openAlert,
+      reports,
+      activityModal,
     ]
   );
 

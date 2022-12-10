@@ -262,7 +262,7 @@ export const organizationsSlice = createSlice({
             : action.payload.value,
       };
     },
-    updateAdress: (state, action: PayloadAction<any>) => {
+    updateAddress: (state, action: PayloadAction<any>) => {
       state.organization = {
         ...state.organization,
         address: {
@@ -353,7 +353,7 @@ export const {
   selectedIdOrganization,
   setOrganization,
   updateField,
-  updateAdress,
+  updateAddress,
   resetOrganization,
   setOrgFormModified
 } = organizationsSlice.actions;

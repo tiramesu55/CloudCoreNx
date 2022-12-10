@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback } from 'react';
-import { useOktaAuth } from "@okta/okta-react";
+import { useOktaAuth } from "../OKTA";
 import { CustomUserClaims, UserClaims } from "@okta/okta-auth-js";
-
+import { ConfigCtx} from '../config-context/context';
+import React from 'react';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export type Applications = 'erv' | 'marketplace' | 'analytics' | 'admin';
 
@@ -11,10 +12,8 @@ export type Dictionary = {
 };
 export interface UseClaimsAndSignout {
   signOut: () => void;
-  //getClaims: () => UserClaims|undefined;   // to be removed
-  //getToken :() => string | undefined;     // to be removed
   token?: string;
-  permissions: Dictionary; 
+  permissions: Map<Applications, string[]>; 
   initials?: string;
   email? : string;
   names?: string[];
@@ -27,37 +26,29 @@ interface OktaClaims extends CustomUserClaims{
    initials: string[];
 }
 
-
-export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string ): UseClaimsAndSignout {
+//we assume that the config  context is the most outward one
+export function useClaimsAndSignout(): UseClaimsAndSignout | null {
   const {authState, oktaAuth } = useOktaAuth();
+  const ctx = React.useContext(ConfigCtx);
+  if(!ctx)
+     return null;
+  const  { logoutSSO, postLogoutRedirectUri} = ctx;
 
-  //to be removed
-  // const getClaims =  useCallback(() =>{
-  //     return authState?.accessToken?.claims;
-  //  },[authState?.accessToken?.claims]
-  // )
-  //permissions object
-  const permissions: Dictionary = {
-    erv: [],
-    marketplace: [],
-    analytics: [],
-    admin: []
-  };
-  permissions.erv =  (authState?.accessToken?.claims as UserClaims<OktaClaims>).erv;
-  permissions.marketplace = (authState?.accessToken?.claims as UserClaims<OktaClaims>).marketplace;
-  permissions.analytics = (authState?.accessToken?.claims as UserClaims<OktaClaims>).analytics;
-  permissions.admin = (authState?.accessToken?.claims as UserClaims<OktaClaims>).admin;
 
-  const names = (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials ? (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials : [];
+  const permissions = new Map<Applications, string[]>([
+       ['erv', (authState?.accessToken?.claims as UserClaims<OktaClaims>).erv],
+       ['marketplace', (authState?.accessToken?.claims as UserClaims<OktaClaims>).marketplace],
+       ['analytics', (authState?.accessToken?.claims as UserClaims<OktaClaims>).analytics],
+       ['admin', (authState?.accessToken?.claims as UserClaims<OktaClaims>).admin]
+
+  ]
+  )
+
+  const names = (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials ??  [];
   const initials = (names && names.length>0) ? (names[0][0] + names[1][0]) : "";
   const email = authState?.accessToken?.claims.sub;
   const token = authState?.accessToken?.accessToken;
 
-  //getToken to be removed
-//   const getToken =  useCallback(() =>{
-//     return authState?.accessToken?.accessToken;
-//   },[authState?.accessToken]
-// )
   const signOut = async () => {
     //get token
     const accessToken = oktaAuth.getAccessToken() ?? "";   //so that token type is a string
@@ -79,7 +70,7 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
       console.log(ex);
     } finally {
       oktaAuth.signOut({
-        postLogoutRedirectUri: postRedirectUrl,
+        postLogoutRedirectUri: postLogoutRedirectUri,
         clearTokensBeforeRedirect: true,
       });
     }
@@ -88,6 +79,6 @@ export function useClaimsAndSignout(logoutSSO: string, postRedirectUrl: string )
  
   return { signOut,  token,  permissions, initials, email,  names };
 }
-export const useOktaAuthLib = () => useOktaAuth();
+
 
 

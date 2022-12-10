@@ -4,6 +4,41 @@ import { createTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 
 declare module '@mui/material/styles' {
+  interface ButtonVariants {
+    labelButton: React.CSSProperties;
+  }
+
+  interface TypographyVariants {
+    tabLabel: React.CSSProperties;
+    businessText: React.CSSProperties;
+  }
+
+  // allow configuration using `createTheme`
+  interface TypographyVariantsOptions {
+    tabLabel?: React.CSSProperties;
+    businessText?: React.CSSProperties;
+  }
+
+  interface ButtonVariantsOptions {
+    labelButton?: React.CSSProperties;
+  }
+}
+
+// Update the Typography's variant prop options
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    tabLabel: true;
+    businessText: true;
+  }
+}
+
+declare module '@mui/material/Button' {
+  interface ButtonPropsVariantOverrides {
+    labelButton: true;
+  }
+}
+
+declare module '@mui/material/styles' {
   interface Theme {
     breadcrumLink: {
       primary: React.CSSProperties['color'];
@@ -171,6 +206,7 @@ export const theme = createTheme({
       main: '#E6E8F3',
     },
   },
+
   typography: {
     fontFamily: `"Roboto", sans-serif`,
     subtitle1: {
@@ -223,12 +259,45 @@ export const theme = createTheme({
       fontSize: '12px',
       lineHeight: '18px',
     },
+    tabLabel: {
+      textTransform: 'none',
+      fontWeight: 'bold',
+      fontSize: '14px',
+    },
+    businessText: {
+      textTransform: 'none',
+      fontWeight: 'bold',
+      fontSize: '14px',
+      marginTop: 'auto',
+      marginBottom: 'auto',
+    },
   },
   shape: {
     borderRadius: 8,
   },
   components: {
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          paddingBottom: '15px',
+        },
+      },
+    },
     MuiButton: {
+      variants: [
+        {
+          props: { variant: 'labelButton' },
+          style: {
+            height: '30px',
+            width: '31px',
+            minWidth: '31px',
+            backgroundColor: '#707070',
+            borderRadius: '0px',
+            padding: 0,
+            marginTop: '1px',
+          },
+        },
+      ],
       styleOverrides: {
         contained: {
           borderRadius: 'full',

@@ -9,9 +9,8 @@ import { platformStore } from '@cloudcore/redux-store';
 import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
-  UnsavedData,
 } from '../../components';
-import { Card } from '@cloudcore/ui-shared';
+import { Card, Snackbar, UnsavedData } from '@cloudcore/ui-shared';
 import flags from 'react-phone-number-input/flags';
 import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import { useState } from 'react';
@@ -33,10 +32,11 @@ import { ActivateDeactivateSite } from './activate-deactivate-site';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import { Snackbar } from '@cloudcore/ui-shared';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 interface Application {
@@ -53,15 +53,18 @@ const CustomCss = withStyles(() => ({
   },
 }))(() => null);
 
-export const SiteForm = () => {
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+export const SiteForm = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
 
   const theme = useTheme();
   const site = useAppSelector(selectedSite);
@@ -70,20 +73,18 @@ export const SiteForm = () => {
   const dispatch = useAppDispatch();
   const location: any = useLocation();
   const isAddSite =
-    location.state?.from === 'addSite' || location.state?.from === 'dashboard';
+    location.state?.from === 'dashboard' ||
+    location.state?.from === 'organizationForm' ||
+    location.state?.from === 'addSite';
   const isEditSite = location.state?.from === 'editSite';
   const history = useHistory();
   const selected = useAppSelector(selectedId);
-  const disableEditApp =
-    permissions.admin && permissions.admin.includes('global') ? false : true;
+  const disableEditApp = !(permissions.get('admin') ?? []).includes('global');
   const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
-
+  const allFieldsEnabled = (permissions.get('admin') ?? []).includes('global');
   const [siteApplications, setSiteApplications] = useState<Application[]>(
     site.applications
   );
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
 
   const [siteName, setSiteName] = useState('');
   const [email, setEmail] = useState('');
@@ -297,17 +298,11 @@ export const SiteForm = () => {
     setDialogBoxOpen(open);
   };
 
-  const handleSnackbar = (value: boolean) => {
-    setSnackbar(value);
-  };
-
-  const handleSnackbarType = (value: string) => {
-    setSnackBarType(value);
-  };
-
-  const handleSnackbarMsg = (value: string) => {
-    setSnackBarMsg(value);
-  };
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
 
   const handleSubmit = (event: any) => {
     const hasError =
@@ -358,22 +353,24 @@ export const SiteForm = () => {
             .unwrap()
             .then(
               (value: any) => {
-                setSnackbar(true);
-                setSnackBarMsg('addSiteSuccess');
-                setSnackBarType('success');
+                handleOpenAlert({
+                  content: 'Site added successfully',
+                  type: 'success',
+                });
                 dispatch(setSiteFormModified(false));
-                setTimeout(() => {
+                setSnackbarRouting(
                   history.push(`${path}organization/sites`, {
                     from: '/organization/addSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,
-                  });
-                }, 1000);
+                  })
+                );
               },
               (reason: any) => {
-                setSnackbar(true);
-                setSnackBarMsg('addSiteFailure');
-                setSnackBarType('failure');
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
               }
             );
         } else {
@@ -458,22 +455,24 @@ export const SiteForm = () => {
             .unwrap()
             .then(
               (value: any) => {
-                setSnackbar(true);
-                setSnackBarMsg('successMsg');
-                setSnackBarType('success');
+                handleOpenAlert({
+                  content: 'Changes were updated successfully',
+                  type: 'success',
+                });
                 dispatch(setSiteFormModified(false));
-                setTimeout(() => {
+                setSnackbarRouting(
                   history.push(`${path}organization/sites`, {
                     from: '/organization/editSite',
                     orgCode: orgData.orgCode,
                     orgName: orgData.orgName,
-                  });
-                }, 1000);
+                  })
+                );
               },
               (reason: any) => {
-                setSnackbar(true);
-                setSnackBarMsg('errorMsg');
-                setSnackBarType('failure');
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
               }
             );
         } else {
@@ -495,15 +494,22 @@ export const SiteForm = () => {
           location={location.state?.from === 'dashboard' ? 'dashboard' : 'site'}
         />
       }
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={() => {
+          handleCloseAlert();
+          snackbarRouting();
+        }}
+        duration={1200}
+      />
       <Grid item xs={12}>
         <TitleAndCloseIcon
           breadCrumbOrigin={
             isAddSite
-              ? `DASHBOARD / ${location?.state?.orgName.toUpperCase()} ORG / EDIT
-              ORG `
-              : `DASHBOARD / ${location?.state?.orgName?.toUpperCase()} ORG / EDIT
-              ORG / EDIT SITES `
+              ? `Dashboard / ${location?.state?.orgName} Organization`
+              : `Dashboard / ${location?.state?.orgName} Organization / Edit Sites `
           }
           breadCrumbTitle={isAddSite ? 'Add New Site' : site?.siteName}
           onClickButton={closeSiteForm}
@@ -533,6 +539,7 @@ export const SiteForm = () => {
                     label="Site Name"
                     id="siteName"
                     value={site['siteName']}
+                    disabled={allFieldsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteName}
                     formWidth="90%"
                     fieldName="siteName"
@@ -610,6 +617,7 @@ export const SiteForm = () => {
                     label="Site Code"
                     id="siteCode"
                     value={site['siteCode']}
+                    disabled={allFieldsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteCode}
                     formWidth="90%"
                     fieldName="siteCode"
@@ -623,6 +631,7 @@ export const SiteForm = () => {
                     label="Site Indentifier"
                     id="siteIdentifier"
                     value={site['siteIdentifier']}
+                    disabled={allFieldsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteIndentifier}
                     formWidth="90%"
                     fieldName="siteIdentifier"
@@ -715,9 +724,8 @@ export const SiteForm = () => {
               {isEditSite && (
                 <Box>
                   <ActivateDeactivateSite
-                    setSnackbar={handleSnackbar}
-                    setSnackBarType={handleSnackbarType}
-                    setSnackBarMsg={handleSnackbarMsg}
+                    openAlert={handleOpenAlert}
+                    closeAlert={handleCloseAlert}
                     orgData={orgData}
                     disableEditApp={disableEditApp}
                   />

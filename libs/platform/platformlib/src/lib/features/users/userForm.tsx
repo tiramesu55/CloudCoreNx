@@ -8,10 +8,8 @@ import { useTheme } from '@mui/material';
 import {
   InputTextWithLabel,
   SelectSites,
-  UnsavedData,
   PhoneInput as CustomPhoneNumber,
 } from '../../components';
-import { Card } from '@cloudcore/ui-shared';
 import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import flags from 'react-phone-number-input/flags';
 import { DeactivateUser as ActivateOrDeactiveUser } from './ActivateOrDeactivateUser';
@@ -25,15 +23,13 @@ import {
   setUserFormModified,
   getUserFormModified,
   selectOrganizationByDomain,
+  selectOrgByOrgCode,
 } from '@cloudcore/redux-store';
 import { withStyles } from '@mui/styles';
-import {
-  ConfigCtx,
-  IConfig,
-  useClaimsAndSignout,
-} from '@cloudcore/okta-and-config';
-import { Snackbar } from '@cloudcore/ui-shared';
+import { ConfigCtx, IConfig, useOktaAuth } from '@cloudcore/okta-and-config';
+import { Snackbar, Card, UnsavedData } from '@cloudcore/ui-shared';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -46,15 +42,19 @@ const CustomCss = withStyles(() => ({
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
-export const UserForm = () => {
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+export const UserForm = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { oktaAuth } = useOktaAuth();
+  const token = oktaAuth?.getAccessToken();
 
   const theme = useTheme();
   const dispatch = useAppDispatch();
@@ -87,15 +87,15 @@ export const UserForm = () => {
   const org = useAppSelector((state) =>
     selectOrganizationByDomain(state, selectedId)
   );
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
   const [firstNameInvalid, setFirstNameInvalid] = useState(false);
   const [lastNameInvalid, setLastNameInvalid] = useState(false);
   const [phoneNumberInValid, setPhoneNumberInValid] = useState(false);
   const [modifiedData, setModifiedData] = useState(false);
   const userFormModified = useAppSelector(getUserFormModified);
+  const getOrganization = useAppSelector((state: any) =>
+    selectOrgByOrgCode(state, orgCode)
+  );
 
   const onFirstNameChanged = (value: string) => {
     value ? setFirstNameInvalid(false) : setFirstNameInvalid(true);
@@ -135,7 +135,7 @@ export const UserForm = () => {
         task: 'navigateToAdd',
       });
     }
-  }, [location.state, location.pathname, history]);
+  }, [location.state, location.pathname, history, path]);
 
   const onLastNameFocused = (ele: HTMLInputElement) => {
     ele.value ? setLastNameInvalid(false) : setLastNameInvalid(true);
@@ -187,17 +187,11 @@ export const UserForm = () => {
     setDialogBoxOpen(open);
   };
 
-  const handleSnackbar = (value: boolean) => {
-    setSnackbar(value);
-  };
-
-  const handleSnackbarType = (value: string) => {
-    setSnackBarType(value);
-  };
-
-  const handleSnackbarMsg = (value: string) => {
-    setSnackBarMsg(value);
-  };
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
 
   const updateUserClick = () => {
     try {
@@ -226,21 +220,23 @@ export const UserForm = () => {
           .unwrap()
           .then(
             (value) => {
-              setSnackbar(true);
-              setSnackBarMsg('successMsg');
-              setSnackBarType('success');
-              setTimeout(() => {
+              handleOpenAlert({
+                content: 'Changes were updated successfully',
+                type: 'success',
+              });
+              setSnackbarRouting(
                 history.push(`${path}user`, {
                   currentPage: location.state?.currentPage,
                   rowsPerPage: location.state?.rowsPerPage,
-                });
-              }, 1000);
+                })
+              );
               dispatch(setUserFormModified(false));
             },
             (reason) => {
-              setSnackbar(true);
-              setSnackBarMsg('errorMsg');
-              setSnackBarType('failure');
+              handleOpenAlert({
+                content: reason.message,
+                type: 'error',
+              });
             }
           );
       } else {
@@ -296,17 +292,17 @@ export const UserForm = () => {
           .unwrap()
           .then(
             (value) => {
-              setSnackbar(true);
-              setSnackBarMsg('addUserSuccess');
-              setSnackBarType('success');
-              setTimeout(() => {
-                history.push(`${path}user/`);
-              }, 1000);
+              handleOpenAlert({
+                content: 'User added successfully',
+                type: 'success',
+              });
+              setSnackbarRouting(history.push(`${path}user/`));
             },
             (reason) => {
-              setSnackbar(true);
-              setSnackBarMsg('addUserFailure');
-              setSnackBarType('failure');
+              handleOpenAlert({
+                content: reason.message,
+                type: 'error',
+              });
             }
           );
       } else {
@@ -381,7 +377,16 @@ export const UserForm = () => {
   return (
     <Grid container spacing={1}>
       <CustomCss />
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={() => {
+          handleCloseAlert();
+          snackbarRouting();
+        }}
+        duration={3000}
+      />
       {
         <UnsavedData
           open={dialogBoxOpen}
@@ -392,7 +397,7 @@ export const UserForm = () => {
       <Grid item xs={12}>
         <TitleAndCloseIcon
           onClickButton={closeEditUser}
-          breadCrumbOrigin={isAddUser ? 'Add New User' : 'ALL USERS'}
+          breadCrumbOrigin={isAddUser ? 'Add New User' : 'All Users'}
           breadCrumbTitle={isAddUser ? '' : headerTitle}
         />
       </Grid>
@@ -410,7 +415,7 @@ export const UserForm = () => {
                     fontWeight="bold"
                     color={theme.palette.blackFont.main}
                   >
-                    {orgCode} Organization
+                    {getOrganization && getOrganization.name} Organization
                   </Typography>
                 </Box>
               </Grid>
@@ -531,7 +536,13 @@ export const UserForm = () => {
                   />
                 </Grid>
               </Grid>
-              <SelectSites orgCode={orgCode} modifiedData={setModifiedData} />
+              <SelectSites
+                orgCode={orgCode}
+                modifiedData={setModifiedData}
+                handleOpenAlert={handleOpenAlert}
+                handleCloseAlert={handleCloseAlert}
+                alertData={alertData}
+              />
             </Grid>
           </Card>
           <Grid item xs={12} my={2}>
@@ -547,9 +558,8 @@ export const UserForm = () => {
                 <ActivateOrDeactiveUser
                   user={updatedUserInfo}
                   setActiveDate={onInActiveDateChanged}
-                  setSnackbar={handleSnackbar}
-                  setSnackBarType={handleSnackbarType}
-                  setSnackBarMsg={handleSnackbarMsg}
+                  openAlert={handleOpenAlert}
+                  closeAlert={handleCloseAlert}
                 />
               ) : (
                 <></>

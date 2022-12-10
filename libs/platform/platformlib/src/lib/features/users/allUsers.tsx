@@ -10,8 +10,7 @@ import MUIDataTable, {
 } from 'mui-datatables';
 import { withStyles } from '@mui/styles';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Snackbar } from '@cloudcore/ui-shared';
-import { Card } from '@cloudcore/ui-shared';
+import { Card, Snackbar } from '@cloudcore/ui-shared';
 import Tooltip from '@mui/material/Tooltip';
 import {
   selectOrganizations,
@@ -23,13 +22,18 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
-interface Props {}
-
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
 const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
   return (
     <Chip
@@ -46,14 +50,12 @@ const CustomFilterList = (props: any) => {
 };
 
 export const ListUsers = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -76,9 +78,6 @@ export const ListUsers = (props: Props) => {
   });
   const history = useHistory();
   const location: any = useLocation();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [currentPage, setCurrentPage] = useState(
     location.state?.currentPage ? location.state?.currentPage : 0
   );
@@ -101,9 +100,10 @@ export const ListUsers = (props: Props) => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -364,7 +364,13 @@ export const ListUsers = (props: Props) => {
   return (
     <Grid container>
       <>
-        {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+        <Snackbar
+          open={alertData.openAlert}
+          type={alertData.type}
+          content={alertData.content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <CustomTableCss />
         <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
           <Card sx={{ border: 'none' }}>

@@ -13,7 +13,6 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import {
   InputTextWithLabel,
   PhoneInput as CustomPhoneNumber,
-  UnsavedData,
 } from '../../components';
 import {
   InfoCard,
@@ -22,6 +21,7 @@ import {
   sites_img,
   users_img,
   location_img,
+  UnsavedData,
 } from '@cloudcore/ui-shared';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
@@ -33,7 +33,7 @@ import {
   updateField,
   selectedOrganization,
   selectedId,
-  updateAdress,
+  updateAddress,
   Organization,
   resetOrganization,
   setOrganization,
@@ -58,9 +58,11 @@ import { OrgDomainModal } from './orgDomainModal';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
@@ -72,18 +74,23 @@ const CustomCss = withStyles(() => ({
   },
 }))(() => null);
 
-export const OrganizationForm = () => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+
+export const OrganizationForm = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
+  const config: IConfig = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
+
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const { platformBaseUrl } = config; // at this point config is not null (see app)
 
   const selected = useAppSelector(selectedId);
   const dispatch = useAppDispatch();
@@ -103,9 +110,6 @@ export const OrganizationForm = () => {
   const selectOrgByID = useSelector((state: any) =>
     organizationSelector.selectById(state, selected)
   );
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const selectedOrgStats = useAppSelector(organizationStats);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const orgFormModified = useAppSelector(getOrgFormModified);
@@ -113,7 +117,9 @@ export const OrganizationForm = () => {
   const usedDomains = useAppSelector(usersDomain);
   const [orgDomainDialogOpen, setOrgDomainDialogOpen] = useState(false);
   const [orgDomainList, setOrgDomainList] = useState<string[]>([]);
-
+  const addOrgButtonEnabled = (permissions.get('admin') ?? []).includes(
+    'global'
+  );
   const isAddOrganization = location.state?.from === 'addOrganization';
   const isEditOrganization =
     location.state?.from === 'editOrganization' ||
@@ -161,9 +167,10 @@ export const OrganizationForm = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
       setOrgDomain('');
@@ -183,9 +190,10 @@ export const OrganizationForm = () => {
           //Do Nothing
         },
         (reason: any) => {
-          setSnackbar(true);
-          setSnackBarMsg('fetchError');
-          setSnackBarType('failure');
+          handleOpenAlert({
+            content: reason.message,
+            type: 'error',
+          });
         }
       );
   }, []);
@@ -210,9 +218,10 @@ export const OrganizationForm = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
       dispatch(
@@ -227,9 +236,10 @@ export const OrganizationForm = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -402,21 +412,9 @@ export const OrganizationForm = () => {
       : setEmailInvalid(true);
   };
 
-  const handleSnackbar = (value: boolean) => {
-    setSnackbar(value);
-  };
-
-  const handleSnackbarType = (value: string) => {
-    setSnackBarType(value);
-  };
-
-  const handleSnackbarMsg = (value: string) => {
-    setSnackBarMsg(value);
-  };
-
   const handleChangeStreet = (key: string, val: any) => {
     val ? setStreetInvalid(false) : setStreetInvalid(true);
-    dispatch(updateAdress({ key: key, value: val, id: selected }));
+    dispatch(updateAddress({ key: key, value: val, id: selected }));
     dispatch(setOrgFormModified(true));
   };
 
@@ -426,7 +424,7 @@ export const OrganizationForm = () => {
 
   const handleChangeCity = (key: string, val: any) => {
     val ? setCityInvalid(false) : setCityInvalid(true);
-    dispatch(updateAdress({ key: key, value: val, id: selected }));
+    dispatch(updateAddress({ key: key, value: val, id: selected }));
     dispatch(setOrgFormModified(true));
   };
 
@@ -436,7 +434,7 @@ export const OrganizationForm = () => {
 
   const handleChangeState = (key: string, val: any) => {
     val ? setStateInvalid(false) : setStateInvalid(true);
-    dispatch(updateAdress({ key: key, value: val, id: selected }));
+    dispatch(updateAddress({ key: key, value: val, id: selected }));
     dispatch(setOrgFormModified(true));
   };
 
@@ -446,13 +444,19 @@ export const OrganizationForm = () => {
 
   const handleChangeZip = (key: string, val: any) => {
     val ? setZipInvalid(false) : setZipInvalid(true);
-    dispatch(updateAdress({ key: key, value: val, id: selected }));
+    dispatch(updateAddress({ key: key, value: val, id: selected }));
     dispatch(setOrgFormModified(true));
   };
 
   const onZipFocused = (e: any) => {
     e.value ? setZipInvalid(false) : setZipInvalid(true);
   };
+
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
 
   const handleSubmit = (event: any) => {
     if (isAddOrganization) {
@@ -508,17 +512,17 @@ export const OrganizationForm = () => {
             .unwrap()
             .then(
               () => {
-                setSnackbar(true);
-                setSnackBarMsg('addOrganizationSuccess');
-                setSnackBarType('success');
-                setTimeout(() => {
-                  history.push(path);
-                }, 1000);
+                handleOpenAlert({
+                  content: 'Organization added successfully',
+                  type: 'success',
+                });
+                setSnackbarRouting(history.push(path));
               },
-              () => {
-                setSnackbar(true);
-                setSnackBarMsg('addOrganizationFailure');
-                setSnackBarType('failure');
+              (reason: any) => {
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
               }
             );
         } else {
@@ -593,7 +597,7 @@ export const OrganizationForm = () => {
       try {
         const updatedOrganization: Organization = {
           name: organization.name,
-          id: organization.orgCode,
+          id: organization.id,
           description: organization.description,
           orgCode: organization.orgCode,
           address: {
@@ -644,17 +648,17 @@ export const OrganizationForm = () => {
             .unwrap()
             .then(
               () => {
-                setSnackbar(true);
-                setSnackBarMsg('successMsg');
-                setSnackBarType('success');
-                setTimeout(() => {
-                  history.push(path);
-                }, 1000);
+                handleOpenAlert({
+                  content: 'Changes were updated successfully',
+                  type: 'success',
+                });
+                setSnackbarRouting(history.push(path));
               },
-              () => {
-                setSnackbar(true);
-                setSnackBarMsg('errorMsg');
-                setSnackBarType('failure');
+              (reason: any) => {
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
               }
             );
         } else {
@@ -748,7 +752,16 @@ export const OrganizationForm = () => {
           location="organization"
         />
       }
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={() => {
+          handleCloseAlert();
+          snackbarRouting();
+        }}
+        duration={3000}
+      />
       {
         <OrgDomainModal
           open={orgDomainDialogOpen}
@@ -766,13 +779,15 @@ export const OrganizationForm = () => {
             onClickButton={closeOrganizationForm}
             breadCrumbOrigin={
               isAddOrganization
-                ? 'ADD NEW ORGANIZATIONS'
-                : `Dashboard / ${organization['name']?.toUpperCase()}`
+                ? 'Dashboard'
+                : `Dashboard / ${organization['name']} Organization`
             }
-            breadCrumbTitle={isAddOrganization ? '' : 'EDIT ORG'}
-            addBtn={!isAddOrganization}
+            breadCrumbTitle={
+              isAddOrganization ? 'Add New Organization' : 'Edit Organization'
+            }
+            addBtn={!isAddOrganization && addOrgButtonEnabled}
             onClickAddBtn={addNewSite}
-            addBtnText="Add New Site"
+            addBtnText="ADD NEW SITE"
           />
         </Box>
       </Grid>
@@ -1118,9 +1133,9 @@ export const OrganizationForm = () => {
             <Box>
               <ActivateDeactivateOrg
                 orgDomain={orgDomain}
-                setSnackbar={handleSnackbar}
-                setSnackBarType={handleSnackbarType}
-                setSnackBarMsg={handleSnackbarMsg}
+                openAlert={handleOpenAlert}
+                closeAlert={handleCloseAlert}
+                orgData={orgData}
               />
             </Box>
           )}

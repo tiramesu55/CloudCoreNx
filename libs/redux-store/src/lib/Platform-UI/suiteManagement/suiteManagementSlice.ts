@@ -2,20 +2,18 @@ import {
     createAsyncThunk,
     createSlice,
     PayloadAction,
-    createEntityAdapter,
   } from "@reduxjs/toolkit";
   import { RootState } from "../../store-platform";
-  import axios from "axios";
   
   import {
     getWorkspaceIdByDomain,
     getSuitesByDomain,
-    getReports,
+    addSuite,
     deleteSuite,
     updateSuite,
     updateWorkSpaceIdByDomain,
     getAvailableReports,
-  } from "./customReportsAPI";
+  } from "./suiteManagementAPI";
   
   export interface Suite {
     id: string;
@@ -125,6 +123,22 @@ const initialState: SuiteState = {
       type: "getAll",
     };
   });
+
+  export const addSuiteAsync = createAsyncThunk<
+  SuiteAction,
+  any,
+  { state: RootState }
+>("suite/addSuite", async ({ url, token, suite } : {url: string, token: string, suite: Suite}, { getState }) => {
+  //if not authorized - no token
+  if (!token) return { data: null, type: "addOne" };
+  const response = await addSuite(url, suite, token);
+  // The value we return becomes the `fulfilled` action payload
+  return {
+    data: response.data,
+    type: "addOne",
+  };
+});
+
   
   export const updateSuiteAsync = createAsyncThunk<
     SuiteAction,
@@ -175,11 +189,11 @@ const initialState: SuiteState = {
     GetAvailableReportsAction,
     any,
     { state: RootState }
-  >("availableReports/getAvailableReportsByDomain", async ({ url, token } : {url: string, token: string},{ getState }) => {
+  >("availableReports/getAvailableReportsByDomain", async ({ url, token, workSpaceId } : {url: string, token: string, workSpaceId: string},{ getState }) => {
   
     //if not authorized - no token
     if (!token) return { data: {}, type: "getAvailableReports" };
-    const response = await getAvailableReports(url, token);
+    const response = await getAvailableReports(url, workSpaceId, token);
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,
@@ -187,8 +201,8 @@ const initialState: SuiteState = {
     };
   })
   
-  export const customReportSlice = createSlice({
-    name: "customReports",
+  export const suiteManagementSlice = createSlice({
+    name: "suiteManagement",
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
@@ -197,6 +211,9 @@ const initialState: SuiteState = {
       },
       setResetForm: (state, action: PayloadAction<boolean>) => {
         state.resetForm = action.payload;
+      },
+      resetAvailableReports: (state) => {
+        state.availableReports.Result = initialState.availableReports.Result;
       },
     },
     // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -248,6 +265,15 @@ const initialState: SuiteState = {
         .addCase(updateWorkSpaceIdByDomainAsync.rejected, (state) => {
           state.status = "failed";
         })
+        .addCase(addSuiteAsync.pending, (state) => {
+          state.status = "loading";
+        })
+        .addCase(addSuiteAsync.fulfilled, (state) => {
+          state.status = "idle";
+        })
+        .addCase(addSuiteAsync.rejected, (state) => {
+          state.status = "failed";
+        })
         .addCase(updateSuiteAsync.pending, (state) => {
           state.status = "loading";
         })
@@ -270,55 +296,52 @@ const initialState: SuiteState = {
     },
   });
   
-  export const { setSuiteFormModified, setResetForm } = customReportSlice.actions;
-  
-  export const permissionsList = (state: RootState) =>
-    state.customReports.suites.map(function (suite) {
-      return suite["permission"];
-    });
+  export const { setSuiteFormModified, setResetForm, resetAvailableReports } = suiteManagementSlice.actions;
   
   export const getWorkspaceId = (state: RootState, domain: string) => {
-    const workspace = state.customReports.workspaces.find((ws) => {
+    const workspace = state.suiteManagement.workspaces.find((ws) => {
       return ws?.domain === domain;
     });
     return workspace?.workspaceId;
   }
   export const selectedSuite = (state: RootState, permission: string) => {
-    const selectedSuite = state.customReports.suites.find((suite) => {
+    const selectedSuite = state.suiteManagement.suites.find((suite) => {
       return suite?.permission === permission;
     });
-    return selectedSuite
+
+    return selectedSuite;
   };
   
   export const getSuiteByPermission = (state: RootState, permission: string) => {
-    const suite = state.customReports.suites.find((suite) => {
+    const suite = state.suiteManagement.suites.find((suite) => {
       return suite?.permission === permission;
     });
     return suite;
   };
   
   export const selectedReports = (state: RootState, permission: string) => {
-    const selectedReports = state.customReports.suites.find((suite) => {
+    const selectedReports = state.suiteManagement.suites.find((suite) => {
       return suite?.permission === permission;
     });
-  
-    return selectedReports?.reports;
+    return  selectedReports ? selectedReports.reports : [];
   };
   
   export const availableReports = (state : RootState) => 
-      state.customReports.availableReports.Result.filter(availRep => {
-        return !state.customReports.suites.map(suite => {
+  state.suiteManagement.availableReports.Result &&  state.suiteManagement.suites && state.suiteManagement.availableReports.Result.filter(availRep => {
+        return !state.suiteManagement.suites.map(suite => {
           return suite.reports
         }).flat().some((assignedDash :any) => {
-          return availRep.ReportId === assignedDash.reportId;
+
+          return assignedDash ? (availRep.ReportId === assignedDash.reportId) : false;
+          
         });
       })
   
   export const getSuiteFormModified = (state: RootState) =>
-    state.customReports.suiteFormModified;
+    state.suiteManagement.suiteFormModified;
   
   export const resetForm = (state: RootState) =>
-    state.customReports.resetForm;
+    state.suiteManagement.resetForm;
   
-  export const customReportsReducer =  customReportSlice.reducer;
+  export const suiteManagementReducer =  suiteManagementSlice.reducer;
   

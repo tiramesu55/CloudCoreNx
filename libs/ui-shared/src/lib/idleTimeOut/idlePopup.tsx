@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Dialog,
   DialogActions,
@@ -12,27 +13,56 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import timerIcon from '../assets/timer-icon.svg';
 import { CountDownTimer } from './countDown-timer';
+import { useIdleTimer } from 'react-idle-timer';
+import { useState } from 'react';
 
 interface IdlePopUpProps {
-  open: boolean;
-  onActive: () => void;
   logOut?: () => void;
   minutes?: number;
   seconds: number;
   timer: { minutes: number; seconds: number };
+  sendResetData?: any;
 }
 
 export const IdlePopUp = ({
-  open,
-  onActive,
   logOut,
   minutes,
   seconds,
   timer,
+  sendResetData,
 }: IdlePopUpProps) => {
+  const [activityModal, setActivityModal] = useState<boolean>(false);
+  // Do some idle action like log out your user
+  const onIdle = () => {
+    logOut?.();
+  };
+
+  // Close Modal Prompt and reset the idleTimer
+  const onActive = () => {
+    setActivityModal(false);
+    reset();
+  };
+
+  // opens modal prompt on timeout
+  const onPrompt = () => {
+    setActivityModal(true);
+  };
+
+  const { reset } = useIdleTimer({
+    timeout: 1000 * 1500,
+    onIdle,
+    onActive,
+    debounce: 500,
+    onPrompt,
+    promptTimeout: 1000 * 299,
+  });
+  if (sendResetData) {
+    sendResetData.current = reset;
+  }
+
   return (
     <Dialog
-      open={open}
+      open={activityModal}
       fullWidth={true}
       maxWidth="md"
       transitionDuration={0}

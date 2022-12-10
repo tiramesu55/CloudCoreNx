@@ -1,10 +1,15 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
 import { Grid, useTheme } from '@mui/material';
-import { InfoCard, Card, List, Snackbar } from '@cloudcore/ui-shared';
-import sites_img from '../../../../../ui-shared/src/lib/assets/sites.svg';
-import users_img from '../../../../../ui-shared/src/lib/assets/users.svg';
-import organizations_img from '../../../../../ui-shared/src/lib/assets/organizations.svg';
+import {
+  InfoCard,
+  Card,
+  List,
+  Snackbar,
+  sites_img,
+  users_img,
+  organizations_img,
+} from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import { OrganizationDataProfile } from '../features/organizations/organizationsProfile/organizationDataProfile';
 import {
@@ -20,39 +25,42 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import TitleAndCloseIcon from '../components/TitleAndClose/TitleAndClose';
 import DisplayMiantenance from 'libs/ui-shared/src/lib/DisplayMaintenance/displayMaintenance';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 const { useAppDispatch, useAppSelector } = platformStore;
 
-export const Dashboard = () => {
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+
+export const Dashboard = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const config: IConfig = useContext(ConfigCtx)!;
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const history = useHistory();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [displayMaintenance, setDisplayMaintenance] = useState(false);
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);
   const orgsList = useAppSelector(selectOrganizations);
   const idSelected = useAppSelector(selectedId);
-  const newOrgButton =
-    permissions.admin && permissions.admin?.includes('global') ? true : false;
-
+  const addOrgButtonEnabled = (permissions.get('admin') ?? []).includes(
+    'global'
+  );
   const setSelectedId = (id: string) => {
     dispatch(selectedIdOrganization(id));
   };
@@ -71,9 +79,10 @@ export const Dashboard = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
       dispatch(
@@ -88,9 +97,10 @@ export const Dashboard = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -110,7 +120,13 @@ export const Dashboard = () => {
 
   return (
     <Grid>
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={handleCloseAlert}
+        duration={3000}
+      />
       {
         <DisplayMiantenance
           open={displayMaintenance}
@@ -119,34 +135,14 @@ export const Dashboard = () => {
       }
       <Grid item xs={12}>
         <TitleAndCloseIcon
-          breadCrumbOrigin={'DASHBOARD'}
+          breadCrumbOrigin={'Dashboard'}
           breadCrumbTitle={''}
-          addBtn={newOrgButton}
+          addBtn={addOrgButtonEnabled}
           onClickAddBtn={handleClickAddOrg}
           addBtnText="ADD NEW ORG"
         />
-        {/* <img src={excelLogo} alt="excelLogo" style={{ paddingRight: "10px" }} />
-                            <Typography component={"span"}
-                                fontSize={theme.typography.subtitle1.fontSize}
-                                color={theme.palette.primary.main}
-                                style={{ paddingRight: "10px" }}>
-                                Download onboarding template
-                            </Typography>
-                            <InfoTooltip title={
-                                <>
-                                    <Typography fontWeight={"bold"} sx={{ textAlign: "center", paddingBottom: "5px" }}>
-                                        NEXIA Onboarding
-                                    </Typography>
-                                    <Typography fontSize={theme.typography.body2.fontSize} sx={{ textAlign: "center", }}>
-                                        Download Org onboarding sample spreadsheet templet here, Please modify this
-                                        file as per org requirement and upload it to start setup.
-                                    </Typography>
-                                </>
-                            } placement="bottom-end" >
-                                <img src={info} alt="information"/>
-                            </InfoTooltip> */}
       </Grid>
-      <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
+      <Grid item xs={12} sx={{ mx: 3, mb: 3 }}>
         <Grid container spacing={3}>
           <Grid item xs={6} md={4}>
             <InfoCard
@@ -163,7 +159,11 @@ export const Dashboard = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
+      <Grid
+        item
+        xs={12}
+        sx={{ px: theme.spacing(2.5), pb: theme.spacing(2.5) }}
+      >
         <Card
           sx={{
             borderColor: theme.palette.cardBorder.main,

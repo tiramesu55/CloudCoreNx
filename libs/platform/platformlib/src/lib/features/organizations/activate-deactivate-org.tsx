@@ -20,28 +20,30 @@ import { useHistory } from 'react-router-dom';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { warning_img } from '@cloudcore/ui-shared';
+import { IAlert } from '@cloudcore/common-lib';
 
 interface Props {
   orgDomain: string;
-  setSnackbar: (value: boolean) => void;
-  setSnackBarType: (value: string) => void;
-  setSnackBarMsg: (value: string) => void;
+  openAlert: (payload: IAlert) => void;
+  closeAlert: () => void;
+  orgData: {
+    orgCode: string;
+    orgName: string;
+  };
 }
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const ActivateDeactivateOrg = (props: Props) => {
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const config: IConfig = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
 
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -59,12 +61,19 @@ export const ActivateDeactivateOrg = (props: Props) => {
     setOpen(false);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
+
   const handleActivate = () => {
     setOpen(false);
     try {
       const updatedOrganization: Organization = {
         name: organization.name,
-        id: organization.orgCode,
+        id: organization.id,
         description: organization.description,
         orgCode: organization.orgCode,
         address: {
@@ -95,17 +104,17 @@ export const ActivateDeactivateOrg = (props: Props) => {
         .unwrap()
         .then(
           (value) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-            setTimeout(() => {
-              history.push(path);
-            }, 1000);
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(history.push(path));
           },
           (reason) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } catch (err) {
@@ -126,17 +135,17 @@ export const ActivateDeactivateOrg = (props: Props) => {
         .unwrap()
         .then(
           (value) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-            setTimeout(() => {
-              history.push(path);
-            }, 1000);
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(history.push(path));
           },
           (reason) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } catch (err) {

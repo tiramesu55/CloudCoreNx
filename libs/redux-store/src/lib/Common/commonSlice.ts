@@ -31,7 +31,7 @@ export const commonSlice = createSlice({
       state.openAlert = false;
       //  state.applications
       state.content = '';
-      state.type = 'error';
+      // state.type = 'error';
     },
   },
 });

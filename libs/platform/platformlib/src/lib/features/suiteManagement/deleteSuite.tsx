@@ -1,31 +1,29 @@
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import { Box, IconButton, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { Box, IconButton, Typography } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material';
-// import { deleteSuiteAsync, getSuitesAsync } from "./customReportsSlice";
-// import { selectToken } from "../configurations/configurationsSlice";
-import { platformStore } from "@cloudcore/redux-store";
+import { platformStore } from '@cloudcore/redux-store';
 
 interface Props {
   open: boolean;
   handleLeave: (open: boolean) => void;
   suiteName: string;
-  handleDelete : ()=> void;
+  handleDelete: () => void;
 }
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 const DeleteSuite = (props: Props) => {
-    const theme = useTheme();
+  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [suiteName, setSuiteName] = React.useState("");
-//   const token = useAppSelector(selectToken);
+  const [suiteName, setSuiteName] = React.useState('');
+  //   const token = useAppSelector(selectToken);
   const dispatch = useAppDispatch();
 
   const handleClickOpen = () => {
@@ -36,10 +34,9 @@ const DeleteSuite = (props: Props) => {
     props.handleLeave(false);
   };
 
-  React.useEffect(()=>{
-    setSuiteName(props.suiteName)
-  },[props.suiteName])
-
+  React.useEffect(() => {
+    setSuiteName(props.suiteName);
+  }, [props.suiteName]);
 
   return (
     <div>
@@ -47,7 +44,7 @@ const DeleteSuite = (props: Props) => {
         open={props.open}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        maxWidth={"sm"}
+        maxWidth={'sm'}
         fullWidth={true}
       >
         <DialogTitle id="alert-dialog-title">
@@ -55,13 +52,13 @@ const DeleteSuite = (props: Props) => {
             <Typography
               component="span"
               variant="h4"
-              fontWeight={"bold"}
+              fontWeight={'bold'}
               sx={{ color: `${theme.palette.blackFont.main}` }}
             >
               Delete Selected Suite
               <IconButton
                 sx={{
-                  position: "absolute",
+                  position: 'absolute',
                   right: 8,
                   top: 8,
                   color: `${theme.palette.blackFont.main}`,
@@ -77,7 +74,7 @@ const DeleteSuite = (props: Props) => {
           <DialogContentText id="alert-dialog-description">
             <Box
               color={theme.palette.blackFont.main}
-              fontSize={"32px"}
+              fontSize={'32px'}
               my={6}
               fontWeight={400}
             >

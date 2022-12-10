@@ -21,13 +21,14 @@ import {
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
+import { IAlert } from '@cloudcore/common-lib';
 
 interface Props {
-  setSnackbar: (value: boolean) => void;
-  setSnackBarType: (value: string) => void;
-  setSnackBarMsg: (value: string) => void;
+  openAlert: (payload: IAlert) => void;
+  closeAlert: () => void;
   orgData: {
     orgCode: string;
     orgName: string;
@@ -40,10 +41,7 @@ export const ActivateDeactivateSite = (props: Props) => {
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const theme = useTheme();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const [open, setOpen] = useState(false);
@@ -59,6 +57,13 @@ export const ActivateDeactivateSite = (props: Props) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [snackbarRouting, setSnackbarRouting] = useState(() => {
+    return () => {
+      return;
+    };
+  });
 
   const handleActivate = () => {
     setOpen(false);
@@ -99,21 +104,23 @@ export const ActivateDeactivateSite = (props: Props) => {
         .unwrap()
         .then(
           (value: any) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-            setTimeout(() => {
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(
               history.push(`${path}organization/sites`, {
                 from: 'siteForm',
                 orgCode: props.orgData.orgCode,
                 orgName: props.orgData.orgName,
-              });
-            }, 1000);
+              })
+            );
           },
           (reason: any) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } catch (err) {
@@ -134,21 +141,23 @@ export const ActivateDeactivateSite = (props: Props) => {
         .unwrap()
         .then(
           (value: any) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('successMsg');
-            props.setSnackBarType('success');
-            setTimeout(() => {
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
+            setSnackbarRouting(
               history.push(`${path}organization/sites`, {
                 from: 'siteForm',
                 orgCode: props.orgData.orgCode,
                 orgName: props.orgData.orgName,
-              });
-            }, 1000);
+              })
+            );
           },
           (reason: any) => {
-            props.setSnackbar(true);
-            props.setSnackBarMsg('errorMsg');
-            props.setSnackBarType('failure');
+            props.openAlert({
+              content: 'Changes were updated successfully',
+              type: 'success',
+            });
           }
         );
     } catch (err) {

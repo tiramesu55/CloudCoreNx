@@ -7,6 +7,7 @@ import {
   selectedId,
   selectOrganizations,
 } from '@cloudcore/redux-store';
+import Tooltip from '@mui/material/Tooltip';
 
 const { useAppSelector } = platformStore;
 export const OrgContactDetails = () => {
@@ -17,8 +18,9 @@ export const OrgContactDetails = () => {
   const organization = useSelector((state: any) =>
     organizationSelector.selectById(state, testId)
   );
+  const orgDomains = organization?.orgDomains;
   return (
-    <Box sx={{ minHeight: '400px' }}>
+    <Box>
       <Grid container>
         <Grid item xs={12}>
           <Typography
@@ -37,7 +39,57 @@ export const OrgContactDetails = () => {
         <Grid item xs={4}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
+              fontSize: theme.typography.subtitle1.fontSize,
+              fontWeight: 'bold',
+            }}
+          >
+            Org Domains
+          </Typography>
+          <Box sx={{ display: 'inline-flex' }}>
+            <Typography
+              sx={{
+                fontSize: theme.typography.subtitle1.fontSize,
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                maxWidth: '200px',
+              }}
+            >
+              {<Box component={'span'}>{orgDomains && orgDomains[0]}</Box>}
+            </Typography>
+
+            <Typography>
+              {orgDomains && orgDomains.length > 1 ? (
+                <Tooltip
+                  sx={{ cursor: 'default' }}
+                  title={
+                    <Box>
+                      {orgDomains.slice(1).map((domain) => (
+                        <Box
+                          sx={{
+                            fontSize: theme.typography.subtitle1.fontSize,
+                            p: 1,
+                          }}
+                        >
+                          {domain}
+                        </Box>
+                      ))}
+                    </Box>
+                  }
+                >
+                  <Box pl={1} fontWeight={'bold'}>{`+${
+                    organization?.orgDomains?.length - 1
+                  }`}</Box>
+                </Tooltip>
+              ) : (
+                <Box></Box>
+              )}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={4}>
+          <Typography
+            sx={{
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}
@@ -52,10 +104,9 @@ export const OrgContactDetails = () => {
             {`${organization?.address?.street}`}
           </Typography>
         </Grid>
-        <Grid item xs={2.5}>
+        <Grid item xs={4}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}
@@ -70,10 +121,9 @@ export const OrgContactDetails = () => {
             {organization?.address?.city}
           </Typography>
         </Grid>
-        <Grid item xs={2.5}>
+        <Grid item xs={4} sx={{ pt: 4 }}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}
@@ -88,10 +138,9 @@ export const OrgContactDetails = () => {
             {`${organization?.address?.state}`}
           </Typography>
         </Grid>
-        <Grid item xs={2.5}>
+        <Grid item xs={4} sx={{ pt: 4 }}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}
@@ -106,10 +155,9 @@ export const OrgContactDetails = () => {
             {organization?.address?.zip}
           </Typography>
         </Grid>
-        <Grid item xs={4} sx={{ paddingTop: theme.spacing(4) }}>
+        <Grid item xs={4} sx={{ pt: 4 }}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}
@@ -124,10 +172,9 @@ export const OrgContactDetails = () => {
             {organization?.officePhone ? organization?.officePhone : '-'}
           </Typography>
         </Grid>
-        <Grid item xs={4} sx={{ paddingTop: theme.spacing(4) }}>
+        <Grid item xs={4} sx={{ pt: 4, mb: 4 }}>
           <Typography
             sx={{
-              paddingBottom: theme.spacing(1.5),
               fontSize: theme.typography.subtitle1.fontSize,
               fontWeight: 'bold',
             }}

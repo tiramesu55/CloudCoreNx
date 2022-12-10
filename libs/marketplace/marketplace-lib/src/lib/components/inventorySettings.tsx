@@ -1,32 +1,38 @@
 //import styles from './component1.module.css';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Grid, useTheme } from '@mui/material';
-
-import { getConfiguration, marketplaceStore, selectConfiguration } from '@cloudcore/redux-store';
+import {
+  getConfiguration,
+  marketplaceStore,
+  selectConfiguration,
+} from '@cloudcore/redux-store';
 import { Snackbar } from '@cloudcore/ui-shared';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 import {
   ConfigCtx,
   IConfig,
-  useClaimsAndSignout
+  useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 /* eslint-disable-next-line */
-export interface Component1Props {}
 const { useAppDispatch, useAppSelector } = marketplaceStore;
 
-function InventorySettings(props: Component1Props) {
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+
+function InventorySettings(props: Props) {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const config: IConfig = useContext(ConfigCtx)!;
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
-  const theme = useTheme();
+
   const dispatch = useAppDispatch();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const inventoryConfig = useAppSelector(selectConfiguration);
+  const okt = useClaimsAndSignout();
+
   console.log(inventoryConfig);
   useEffect(() => {
+    const token = okt?.token;
     if (config.marketBaseUrl) {
       dispatch(
         getConfiguration({
@@ -40,27 +46,34 @@ function InventorySettings(props: Component1Props) {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
-  }, [dispatch, config, token]);
+  }, [config.marketBaseUrl, dispatch, okt?.token]);
   return (
     <Grid container spacing={1} marginTop={4} marginLeft={10}>
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={handleCloseAlert}
+        duration={3000}
+      />
       <Grid item xs={4}>
-      Borrowing:  {inventoryConfig.borrowing}
+        Borrowing: {inventoryConfig.borrowing}
       </Grid>
       <Grid item xs={4}>
-      Inventory Capacity: {inventoryConfig.capacity}
+        Inventory Capacity: {inventoryConfig.capacity}
       </Grid>
       <Grid item xs={4}>
-      Partner Orders Accepted: {inventoryConfig.partnerOrders? 'Yes': 'No' }
+        Partner Orders Accepted: {inventoryConfig.partnerOrders ? 'Yes' : 'No'}
       </Grid>
     </Grid>
   );
 }
 
-export default InventorySettings
+export default InventorySettings;

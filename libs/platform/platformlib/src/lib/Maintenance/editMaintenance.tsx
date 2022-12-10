@@ -11,7 +11,7 @@ import { DateAndTimeInput } from '../components/date-and-time-input/dateAndTimeI
 import moment from 'moment-timezone';
 import { parseISO } from 'date-fns';
 import { createMaintenance, getApplications, platformStore } from '@cloudcore/redux-store';
-import { ConfigCtx, IConfig, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+import { ConfigCtx,  IConfig,  useOktaAuth } from '@cloudcore/okta-and-config';
 import { CustomMultiSelectBox } from '../components/custom-multi-select-box/custom-multi-select-box'
 export interface App {
     appCode: string;
@@ -27,7 +27,7 @@ interface Props {
 const { useAppDispatch } = platformStore;
 
 const EditMaintenanceMode = (props: Props) => {
-    const [open, setOpen] = useState(props.open);
+   // const [open, setOpen] = useState(props.open);
     const [maintenanceStartDate, setMaintenanceStartDate] = useState(new Date());
     const [maintenanceEndDate, setMaintenanceEndDate] = useState(new Date());
     const [reason, setReason] = useState("");
@@ -38,12 +38,10 @@ const EditMaintenanceMode = (props: Props) => {
     const [appCode, setAppCode] = useState<string[]>([]);
     const [inputList, setInputList] = useState<App[]>([]);
     const [invalidAppCode, setInvalidAppCode] = useState(false);
-    const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
-    const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-    const { token } = useClaimsAndSignout(
-        config.logoutSSO,
-        config.postLogoutRedirectUri
-    );
+    //const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
+    const { platformBaseUrl } = useContext(ConfigCtx) as IConfig // at this point config is not null (see app)
+    const {oktaAuth} = useOktaAuth();
+  const  token  =    oktaAuth?.getAccessToken();
     const dispatch = useAppDispatch();
     const theme = useTheme();
 

@@ -17,20 +17,17 @@ import { useHistory } from 'react-router-dom';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { useContext, useEffect, useMemo } from 'react';
-import {} from '@cloudcore/ui-shared';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const OrganizationDataProfile = () => {
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const config: IConfig = useContext(ConfigCtx) as IConfig;
+  const { platformBaseUrl } = config;
+  const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
@@ -43,6 +40,9 @@ export const OrganizationDataProfile = () => {
   const id = selectId === '' ? organizations[0]?.id : selectId;
   const organization = useSelector((state: any) =>
     organizationSelector.selectById(state, id)
+  );
+  const addSiteButtonEnabled = (permissions.get('admin') ?? []).includes(
+    'global'
   );
   const history = useHistory();
   const handleEditOrgClick = () => {
@@ -80,7 +80,7 @@ export const OrganizationDataProfile = () => {
         })
       );
     }
-  }, [dispatch, selectId]);
+  }, [dispatch, organization, platformBaseUrl, selectId, token]);
 
   return (
     <Grid
@@ -153,24 +153,26 @@ export const OrganizationDataProfile = () => {
                 justifyContent: 'end',
               }}
             >
-              <Button
-                variant="outlined"
-                size="large"
-                color="primary"
-                aria-haspopup="true"
-                aria-controls="confirmation"
-                aria-label="confirmation"
-                onClick={handleAddSiteClick}
-                sx={{
-                  fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: 'bold',
-                  paddingX: theme.spacing(6),
-                  paddingY: theme.spacing(1.1),
-                  marginRight: theme.spacing(2),
-                }}
-              >
-                ADD SITE
-              </Button>
+              {addSiteButtonEnabled && (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  color="primary"
+                  aria-haspopup="true"
+                  aria-controls="confirmation"
+                  aria-label="confirmation"
+                  onClick={handleAddSiteClick}
+                  sx={{
+                    fontSize: theme.typography.subtitle1.fontSize,
+                    fontWeight: 'bold',
+                    paddingX: theme.spacing(6),
+                    paddingY: theme.spacing(1.1),
+                    marginRight: theme.spacing(2),
+                  }}
+                >
+                  ADD SITE
+                </Button>
+              )}
               <Button
                 variant="outlined"
                 size="large"

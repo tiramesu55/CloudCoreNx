@@ -6,7 +6,7 @@ import {sitesReducer} from './Platform-UI/sites/siteSlice';
 import {dashboardReduser} from './Platform-UI/dashboard/dashboardSlice';
 import { organizationsReducer } from './Platform-UI/organizations/organizationsSlice';
 import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
-import { customReportsReducer } from "./Platform-UI/custom-reports/customReportsSlice";
+import { suiteManagementReducer } from "./Platform-UI/suiteManagement/suiteManagementSlice";
 import { configReducer } from "./marketplace/configuration/configurationSlice";
 import { commonReducer } from "./Common/commonSlice";
 
@@ -19,7 +19,7 @@ export const store = configureStore({
       sites: sitesReducer,
       dashboard: dashboardReduser,
       organizations: organizationsReducer,
-      customReports : customReportsReducer,
+      suiteManagement : suiteManagementReducer,
       common: commonReducer
    },
    devTools: process.env['NODE_ENV'] !== 'production',

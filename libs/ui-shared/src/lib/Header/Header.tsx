@@ -20,6 +20,8 @@ interface headerProps {
   userMenu?: userMenuProps;
   userMenuList?: userMenuListProps[];
   maintenance?: maintenanceProps;
+  isFormModified?: boolean;
+  unSavedData?: (open: boolean, app: string) => void;
 }
 
 interface logoProps {
@@ -50,11 +52,12 @@ interface subMenuListProps {
   label: string;
   route?: string;
   onClick?: () => void;
+  betaIcon?: boolean;
 }
 
 interface maintenanceProps {
-  showMaintenance : boolean,
-  handleMaintenanceDialog : (value : boolean) => void
+  showMaintenance: boolean;
+  handleMaintenanceDialog: (value: boolean) => void;
 }
 
 export const Header = (props: headerProps) => {
@@ -109,7 +112,8 @@ export const Header = (props: headerProps) => {
       borderColor: theme.palette.navbarBorder.main,
       borderBottom: `1px solid ${theme.palette.navbarBorder.main}`,
       margin: '0px',
-      boxShadow: '0px 3px 6px #0000000D',
+      boxShadow:
+        'rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px',
       background: theme.palette.secondary.main,
       zIndex: theme.zIndex.drawer + 1,
       fontFamily: theme.typography.fontFamily,
@@ -204,7 +208,12 @@ export const Header = (props: headerProps) => {
             </Typography>
             <Divider orientation="vertical" variant="middle" flexItem />
             {config.isMainApp ? (
-              <AppsMenu title={props.title} betaIcon={props.betaIcon} />
+              <AppsMenu
+                title={props.title}
+                betaIcon={props.betaIcon}
+                isFormModified={props.isFormModified}
+                unSavedData={props.unSavedData}
+              />
             ) : (
               <Box
                 sx={{
@@ -240,10 +249,14 @@ export const Header = (props: headerProps) => {
             ) : (
               <Box component={'span'}></Box>
             )}
-            {
-              (props.title === "PLATFORM" && props.maintenance?.showMaintenance) && 
-              <Maintenance handleMaintenanceDialog= {props.maintenance.handleMaintenanceDialog}/>
-            }
+            {props.title === 'PLATFORM' &&
+              props.maintenance?.showMaintenance && (
+                <Maintenance
+                  handleMaintenanceDialog={
+                    props.maintenance.handleMaintenanceDialog
+                  }
+                />
+              )}
 
             <UserMenu
               userMenuProps={{

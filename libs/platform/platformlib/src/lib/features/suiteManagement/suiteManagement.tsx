@@ -9,7 +9,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import { Card, Snackbar } from '@cloudcore/ui-shared';
+import { Card, Snackbar, UnsavedData } from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import InputSelectWithLabel from '../../components/InputSelectWithLabel/InputSelectWithLabel';
 import { InputTextWithLabel } from '../../components/input-text-with-label/input-text-with-label';
@@ -20,10 +20,11 @@ import {
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
-  IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import {
+  addSuiteAsync,
   deleteSuiteAsync,
   getSuitesAsync,
   getWorkspaceIDByDomainAsync,
@@ -32,6 +33,7 @@ import {
   selectedSuite,
   getSuiteFormModified,
   setSuiteFormModified,
+  resetAvailableReports,
   resetForm,
   setResetForm,
   selectedReports,
@@ -40,11 +42,14 @@ import {
   updateWorkSpaceIdByDomainAsync,
   getAvailableReportsAsync,
   availableReports,
+  getOrganizationsAsync,
 } from '@cloudcore/redux-store';
 import DeleteSuite from './deleteSuite';
-import { UnsavedData } from '../../components/un-saved-data/un-saved-data';
 import { platformStore } from '@cloudcore/redux-store';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
+import EditIcon from '@mui/icons-material/Edit';
+import EditReportName from './editReportName';
 
 interface ReportState {
   value: string;
@@ -52,20 +57,21 @@ interface ReportState {
   checked: boolean;
 }
 
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
 const { useAppDispatch, useAppSelector } = platformStore;
-
-const CustomReports = () => {
+const SuiteManagement = (props: Props) => {
+  const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const history = useHistory();
   const theme = useTheme();
   const orgList = useAppSelector(organizationList);
   const permList = useAppSelector(permissionsList);
   const avalReports = useAppSelector(availableReports);
   const dispatch = useAppDispatch();
-  const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const [selectedDomain, setSelectedDomain] = useState('');
   const [selectedPermission, setSelectedPermission] = useState<string>('');
@@ -81,14 +87,14 @@ const CustomReports = () => {
   const currentReports = useAppSelector((state: any) =>
     selectedReports(state, selectedPermission)
   );
-  const updatedSuite = useAppSelector((state: any) =>
+  const suiteByPermission = useAppSelector((state: any) =>
     getSuiteByPermission(state, selectedPermission)
   );
-  const updatedSuiteInfo = structuredClone(updatedSuite);
-  const closeCustomReport = () => {
+  const editedSuiteInfo = structuredClone(suiteByPermission);
+  const closeSuiteManagement = () => {
     suiteFormModified ? setUnsavedDialogBoxOpen(true) : history.goBack();
   };
-  const changeCustomReportSelection = () => {
+  const changeSuiteManagementSelection = () => {
     if (suiteFormModified) {
       setUnsavedDialogBoxOpen(true);
     }
@@ -110,14 +116,17 @@ const CustomReports = () => {
       .unwrap()
       .then(
         (value: any) => {
-          setSnackbar(true);
-          setSnackBarMsg('successMsg');
-          setSnackBarType('success');
+          dispatch(setSuiteFormModified(false));
+          handleOpenAlert({
+            content: 'Changes were updated successfully',
+            type: 'success',
+          });
         },
         (reason: any) => {
-          setSnackbar(true);
-          setSnackBarMsg('errorMsg');
-          setSnackBarType('failure');
+          handleOpenAlert({
+            content: reason.message,
+            type: 'error',
+          });
         }
       );
     setIsWorkSpaceIdDisabled(true);
@@ -136,62 +145,106 @@ const CustomReports = () => {
   const suiteFormModified = useAppSelector(getSuiteFormModified);
   const resetFormIndicator = useAppSelector(resetForm);
 
-  const availableDashboard: ReportState[] = avalReports.map((rep: any) => {
-    return {
-      value: rep.ReportId,
-      label: rep.ReportName,
-      checked: false,
-    };
-  });
+  const availableDashboard: ReportState[] =
+    avalReports &&
+    avalReports.map((rep: any) => {
+      return {
+        value: rep.ReportId,
+        label: rep.ReportName,
+        checked: false,
+      };
+    });
 
   const addedToSuiteSample: ReportState[] = [];
 
   const [addToSuite, setAddToSuite] = useState(addedToSuiteSample);
   const [addedToSuite, setAddedToSuite] = useState(addedToSuiteSample);
   const [availableDash, setAvailableDash] = useState<ReportState[]>([]);
-  const [availableDashUpdated, setAvailableDashUpadted] = useState(false);
+  const [availableDashUpdated, setAvailableDashUpdated] = useState(false);
   const [disableAddToSuite, setDisableAddToSuite] = useState(true);
   const [disableRemoveFromSuite, setDisableRemoveFromSuite] = useState(true);
   const [removeFromSuite, setRemoveFromSuite] = useState([]) as any;
   const [removedFromSuite, setRemovedFromSuite] = useState([]) as any;
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [workspaceId, setWorkspaceId] = useState('');
   const [suiteNameInvalid, setSuiteNameInvalid] = useState(false);
   const [disableDeleteSuite, setDisableDeleteSuite] = useState(true);
+  const [editReportNameDialog, setEditReportNameDialog] = useState(false);
+  const [selectedReportToUpadted, setSelectedReportToUpdate] =
+    useState<ReportState>();
 
-  const updateCustomReport = () => {
-    if (updatedSuiteInfo) {
-      updatedSuiteInfo.name = suiteName;
-      updatedSuiteInfo.reports = addedToSuite.map((report) => {
+  const updateSuiteManagement = () => {
+    if (editedSuiteInfo) {
+      editedSuiteInfo.name = suiteName;
+      editedSuiteInfo.reports = addedToSuite.map((report) => {
         return { reportId: report.value, reportName: report.label };
       });
     }
-    if (selectedPermission && suiteName) {
+    if (editedSuiteInfo && selectedPermission && suiteName) {
       dispatch(
         updateSuiteAsync({
           token,
           url: platformBaseUrl,
-          suite: updatedSuiteInfo,
+          suite: editedSuiteInfo,
         })
       )
         .unwrap()
         .then(
           (value: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('updateSuiteSuccess');
-            setSnackBarType('success');
+            handleOpenAlert({
+              content: 'Suite updated successfully',
+              type: 'success',
+            });
+            dispatch(
+              getSuitesAsync({
+                token,
+                url: platformBaseUrl,
+                domain: selectedDomain,
+              })
+            );
             dispatch(setSuiteFormModified(false));
-            dispatch(setResetForm(true));
-            setAvailableDashUpadted(false);
+            setAvailableDashUpdated(false);
             setAddToSuite([]);
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('updateSuiteFailure');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
+    } else if (selectedPermission && suiteName) {
+      dispatch(
+        addSuiteAsync({
+          token,
+          url: platformBaseUrl,
+          suite: {
+            discriminator: 'suite',
+            domain: selectedDomain,
+            name: suiteName,
+            permission: selectedPermission,
+            reports: addedToSuite.map((report) => {
+              return { reportId: report.value, reportName: report.label };
+            }),
+          },
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            handleOpenAlert({
+              content: 'Suite updated successfully',
+              type: 'success',
+            });
+            dispatch(setSuiteFormModified(false));
+            setAvailableDashUpdated(false);
+            setAddToSuite([]);
+          },
+          (reason: any) => {
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     } else if (suiteName === '') {
@@ -216,23 +269,21 @@ const CustomReports = () => {
     setIsWorkSpaceIdDisabled(true);
     if (availableDashUpdated) {
       setAvailableDash(availableDashboard);
-      setAvailableDashUpadted(false);
+      setAvailableDashUpdated(false);
     }
+    dispatch(resetAvailableReports());
   };
 
   const handleDomainChange = (event: any) => {
     setSelectedDomain(event);
     setIsDomainDisabled(false);
     setSelectedPermission('');
-    // setAvailableDash(availableDashboard);
+    dispatch(resetAvailableReports());
   };
 
   const handlePermissionChange = (event: any) => {
     setSelectedPermission(event);
     setDisableDeleteSuite(false);
-    if (currentSuite && currentSuite.name !== '') {
-      setSuiteName(currentSuite.name);
-    }
   };
 
   const [unSavedDialogBoxOpen, setUnsavedDialogBoxOpen] = useState(false);
@@ -272,7 +323,7 @@ const CustomReports = () => {
     setAddToSuite([]);
     dispatch(setSuiteFormModified(true));
     if (!availableDashUpdated) {
-      setAvailableDashUpadted(true);
+      setAvailableDashUpdated(true);
     }
   };
 
@@ -290,7 +341,7 @@ const CustomReports = () => {
     setRemoveFromSuite([]);
     dispatch(setSuiteFormModified(true));
     if (!availableDashUpdated) {
-      setAvailableDashUpadted(true);
+      setAvailableDashUpdated(true);
     }
   };
 
@@ -360,9 +411,10 @@ const CustomReports = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
       dispatch(
@@ -378,13 +430,39 @@ const CustomReports = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
   }, [dispatch, token, platformBaseUrl, selectedDomain]);
+
+  useEffect(() => {
+    if (platformBaseUrl) {
+      if (orgList && orgList.length === 0) {
+        dispatch(
+          getOrganizationsAsync({
+            url: platformBaseUrl,
+            token: token,
+          })
+        )
+          .unwrap()
+          .then(
+            (value: any) => {
+              //Do Nothing
+            },
+            (reason: any) => {
+              handleOpenAlert({
+                content: reason.message,
+                type: 'error',
+              });
+            }
+          );
+      }
+    }
+  }, [dispatch, platformBaseUrl, token]);
 
   useEffect(() => {
     if (availableDash.some((item) => item.checked === true)) {
@@ -395,8 +473,14 @@ const CustomReports = () => {
   }, [availableDash]);
 
   useEffect(() => {
-    setAvailableDash(availableDashboard);
-  }, [avalReports.length]);
+    if (availableDashboard && availableDashboard.length > 0) {
+      setAvailableDash(availableDashboard);
+    }
+
+    if (avalReports && avalReports.length === 0) {
+      setAvailableDash([]);
+    }
+  }, [avalReports ? avalReports.length : 0]);
 
   useEffect(() => {
     if (addedToSuite.some((item: any) => item.checked === true)) {
@@ -407,13 +491,18 @@ const CustomReports = () => {
   }, [addedToSuite]);
 
   useEffect(() => {
-    if (currentSuite && currentSuite?.name !== '') {
-      setSuiteName(currentSuite.name);
+    if (currentSuite) {
+      if (currentSuite.name !== '') {
+        setSuiteName(currentSuite.name);
+      }
+      if (currentSuite.id !== '') {
+        setSuiteId(currentSuite.id);
+      }
+    } else {
+      setSuiteName('');
+      setSuiteId('');
     }
-    if (currentSuite && currentSuite?.id !== '') {
-      setSuiteId(currentSuite.id);
-    }
-  }, [currentSuite]);
+  }, [selectedPermission]);
 
   const handleDelete = () => {
     try {
@@ -428,9 +517,10 @@ const CustomReports = () => {
         .unwrap()
         .then(
           (value: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('deleteSuiteSuccess');
-            setSnackBarType('success');
+            handleOpenAlert({
+              content: 'Suite deleted successfully',
+              type: 'success',
+            });
             dispatch(setSuiteFormModified(false));
             if (token && selectedDomain !== '') {
               dispatch(
@@ -447,17 +537,19 @@ const CustomReports = () => {
                     setSuiteId('');
                   },
                   (reason: any) => {
-                    setSnackbar(true);
-                    setSnackBarMsg('fetchError');
-                    setSnackBarType('failure');
+                    handleOpenAlert({
+                      content: reason.message,
+                      type: 'error',
+                    });
                   }
                 );
             }
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('deleteSuiteFailure');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
       setSelectedPermission('');
@@ -507,24 +599,28 @@ const CustomReports = () => {
   }, [selectedPermission, disableAddToSuite, disableRemoveFromSuite]);
 
   useEffect(() => {
-    dispatch(
-      getAvailableReportsAsync({
-        token,
-        url: platformBaseUrl,
-      })
-    )
-      .unwrap()
-      .then(
-        (value: any) => {
-          //Do Nothing
-        },
-        (reason: any) => {
-          setSnackbar(true);
-          setSnackBarMsg('fetchError');
-          setSnackBarType('failure');
-        }
-      );
-  }, [selectedDomain]);
+    if (currentWorkspaceId && currentWorkspaceId !== '') {
+      dispatch(
+        getAvailableReportsAsync({
+          token,
+          url: platformBaseUrl,
+          workSpaceId: currentWorkspaceId,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
+    }
+  }, [currentWorkspaceId]);
 
   useEffect(() => {
     if (currentReports) {
@@ -535,8 +631,10 @@ const CustomReports = () => {
           checked: false,
         }))
       );
+    } else {
+      setAddedToSuite([]);
     }
-  }, [currentReports]);
+  }, [selectedPermission]);
 
   /* Code to provide popup on reload of Add/edit user page, when data is modified */
   useEffect(() => {
@@ -554,9 +652,39 @@ const CustomReports = () => {
     };
   }, [suiteFormModified]);
 
+  //Edit Report Name
+  const handleCloseEditReportNameDialog = () => {
+    setEditReportNameDialog(false);
+  };
+  const handleEditReportIconClick = (report: any) => {
+    setSelectedReportToUpdate(report);
+    setEditReportNameDialog(true);
+  };
+  const handleUpdateReportName = (updatedReport: any) => {
+    const updatedAddedToSuite = addedToSuite.map((ele) => {
+      if (ele.value === updatedReport.value) {
+        return {
+          ...ele,
+          label: updatedReport.label,
+        };
+      } else {
+        return ele;
+      }
+    });
+    setAddedToSuite([...updatedAddedToSuite]);
+    setEditReportNameDialog(false);
+    dispatch(setSuiteFormModified(true));
+  };
+
   return (
     <Grid container spacing={1}>
-      {snackbar && <Snackbar type={snackbarType} content={snackBarMsg} />}
+      <Snackbar
+        open={alertData.openAlert}
+        type={alertData.type}
+        content={alertData.content}
+        onClose={handleCloseAlert}
+        duration={3000}
+      />
       <DeleteSuite
         open={dialogBoxOpen}
         handleLeave={handleDialogBox}
@@ -564,17 +692,25 @@ const CustomReports = () => {
         handleDelete={handleDelete}
       />
       {
+        <EditReportName
+          open={editReportNameDialog}
+          handleUpadteReportName={handleUpdateReportName}
+          handleCloseDialog={handleCloseEditReportNameDialog}
+          selectedReport={selectedReportToUpadted}
+        />
+      }
+      {
         <UnsavedData
           open={unSavedDialogBoxOpen}
           handleLeave={handleUnSavedDialogBox}
-          location="customReports"
+          location="suiteManagement"
         />
       }
       <Grid item xs={12}>
         <TitleAndCloseIcon
-          onClickButton={closeCustomReport}
-          breadCrumbOrigin={'DASHBOARD'}
-          breadCrumbTitle={'SUITE MANAGEMENT'}
+          onClickButton={closeSuiteManagement}
+          breadCrumbOrigin={'Suite Management'}
+          breadCrumbTitle={''}
         />
       </Grid>
       <Grid item xs={12}>
@@ -621,7 +757,7 @@ const CustomReports = () => {
                     placeholder="Select Domain"
                     options={orgDomainList}
                     disabled={isDomainDisabled}
-                    unsavedDataHandler={changeCustomReportSelection}
+                    unsavedDataHandler={changeSuiteManagementSelection}
                     orgChangeHandler={handleDomainChange}
                     handleDomainReset={resetDomainHandler}
                     value={selectedDomain}
@@ -743,7 +879,7 @@ const CustomReports = () => {
                       options={permList}
                       value={selectedPermission}
                       permissionChangeHandler={handlePermissionChange}
-                      unsavedDataHandler={changeCustomReportSelection}
+                      unsavedDataHandler={changeSuiteManagementSelection}
                       handlePermissionReset={resetPermisssionHandler}
                       required={true}
                     />
@@ -758,21 +894,43 @@ const CustomReports = () => {
                     >
                       <FormGroup>
                         {addedToSuite.map((report: ReportState) => (
-                          <FormControlLabel
-                            key={report.value}
-                            control={<Checkbox />}
-                            label={report.label}
-                            value={report.value}
-                            onChange={(e) => {
-                              handleChangeAddedToSuite(
-                                e,
-                                report.value,
-                                report.label
-                              );
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
                             }}
-                            checked={report.checked}
-                            sx={{ ml: 1 }}
-                          />
+                            key={report.value}
+                          >
+                            <FormControlLabel
+                              key={report.value}
+                              control={<Checkbox />}
+                              label={report.label}
+                              value={report.value}
+                              onChange={(e) => {
+                                handleChangeAddedToSuite(
+                                  e,
+                                  report.value,
+                                  report.label
+                                );
+                              }}
+                              checked={report.checked}
+                              sx={{ ml: 1 }}
+                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginRight: 1,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <EditIcon
+                                onClick={() =>
+                                  handleEditReportIconClick(report)
+                                }
+                              />
+                            </Box>
+                          </Box>
                         ))}
                       </FormGroup>
                     </Card>
@@ -839,14 +997,14 @@ const CustomReports = () => {
                 <Button
                   variant="outlined"
                   sx={{ marginRight: theme.spacing(2) }}
-                  onClick={closeCustomReport}
+                  onClick={closeSuiteManagement}
                 >
                   BACK
                 </Button>
                 <Button
                   variant="outlined"
                   disabled={!suiteFormModified}
-                  onClick={updateCustomReport}
+                  onClick={updateSuiteManagement}
                 >
                   UPDATE
                 </Button>
@@ -859,4 +1017,4 @@ const CustomReports = () => {
   );
 };
 
-export default CustomReports;
+export default SuiteManagement;

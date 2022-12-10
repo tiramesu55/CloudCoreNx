@@ -9,33 +9,19 @@ interface Props extends CardProps {
   borderColor?: string;
 }
 
-export const Card = ({
-  variant = 'outlined',
-  boxShadow = 2,
-  sx,
-  ...props
-}: Props) => {
+export const Card = (props: Props) => {
   const theme = useTheme();
 
-  // const combinedSx = {...sx, ...{
-  //   borderRadius: `${theme.shape.borderRadius}px`,
-  //   backgroundColor: theme.palette.defaultCardBackground.main,
-  //   boxShadow: { boxShadow },
-  //   borderColor: theme.palette.cardBorder.main,
-  //   height: '100%',
-  //   width: '100%',
-  // }}
   return (
     <MaterialCard
-      variant={variant}
-      sx={{ ...sx ,...{
+      variant={'outlined'}
+      sx={{
         borderRadius: `${theme.shape.borderRadius}px`,
         backgroundColor: theme.palette.defaultCardBackground.main,
-        boxShadow: { boxShadow },
         borderColor: theme.palette.cardBorder.main,
         height: '100%',
         width: '100%',
-      }}}
+      }}
       {...props}
     >
       {props.children}

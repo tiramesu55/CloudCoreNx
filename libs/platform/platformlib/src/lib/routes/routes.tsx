@@ -10,35 +10,42 @@ import { Dashboard } from '../Dashboard/dashboard';
 import { OrganizationForm as AddNewOrganisation } from '../features/organizations/OrganisationForm';
 import UserOnboarding from '../features/users/userOnboardingForm';
 import {
-  Snackbar,
   IdlePopUp,
   Header,
   NotAuthorized,
   Backdrop,
+  nexia_logo_img,
+  sign_out_img,
+  Snackbar,
+  UnsavedData,
 } from '@cloudcore/ui-shared';
 import { ListUsers } from '../features/users/allUsers';
 import {
   getApplications,
   platformStore,
   selectAppRoles,
+  closeAlertAction,
+  openAlertAction,
 } from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
 import { Sites } from '../features/sites/sites';
-import { nexia_logo_img } from '@cloudcore/ui-shared';
-import { sign_out_img } from '@cloudcore/ui-shared';
 import {
   ConfigCtx,
   IConfig,
+  UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import CustomReports from '../features/customReports/customReports';
-import { UnsavedData } from '../components';
-import { useIdleTimer } from 'react-idle-timer';
+import SuiteManagement from '../features/suiteManagement/suiteManagement';
 import EditMaintenanceMode from '../Maintenance/editMaintenance';
+import { IAlert } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 export const Routes = () => {
+  const handleOpenAlert = (payload: IAlert) =>
+    dispatch(openAlertAction(payload));
+  const handleCloseAlert = () => dispatch(closeAlertAction());
+  const { openAlert, type, content } = useAppSelector((state) => state.common);
   const config: IConfig = useContext(ConfigCtx)!;
   const disableBackDrop = false;
 
@@ -53,7 +60,7 @@ export const Routes = () => {
     (state) => state.sites.siteFormModified
   );
   const suiteFormModified = useAppSelector(
-    (state) => state.customReports.suiteFormModified
+    (state) => state.suiteManagement.suiteFormModified
   );
   const orgLoadingState = useAppSelector(
     (state) => state.organizations.status === 'loading'
@@ -86,21 +93,15 @@ export const Routes = () => {
         : false;
     return x;
   };
-  const { signOut, token, initials, names, permissions } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
+  const { signOut, token, initials, names, permissions } =
+    useClaimsAndSignout() as UseClaimsAndSignout;
 
-  const platformPermissions =
-    permissions?.admin && permissions?.admin.length > 0;
+  const platformPermissions = (permissions.get('admin') ?? []).length > 0;
 
   const dispatch = useAppDispatch();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   const history = useHistory();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
@@ -110,35 +111,9 @@ export const Routes = () => {
       name: app.name,
     };
   });
-  const showCustomReports =
-    permissions.admin && permissions.admin?.includes('global') ? true : false;
-
-  const [activityModal, setActivityModal] = useState<boolean>(false);
-
-  // Do some idle action like log out your user
-  const onIdle = () => {
-    signOut();
-  };
-
-  // Close Modal Prompt and reset the idleTimer
-  const onActive = () => {
-    setActivityModal(false);
-    reset();
-  };
-
-  // opens modal prompt on timeout
-  const onPrompt = () => {
-    setActivityModal(true);
-  };
-
-  const { reset } = useIdleTimer({
-    timeout: 1000 * 1500,
-    onIdle,
-    onActive,
-    debounce: 500,
-    onPrompt,
-    promptTimeout: 1000 * 299,
-  });
+  const showSuiteManagement = (permissions.get('admin') ?? []).includes(
+    'global'
+  );
 
   const handleDialogBox = (open: boolean) => {
     setDialogBoxOpen(open);
@@ -162,9 +137,10 @@ export const Routes = () => {
             //Do Nothing
           },
           (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
           }
         );
     }
@@ -178,40 +154,45 @@ export const Routes = () => {
     return (
       <>
         <Backdrop open={backDrop()} />
-        {HeaderPlatform}
-        <Component />
+        <HeaderPlatform />
+        <Component
+          handleOpenAlert={handleOpenAlert}
+          handleCloseAlert={handleCloseAlert}
+          alertData={{
+            openAlert,
+            type,
+            content,
+          }}
+        />
       </>
     );
   };
 
+  const formModified =
+    orgFormModified === true ||
+    siteFormModified === true ||
+    userFormModified === true ||
+    suiteFormModified === true;
+
   const handleNavigation = (e: React.MouseEvent<HTMLElement>, loc: string) => {
     e.preventDefault();
-    if (
-      orgFormModified === true ||
-      siteFormModified === true ||
-      userFormModified === true ||
-      suiteFormModified === true
-    ) {
+    if (formModified) {
       setDialogBoxOpen(true);
       setRedirectUrl(loc);
       setModifiedDataLogout(false);
     } else {
       loc === 'dashboard' && history.push(`${path}`);
       loc === 'users' && history.push(`${path}user`);
-      loc === 'customReports' && history.push(`${path}customReports`);
+      loc === 'suiteManagement' && history.push(`${path}suiteManagement`);
       setModifiedDataLogout(false);
     }
   };
 
   const [modifiedDataLogout, setModifiedDataLogout] = useState(false);
+  const [modifiedDataApp, setModifiedDataApp] = useState(false);
 
   const handleLogout = () => {
-    if (
-      orgFormModified === true ||
-      siteFormModified === true ||
-      userFormModified === true ||
-      suiteFormModified === true
-    ) {
+    if (formModified) {
       setModifiedDataLogout(true);
       setDialogBoxOpen(true);
     } else {
@@ -219,93 +200,109 @@ export const Routes = () => {
     }
   };
 
-  const navList = showCustomReports
+  const navList = showSuiteManagement
     ? [
         {
-          label: 'DASHBOARD',
+          label: 'Dashboard',
           route: path,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
             handleNavigation(e, 'dashboard'),
         },
         {
-          label: 'USERS',
+          label: 'Users',
           route: `${path}user`,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
             handleNavigation(e, 'users'),
         },
         {
-          label: 'SUITE MANAGEMENT',
-          route: `${path}customReports`,
+          label: 'Suite Management',
+          route: `${path}suiteManagement`,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'customReports'),
+            handleNavigation(e, 'suiteManagement'),
         },
       ]
     : [
         {
-          label: 'DASHBOARD',
+          label: 'Dashboard',
           route: path,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
             handleNavigation(e, 'dashboard'),
         },
         {
-          label: 'USERS',
+          label: 'Users',
           route: `${path}user`,
           onClick: (e: React.MouseEvent<HTMLElement>) =>
             handleNavigation(e, 'users'),
         },
       ];
 
-  const HeaderPlatform = useMemo(
-    () => (
-      <>
-        {' '}
-        {snackbar && (
-          <Snackbar type={snackbarType} content={snackBarMsg} duration={5000} />
-        )}
-        <UnsavedData
-          open={dialogBoxOpen}
-          location={modifiedDataLogout ? 'logout' : redirectUrl}
-          handleLeave={handleDialogBox}
-        />
-        <IdlePopUp
-          open={activityModal}
-          logOut={signOut}
-          onActive={onActive}
-          minutes={5}
-          seconds={0}
-          timer={{ minutes: 5, seconds: 0 }}
-        />
-        <EditMaintenanceMode
-          open={maintenanceDialogOpen}
-          handleClose={handleMaintenanceDialog}
-          allApps={allApps}
-        />
-        <Header
-          title={'PLATFORM'}
-          logo={{ img: nexia_logo_img, path: path }}
-          betaIcon={true}
-          reportIssue={false}
-          navLinkMenuList={navList}
-          userMenu={{
-            userName: names ? names[0] + ' ' + names[1] : '',
-            userInitials: initials!,
-          }}
-          userMenuList={[
-            {
-              icon: sign_out_img,
-              label: 'Logout',
-              onClick: () => handleLogout(),
-            },
-          ]}
-          maintenance={{
-            showMaintenance: showCustomReports,
-            handleMaintenanceDialog,
-          }}
-        />
-      </>
-    ),
-    [snackbar, snackbarType, snackBarMsg, path, names, initials, signOut]
+  const [appSwitchUrl, setAppSwitchUrl] = useState('');
+  const handleUnSavedDataDialogue = (open: boolean, app: string) => {
+    setDialogBoxOpen(open);
+    setModifiedDataApp(open);
+    setAppSwitchUrl(app);
+  };
+
+  const HeaderPlatform = () => (
+    <>
+      {' '}
+      <Snackbar
+        open={openAlert}
+        type={type}
+        content={content}
+        onClose={handleCloseAlert}
+        duration={3000}
+      />
+      <UnsavedData
+        open={dialogBoxOpen}
+        location={
+          modifiedDataLogout
+            ? 'logout'
+            : modifiedDataApp
+            ? 'appSwitch'
+            : redirectUrl
+        }
+        handleLeave={handleDialogBox}
+        appSwitchUrl={appSwitchUrl}
+      />
+      <IdlePopUp
+        logOut={signOut}
+        minutes={5}
+        seconds={0}
+        timer={{ minutes: 5, seconds: 0 }}
+      />
+      <EditMaintenanceMode
+        open={maintenanceDialogOpen}
+        handleClose={handleMaintenanceDialog}
+        allApps={allApps}
+      />
+      <Header
+        title={'Platform Management'}
+        logo={{ img: nexia_logo_img, path: path }}
+        betaIcon={true}
+        reportIssue={false}
+        navLinkMenuList={navList}
+        isFormModified={formModified}
+        userMenu={{
+          userName: names ? names[0] + ' ' + names[1] : '',
+          userInitials: initials!,
+        }}
+        userMenuList={[
+          {
+            icon: sign_out_img,
+            label: 'Logout',
+            onClick: () => handleLogout(),
+          },
+        ]}
+        maintenance={{
+          showMaintenance: showSuiteManagement,
+          handleMaintenanceDialog,
+        }}
+        unSavedData={handleUnSavedDataDialogue}
+      />
+    </>
   );
+
   return (
     <>
       {platformPermissions ? (
@@ -345,9 +342,9 @@ export const Routes = () => {
           <Route path={`${path}organization/editOrg/addSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
-          {showCustomReports && (
-            <Route path={`${path}customReports`}>
-              {ComponentLayout(CustomReports)}
+          {showSuiteManagement && (
+            <Route path={`${path}suiteManagement`}>
+              {ComponentLayout(SuiteManagement)}
             </Route>
           )}
         </>
