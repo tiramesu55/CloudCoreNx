@@ -166,7 +166,8 @@ const AppsMenu = (props: AppsMenuProps) => {
         className={`dropdown browserSpecific`}
         sx={dropdown ? { display: 'block' } : { display: 'none' }}
       >
-        {availableApps.map((app) => {
+        {/* filter is a temporary solution to the missing or incorrect disabledList sheet.  I hide the  */}
+        {availableApps.filter( app => app.permission).map((app) => {
           return (
             <Box
               component={'button'}
