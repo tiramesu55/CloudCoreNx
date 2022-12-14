@@ -51,7 +51,7 @@ const CustomSelectCss = withStyles((theme) => ({
       backgroundColor: '#fff',
       borderBottomLeftRadius: '0.5rem',
       borderBottomRightRadius: '0.5rem',
-      top: '102%',
+      top: '100%',
       boxShadow: '0px 2px 5px #333',
       border: '0px solid grey',
     },

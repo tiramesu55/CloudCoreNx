@@ -49,6 +49,13 @@ export default class ReportEmbedding {
     selectFilterItemSelected: (t: string[], p: string) => void,
     reset: () => void
   ): Promise<void> {
+    this.pbiService.bootstrap(
+      hostContainer,
+      {
+        type: 'report',
+      }
+    );
+
     const timeStartLoad = new Date().getTime();
    //getReportEmbedModel actually calls HTTP fetch
    try{ 
@@ -71,6 +78,7 @@ export default class ReportEmbedding {
           reset
         );
    } catch(err: any) {
+        console.log("ERR", err)
         loadingReportSingle(false);
         let errorText;
         let status;
@@ -165,7 +173,7 @@ export default class ReportEmbedding {
     const report = this.pbiService.embed(
       hostContainer,
       reportConfiguration
-    ) as pbi.Report;
+    ) as pbi.Report; 
 
     report.off('loaded');
     report.off('error');
