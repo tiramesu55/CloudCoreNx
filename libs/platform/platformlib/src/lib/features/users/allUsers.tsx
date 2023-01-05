@@ -61,6 +61,7 @@ export const ListUsers = (props: Props) => {
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const allApps = useAppSelector(applicationMapping);
   const users = useAppSelector(allUsers);
+  console.log(users, 'dsgdfg');
   const orgData = useAppSelector(selectOrganizations);
   const usersWithOrg = users.map((user) => {
     const orgName = orgData.find((org) => {
@@ -74,6 +75,10 @@ export const ListUsers = (props: Props) => {
         user.applications !== null
           ? user.applications.map((app) => allApps && allApps.get(app.appCode))
           : '--',
+      status:
+        user.inactiveDate === null || new Date(user.inactiveDate) >= new Date()
+          ? 'Active'
+          : 'Not Active',
     };
   });
   const history = useHistory();
@@ -138,6 +143,7 @@ export const ListUsers = (props: Props) => {
         filter: true,
         sort: true,
         customBodyRender: (value: string, tableMeta: any) => {
+          console.log(value, 'user');
           return (
             <Tooltip
               title={
@@ -210,38 +216,11 @@ export const ListUsers = (props: Props) => {
       },
     },
     {
-      name: 'inactiveDate',
+      name: 'status',
       label: 'Status',
       options: {
         filter: true,
         sort: false,
-        customBodyRender: (value: Date) => {
-          return (
-            <div>
-              {value === null || new Date(value) >= new Date()
-                ? 'Active'
-                : 'Not Active'}
-            </div>
-          );
-        },
-        filterOptions: {
-          renderValue: (value: any) => {
-            if (value === null || new Date(value) >= new Date()) {
-              return 'Active';
-            } else {
-              return 'Not Active';
-            }
-          },
-        },
-        customFilterListOptions: {
-          render: (value: any) => {
-            if (value === null || new Date(value) >= new Date()) {
-              return 'Active';
-            } else {
-              return 'Not Active';
-            }
-          },
-        },
       },
     },
   ];

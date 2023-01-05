@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Route, Switch } from 'react-router-dom';
 import { Security, SecureRoute, LoginCallback } from './OKTA';
-import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+import { OktaAuth, UserClaims } from '@okta/okta-auth-js';
+import { useAppInsightHook } from '@cloudcore/common-lib';
+import { OktaClaims } from './use-claims-and-signout/use-claims-and-signout';
+
 interface oidc {
   issuer: string | undefined;
   clientId: string | undefined;
@@ -14,17 +17,15 @@ export interface OktaAndConfigProps {
 }
 
 export function OktaCode(props: OktaAndConfigProps) {
-  //const history = useHistory();
   const [oktaAuthClient] = useState<OktaAuth>(
     new OktaAuth({
-
       issuer: props.oidc.issuer,
       clientId: props.oidc.clientId,
       redirectUri: props.oidc.redirectUri,
       scopes: ['openid', 'email', 'profile', 'offline_access'],
     })
   );
-
+  const { HandleUserLogIn } = useAppInsightHook();
   // const restoreOriginalUri = async (
   //   _oktaAuth: unknown,
   //   originalUri: string | undefined
@@ -35,7 +36,7 @@ export function OktaCode(props: OktaAndConfigProps) {
   // };
 
   const triggerLogin = async () => {
-    await oktaAuthClient.signInWithRedirect();
+    await oktaAuthClient.signInWithRedirect({maxAge:1});
   };
 
   const customAuthHandler = async () => {
@@ -50,26 +51,43 @@ export function OktaCode(props: OktaAndConfigProps) {
       //setAuthRequiredModalOpen(true);
     }
   };
-  const RouterComponent = () => (
-    <Switch>
-      <props.router />
-    </Switch>
-  );
+  const RouterComponent = () => {
+    useEffect(() => {
+      const authState = oktaAuthClient.authStateManager.getAuthState();
+      const names =
+        (authState?.accessToken?.claims as UserClaims<OktaClaims>).initials ??
+        [];
+      const email = authState?.accessToken?.claims.sub;
+      HandleUserLogIn({
+        properties: {
+          userName: names ? names[0] + ' ' + names[1] : '',
+          emailId: email,
+        },
+      });
+    }, []);
+
+    return (
+      <Switch>
+        <props.router />
+      </Switch>
+    );
+  };
+
   return (
- <div>
-    {oktaAuthClient ? 
-   <Security oktaAuth={oktaAuthClient} >
-    <Switch>
-      {/* loginCallbach also accepts omAuthResume and loadingElement properties */}
-      <Route path="/login/callback" component={LoginCallback} />
-      <SecureRoute
-        onAuthRequired={customAuthHandler}
-        path="/"
-        component={RouterComponent}
-      />
-    </Switch>
-    </Security> : null
-    }
-</div>
+    <div>
+      {oktaAuthClient ? (
+        <Security oktaAuth={oktaAuthClient}>
+          <Switch>
+            {/* loginCallbach also accepts omAuthResume and loadingElement properties */}
+            <Route path="/login/callback" component={LoginCallback} />
+            <SecureRoute
+              onAuthRequired={customAuthHandler}
+              path="/"
+              component={RouterComponent}
+            />
+          </Switch>
+        </Security>
+      ) : null}
+    </div>
   );
 }

@@ -35,7 +35,16 @@ const CustomSelectCss = withStyles((theme) => ({
       padding: '6px 16px',
       color: theme.palette.text.primary,
       '&:hover': {
-        backgroundColor: '#E6E8F3',
+        backgroundColor: theme.palette.menuHoverColor.main,
+        '&:last-child': {
+          '-webkit-border-bottom-left-radius': theme.spacing(1),
+          '-moz-border-bottom-left-radius': theme.spacing(1),
+          '-webkit-border-bottom-right-radius': theme.spacing(1),
+          '-moz-border-bottom-right-radius': theme.spacing(1),
+        },
+      },
+      '&:hover:': {
+        backgroundColor: theme.palette.menuHoverColor.main,
       },
       width: '100%',
       fontSize: theme.typography.body1.fontSize,
@@ -48,12 +57,12 @@ const CustomSelectCss = withStyles((theme) => ({
       minWidth: '-webkit-fill-available',
       width: 'max-content',
       padding: '0',
-      backgroundColor: '#fff',
-      borderBottomLeftRadius: '0.5rem',
-      borderBottomRightRadius: '0.5rem',
-      top: '102%',
-      boxShadow: '0px 2px 5px #333',
-      border: '0px solid grey',
+      backgroundColor: theme.palette.secondary.main,
+      borderBottomLeftRadius: theme.spacing(1),
+      borderBottomRightRadius: theme.spacing(1),
+      top: '100%',
+      boxShadow:
+        'rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px',
     },
     '.browserSpecific': {
       minWidth: '-moz-available',

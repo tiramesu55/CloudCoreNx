@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import { useTheme } from '@mui/material';
 import React from 'react';
 import theme from '../themes';
 
@@ -70,7 +69,11 @@ export const UserMenu = (props: userMenuProps) => {
   return (
     <Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-        <IconButton onClick={handleClick} size="small">
+        <IconButton
+          onClick={handleClick}
+          size="small"
+          data-testid={'initials-avatar'}
+        >
           <UserTooltip title={props.userMenuProps?.userName} placement="top">
             <Avatar
               alt={props.userMenuProps?.userName}
@@ -86,6 +89,7 @@ export const UserMenu = (props: userMenuProps) => {
         </IconButton>
       </Box>
       <Menu
+        data-testid={'initials'}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

@@ -17,25 +17,29 @@ import {
 
 import { ErrorBoundary } from 'react-error-boundary';
 import {
+  Backdrop as BackdropPowerBi,
   Header,
   NotAuthorized,
   IdlePopUp,
   nexia_logo_img,
   sign_out_img,
+  DisplayMaintenance,
 } from '@cloudcore/ui-shared';
-import { Backdrop as BackdropPowerBi } from '@cloudcore/ui-shared';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import {
   useAppInsightHook,
   IErrorTypeResponse,
   requests,
   IAlert,
+  useMaintenance,
 } from '@cloudcore/common-lib';
 import {
   analyticsStore,
   reportsActions,
   openAlertAction,
   closeAlertAction,
+  getMaintenanceAsync,
+  bypassUserAsync,
 } from '@cloudcore/redux-store';
 import { Route } from 'react-router-dom';
 import {
@@ -43,7 +47,7 @@ import {
   IConfig,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import { Box, Button, Grid, Typography, useTheme } from '@mui/material';
+import { Button, Grid, Typography, useTheme } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 /* eslint-disable-next-line */
@@ -54,7 +58,8 @@ export const AnalyticsPowerbi = () => {
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
 
-  const [listReportLoading, setListReportLoading] = useState<boolean>(false);
+ // const [listReportLoading, setListReportLoading] = useState<boolean>(false);
+  const [defaultReport, setDefaultReport] = useState<string>('');
   const [activityModal, setActivityModal] = useState<boolean>(false);
   const config: IConfig = useContext(ConfigCtx) as IConfig;
   const {
@@ -63,6 +68,20 @@ export const AnalyticsPowerbi = () => {
     selectFilterItemSelected,
     selectReport,
   } = reportsActions;
+
+  const currentDate = new Date();
+
+  const {
+    displayMaintenance,
+    underMaintenance,
+    maintenanceStartDate,
+    maintenanceEndDate,
+    maintenanceReason,
+    fullLockout,
+    handleDisplayMaintenanceDialog,
+    isBypassUser,
+    loadData,
+  } = useMaintenance('Analytics', currentDate);
 
   const { signOut, token, initials, names, permissions, email } =
     useClaimsAndSignout()!;
@@ -113,13 +132,34 @@ export const AnalyticsPowerbi = () => {
       type: 'error',
     });
   };
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   useEffect(() => {
+    const getDefaultReport = async () =>{
+      try{
+        //todo get default report from API and setDefaultReport state
+        const resp = await requests.get(config.platformBaseUrl + '/UserConfiguration' || '', 
+        {   
+          'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,   
+        }
+        //todo: need to set type for the return
+       
+      );
+       const reportId = resp.lastOpenedReportId;
+       setDefaultReport( reportId);
+      }catch(err){
+        //we do not care it it is succesful or not, but want to see the error
+        console.log('cannot put default report')
+      }
+    }
     if (token) {
-      if (config?.REACT_APP_SUITES_URL) {
+      getDefaultReport(); 
+      if (config?.platformBaseUrl) {
+
         // setListReportLoading(true);  //  too quick. No point running spinner
         requests
-          .get(config?.REACT_APP_SUITES_URL, {
+          .get(config?.platformBaseUrl + '/GetSuitesByPermission', {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           })
@@ -128,7 +168,7 @@ export const AnalyticsPowerbi = () => {
             dispatch(loadReports(response.suites));
           })
           .catch((error) => {
-            setListReportLoading(false);
+          //  setListReportLoading(false);
             handleErrorResponse({
               type: 'GetGroupReports',
               message: error.message,
@@ -140,13 +180,47 @@ export const AnalyticsPowerbi = () => {
     }
   }, []);
 
-  const handleReportClick = (reportId: string, reportName: string) => {
+  useEffect(() => {
+    if (platformBaseUrl) {
+      dispatch(
+        getMaintenanceAsync({
+          url: platformBaseUrl,
+          token: token,
+        })
+      );
+      dispatch(
+        bypassUserAsync({
+          url: platformBaseUrl,
+          token: token,
+          email: email,
+        })
+      );
+    }
+  }, [platformBaseUrl, token, dispatch]);
+
+  const handleReportClick = async (reportId: string, reportName: string) => {
     dispatch(
       selectReport({
         key: 'selectedReportId',
         value: reportId,
-      })
-    );
+      }));
+    try{  
+    await requests.put(config.platformBaseUrl + '/UserConfiguration' || '', 
+      { 
+        'lastOpenedReportId': reportId
+      },
+      {   
+        'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,   
+      }
+
+    )
+    }catch(err){
+      //we do not care it it is succesful or not, but want to see the error
+      console.log('cannot put default report')
+    }
+
+    
     HandleReportEvent({
       properties: {
         userName: names ? names[0] + ' ' + names[1] : '',
@@ -159,13 +233,19 @@ export const AnalyticsPowerbi = () => {
   };
 
   useEffect(() => {
-    openSlaDashboard();
-  }, [reports]);
+    openDefaultReport();
+  }, [reports,defaultReport]);
 
-  const openSlaDashboard = useCallback(() => {
+  const openDefaultReport = useCallback(() => {
     if (!reports) return;
-
-    if (config.DEFAULT_REPORTID) {
+    if(defaultReport){
+      dispatch(
+        selectReport({
+          key: 'selectedReportId',
+          value: defaultReport,
+        })
+      );
+    } else if (config.DEFAULT_REPORTID) {
       dispatch(
         selectReport({
           key: 'selectedReportId',
@@ -173,10 +253,10 @@ export const AnalyticsPowerbi = () => {
         })
       );
     }
-  }, [reports]);
+  }, [reports, defaultReport]);
 
   const navLinkMenuList = useMemo(() => {
-    return reports
+    return reports && loadData === true
       ? reports?.map((item) => ({
           label: item.name,
           subMenuList:
@@ -185,10 +265,11 @@ export const AnalyticsPowerbi = () => {
               label: report.reportName,
               onClick: () =>
                 handleReportClick(report.reportId, report.reportName),
+              betaIcon: report.beta,
             })),
         }))
       : [];
-  }, [reports]);
+  }, [reports, loadData]);
 
   const path = useMemo(() => {
     return `${config.isMainApp ? '/analytics' : '/'}`;
@@ -235,6 +316,18 @@ export const AnalyticsPowerbi = () => {
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
         />
+        <DisplayMaintenance
+          open={displayMaintenance}
+          underMaintenance={underMaintenance}
+          handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
+          maintenanceStartDate={maintenanceStartDate}
+          maintenanceEndDate={maintenanceEndDate}
+          maintenanceReason={maintenanceReason}
+          fullLockout={fullLockout}
+          bypassUser={isBypassUser}
+          mainApp={config.isMainApp}
+          logout={() => signOut()}
+        />
         <Header
           title={'Enterprise Analytics'}
           logo={{ img: nexia_logo_img, path }}
@@ -253,7 +346,7 @@ export const AnalyticsPowerbi = () => {
             },
           ]}
         />
-        {selectedReports['selectedReportId'] && (
+        {selectedReports['selectedReportId'] && loadData && (
           <ErrorBoundary fallbackRender={ErrorFallback}>
             <ReportBiClientComponent
               userName={names ? names[0] + ' ' + names[1] : ''}
@@ -288,6 +381,13 @@ export const AnalyticsPowerbi = () => {
       openAlert,
       reports,
       activityModal,
+      displayMaintenance,
+      loadData,
+      underMaintenance,
+      maintenanceStartDate,
+      maintenanceEndDate,
+      maintenanceReason,
+      fullLockout,
     ]
   );
 

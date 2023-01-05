@@ -11,7 +11,7 @@ const LabelSettingsContent = () => {
                     Label
                 </Typography>
                 <Stack direction="row">
-                    <img style={{ width: '90%' }} src={require("../../../assets/NewVialAsset.png")} alt="tote manifest" />
+                    <img style={{ width: '90%', border: 'solid black 1px' }} src={require("../../../assets/lable_img_01.png")} alt="tote manifest" />
                     <Button variant="labelButton">
                         <ZoomInIcon sx={{ color: 'white' }} />
                     </Button>
@@ -23,7 +23,7 @@ const LabelSettingsContent = () => {
                     Tote Manifest
                 </Typography>
                 <Stack direction="row">
-                    <img src={require("../../../assets/NewToteManifest.png")} alt="tote manifest" />
+                    <img style={{ border: 'solid black 1px' }} src={require("../../../assets/lable_img_02.png")} alt="tote manifest" />
                     <Button variant="labelButton">
                         <ZoomInIcon sx={{ color: 'white' }} />
                     </Button>

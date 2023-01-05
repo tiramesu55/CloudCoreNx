@@ -33,7 +33,6 @@ interface Props {
     orgCode: string;
     orgName: string;
   };
-  disableEditApp: boolean;
 }
 const { useAppDispatch, useAppSelector } = platformStore;
 export const ActivateDeactivateSite = (props: Props) => {
@@ -170,7 +169,6 @@ export const ActivateDeactivateSite = (props: Props) => {
       <Button
         variant="text"
         disableRipple={true}
-        disabled={props.disableEditApp}
         sx={{
           color: theme.palette.primary.main,
           textTransform: 'capitalize',

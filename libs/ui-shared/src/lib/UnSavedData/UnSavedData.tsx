@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-import { warning_img } from '@cloudcore/ui-shared';
+import warning_img from '../assets/warning.png';
 import {
   setOrgFormModified,
   setSiteFormModified,

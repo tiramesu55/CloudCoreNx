@@ -5,13 +5,11 @@ import {
   Box,
   Grid,
   Typography,
-  IconButton,
   TextField,
   InputAdornment,
 } from '@mui/material';
 import { Card } from '@cloudcore/ui-shared';
 import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   selectOrganizationByDomain,
   selectUserByIdEntity,
@@ -33,7 +31,7 @@ export const AddUserForm = () => {
   const [emailID, setEmailID] = useState('');
   const dispatch = useAppDispatch();
 
-  const org = useAppSelector((state) =>
+  const domainValidIndicator = useAppSelector((state) =>
     selectOrganizationByDomain(state, emailID.toLowerCase())
   );
   const usr = useAppSelector(selectUserByIdEntity(emailID));
@@ -113,7 +111,7 @@ export const AddUserForm = () => {
                         <InputAdornment position="end">
                           {emailID.match(
                             /^(([^<>()[\]\\.,;:\s@]+(\.[^<>()[\]\\.,;:\s@]+)*)|(.+))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                          ) ? (
+                          ) && domainValidIndicator ? (
                             <CheckIcon color="primary" />
                           ) : null}
                         </InputAdornment>
@@ -136,7 +134,7 @@ export const AddUserForm = () => {
             >
               <Button
                 variant="outlined"
-                disabled={!org}
+                disabled={!domainValidIndicator}
                 onClick={() => {
                   if (usr) {
                     history.push(`${path}user/editUser`, {

@@ -3,19 +3,20 @@ import { useContext, useState } from 'react';
 import { ReportIssue } from '../ReportIssue/ReportIssue';
 import { UserMenu } from './UserMenu';
 import reportIssueIcon from '../assets/report-issue.svg';
-import maintenanceIcon from '../assets/maintenanceIcon.svg';
 import { useTheme } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
 import AppsMenu from './AppsMenu';
 import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 import NavBar from './NavBar';
 import Maintenance from './Maintenance';
+import { NavLink } from 'react-router-dom';
 
 interface headerProps {
   title: string;
   logo?: logoProps;
   betaIcon?: boolean;
   navLinkMenuList?: navLinkMenuListProps[];
+  marketplaceConfiguration?: React.ReactNode;
   reportIssue?: boolean;
   userMenu?: userMenuProps;
   userMenuList?: userMenuListProps[];
@@ -63,6 +64,7 @@ interface maintenanceProps {
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { marketplaceConfiguration } = props
   const config: IConfig = useContext(ConfigCtx)!;
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
@@ -123,55 +125,57 @@ export const Header = (props: headerProps) => {
 
   const userMenuList = props.userMenuList
     ? props.userMenuList.map((item) => {
-        return {
-          icon: item.icon,
-          label: item.label,
-          onClick: item.onClick,
-        };
-      })
+      return {
+        icon: item.icon,
+        label: item.label,
+        onClick: item.onClick,
+      };
+    })
     : [
-        {
-          icon: '',
-          label: '',
-          onClick: () => {
-            return null;
-          },
+      {
+        icon: '',
+        label: '',
+        onClick: () => {
+          return null;
         },
-      ];
+      },
+    ];
 
   const navLinkList = props.navLinkMenuList
     ? props.navLinkMenuList.map((item) => {
-        return {
-          label: item.label,
-          route: item.route,
-          onClick: item.onClick,
-          subMenuList: item.subMenuList?.map((item) => {
-            return {
-              label: item.label,
-              onClick: item.onClick,
-              route: item.route,
+      return {
+        label: item.label,
+        route: item.route,
+        onClick: item.onClick,
+        subMenuList: item.subMenuList?.map((item) => {
+          return {
+            label: item.label,
+            onClick: item.onClick,
+            route: item.route,
+              betaIcon: item.betaIcon,
             };
-          }),
-        };
-      })
+
+        }),
+      };
+    })
     : [
-        {
-          label: '',
-          route: '',
-          onClick: () => {
-            return null;
-          },
-          subMenuList: [
-            {
-              label: '',
-              onClick: () => {
-                return null;
-              },
-              route: undefined,
-            },
-          ],
+      {
+        label: '',
+        route: '',
+        onClick: () => {
+          return null;
         },
-      ];
+        subMenuList: [
+          {
+            label: '',
+            onClick: () => {
+              return null;
+            },
+            route: undefined,
+          },
+        ],
+      },
+    ];
 
   const CustomCss = withStyles((theme) => ({
     '@global': {
@@ -200,11 +204,16 @@ export const Header = (props: headerProps) => {
               component="div"
               sx={{ mr: 2, display: { md: 'flex', alignItems: 'center' } }}
             >
-              <img
-                src={props.logo?.img}
-                alt="NexiaLogo"
-                style={style.layoutLogo}
-              />
+              <NavLink
+                to={`/${window.location.pathname.substring(1).split("/")[0]}`}
+                exact
+              >
+                <img
+                  src={props.logo?.img}
+                  alt="NexiaLogo"
+                  style={style.layoutLogo}
+                />
+              </NavLink>
             </Typography>
             <Divider orientation="vertical" variant="middle" flexItem />
             {config.isMainApp ? (
@@ -220,6 +229,7 @@ export const Header = (props: headerProps) => {
                   justifyContent: 'left',
                   display: { xs: 'none', md: 'flex' },
                   alignItems: 'center',
+                  paddingRight: '24px',
                 }}
                 style={style.navLinkIconActive}
               >
@@ -227,6 +237,7 @@ export const Header = (props: headerProps) => {
               </Box>
             )}
             {<NavBar navigationPropsArray={navLinkList} />}
+            {marketplaceConfiguration ? marketplaceConfiguration : null}
           </Box>
           <Box sx={{ display: { xs: 'inline-flex', md: 'inline-flex' } }}>
             {props.reportIssue ? (
@@ -249,7 +260,7 @@ export const Header = (props: headerProps) => {
             ) : (
               <Box component={'span'}></Box>
             )}
-            {props.title === 'PLATFORM' &&
+            {props.title === 'Platform Management' &&
               props.maintenance?.showMaintenance && (
                 <Maintenance
                   handleMaintenanceDialog={

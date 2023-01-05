@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Dropdown from './Dropdown';
 import { NavLink } from 'react-router-dom';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { navigationProps } from './NavBar';
 import { Theme, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -94,7 +95,7 @@ const MenuItems = (props: Props) => {
             }}
           >
             {props.navigationProps.label}
-            <KeyboardArrowDownIcon />
+            {dropdown ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </Button>
           <Dropdown
             submenus={props.navigationProps.subMenuList}

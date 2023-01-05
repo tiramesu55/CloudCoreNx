@@ -79,9 +79,10 @@ export const SiteForm = (props: Props) => {
   const isEditSite = location.state?.from === 'editSite';
   const history = useHistory();
   const selected = useAppSelector(selectedId);
-  const disableEditApp = !(permissions.get('admin') ?? []).includes('global');
   const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
-  const allFieldsEnabled = (permissions.get('admin') ?? []).includes('global');
+  const adminRightsEnabled = (permissions.get('admin') ?? []).includes(
+    'global'
+  );
   const [siteApplications, setSiteApplications] = useState<Application[]>(
     site.applications
   );
@@ -539,7 +540,7 @@ export const SiteForm = (props: Props) => {
                     label="Site Name"
                     id="siteName"
                     value={site['siteName']}
-                    disabled={allFieldsEnabled ? false : true}
+                    disabled={adminRightsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteName}
                     formWidth="90%"
                     fieldName="siteName"
@@ -617,7 +618,7 @@ export const SiteForm = (props: Props) => {
                     label="Site Code"
                     id="siteCode"
                     value={site['siteCode']}
-                    disabled={allFieldsEnabled ? false : true}
+                    disabled={adminRightsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteCode}
                     formWidth="90%"
                     fieldName="siteCode"
@@ -631,7 +632,7 @@ export const SiteForm = (props: Props) => {
                     label="Site Indentifier"
                     id="siteIdentifier"
                     value={site['siteIdentifier']}
-                    disabled={allFieldsEnabled ? false : true}
+                    disabled={adminRightsEnabled ? false : true}
                     siteChangeHandler={handleChangeSiteIndentifier}
                     formWidth="90%"
                     fieldName="siteIdentifier"
@@ -707,7 +708,7 @@ export const SiteForm = (props: Props) => {
                 <ApplicationSiteForm
                   siteApplications={siteApplications}
                   siteApplicationsHandler={handleSiteApplicationChange}
-                  disableEditApp={disableEditApp}
+                  disableEditApp={!adminRightsEnabled}
                 />
               </Grid>
             </Grid>
@@ -723,12 +724,13 @@ export const SiteForm = (props: Props) => {
             >
               {isEditSite && (
                 <Box>
-                  <ActivateDeactivateSite
-                    openAlert={handleOpenAlert}
-                    closeAlert={handleCloseAlert}
-                    orgData={orgData}
-                    disableEditApp={disableEditApp}
-                  />
+                  {adminRightsEnabled && (
+                    <ActivateDeactivateSite
+                      openAlert={handleOpenAlert}
+                      closeAlert={handleCloseAlert}
+                      orgData={orgData}
+                    />
+                  )}
                 </Box>
               )}
               <Box>

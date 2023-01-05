@@ -9,6 +9,7 @@ import { TypedUseSelectorHook,  useSelector, useDispatch } from 'react-redux';
 import { suiteManagementReducer } from "./Platform-UI/suiteManagement/suiteManagementSlice";
 import { configReducer } from "./marketplace/configuration/configurationSlice";
 import { commonReducer } from "./Common/commonSlice";
+import { maintenanceReducer } from "./Maintenance/maintenanceSlice";
 
 export const store = configureStore({
    reducer:{
@@ -20,7 +21,8 @@ export const store = configureStore({
       dashboard: dashboardReduser,
       organizations: organizationsReducer,
       suiteManagement : suiteManagementReducer,
-      common: commonReducer
+      common: commonReducer,
+      maintenance : maintenanceReducer,
    },
    devTools: process.env['NODE_ENV'] !== 'production',
    // Optional Redux store enhancers

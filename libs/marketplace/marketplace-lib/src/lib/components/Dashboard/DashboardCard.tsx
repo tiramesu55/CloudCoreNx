@@ -35,8 +35,6 @@ const DashboardContent = (props: IDashboardContent) => {
 const DashboardCard = (props: IDashboardCard) => {
     const { helpText, color, icon, children, backgroundColor } = props
 
-    console.log(icon)
-
     return (
         <Card sx={{ flex: 12, borderBottom: `5px solid ${color}`, minHeight: '165px', borderRadius: '5px' }}>
             <Tooltip title={helpText} placement="top-end" sx={{

@@ -7,6 +7,7 @@ import { organizationsReducer } from './Platform-UI/organizations/organizationsS
 import { suiteManagementReducer } from './Platform-UI/suiteManagement/suiteManagementSlice';
 import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux';
 import { commonReducer } from './Common/commonSlice';
+import { maintenanceReducer } from "./Maintenance/maintenanceSlice";
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -16,6 +17,7 @@ export const store = configureStore({
     organizations: organizationsReducer,
     suiteManagement: suiteManagementReducer,
     common: commonReducer,
+    maintenance : maintenanceReducer,
   },
   devTools: process.env['NODE_ENV'] !== 'production',
   // Optional Redux store enhancers

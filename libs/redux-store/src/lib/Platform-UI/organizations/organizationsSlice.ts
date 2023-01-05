@@ -5,7 +5,7 @@ import {
   createSlice,
   PayloadAction,
   createEntityAdapter,
-} from "@reduxjs/toolkit";
+} from '@reduxjs/toolkit';
 import { RootState } from '../../store-platform';
 import {
   getOrganizationsAPI,
@@ -13,8 +13,9 @@ import {
   addOrganizationAPI,
   deleteOrganizationAPI,
   getOrganizationStatsAPI,
-  getAllOrganizationDomainsAPI
-} from "./organizationsAPI";
+  getAllOrganizationDomainsAPI,
+  getOrganizationAPI,
+} from './organizationsAPI';
 
 export interface Organization {
   name: string;
@@ -36,6 +37,7 @@ export interface Organization {
   modifiedDate: Date | null;
   officePhone: string;
   officeEmail: string;
+  postLogoutRedirectUrl: string;
   childOrgs: [];
 }
 
@@ -83,8 +85,9 @@ export interface OrganizationsState {
   organizationStats: OrganizationStats;
   allOrgDomains: OrganizationDomain[];
   selectedId: string;
-  status: "idle" | "loading" | "failed";
-  orgFormModified : boolean;
+  status: 'idle' | 'loading' | 'failed';
+  orgFormModified: boolean;
+  postLogoutRedirectUrl: string;
 }
 
 interface IActionUpdateField {
@@ -109,32 +112,34 @@ export const getOrganizationsAsync = createAsyncThunk<
   OrgsGetAction,
   any,
   { state: RootState }
->("organizations/getOrganizations", async ({ url, token } : {url: string, token: string}, { getState }) => {
-  if (!token) return { data: [], type: "getAll" };
-  const response = await getOrganizationsAPI(url, token);
-  // The value we return becomes the `fulfilled` action payload
-  return {
-    data: response.data,
-    type: "getAll",
-  };
-});
- 
+>(
+  'organizations/getOrganizations',
+  async ({ url, token }: { url: string; token: string }, { getState }) => {
+    if (!token) return { data: [], type: 'getAll' };
+    const response = await getOrganizationsAPI(url, token);
+    // The value we return becomes the `fulfilled` action payload
+    return {
+      data: response.data,
+      type: 'getAll',
+    };
+  }
+);
 
 export const updateOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
   { state: RootState }
 >(
-  "organizations/updateOrganization",
-  async ( orgData: IOrgCall , { getState }) => {
+  'organizations/updateOrganization',
+  async (orgData: IOrgCall, { getState }) => {
     const { url, organization, token } = orgData;
-    if (!token) return { data: null, type: "updateOne" };
-    const response = await updateOrganizationAPI(url, token , organization);
+    if (!token) return { data: null, type: 'updateOne' };
+    const response = await updateOrganizationAPI(url, token, organization);
 
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,
-      type: "updateOne",
+      type: 'updateOne',
     };
   }
 );
@@ -144,15 +149,15 @@ export const createOrganizationAsync = createAsyncThunk<
   any,
   { state: RootState }
 >(
-  "organizations/createOrganization",
-  async ( orgData: IOrgCall, { getState }) => {
+  'organizations/createOrganization',
+  async (orgData: IOrgCall, { getState }) => {
     const { url, organization, token } = orgData;
-    if (!token) return { data: null, type: "addOne" };
-    const response = await addOrganizationAPI(url, token , organization);
+    if (!token) return { data: null, type: 'addOne' };
+    const response = await addOrganizationAPI(url, token, organization);
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,
-      type: "addOne",
+      type: 'addOne',
     };
   }
 );
@@ -161,29 +166,51 @@ export const deleteOrganizationAsync = createAsyncThunk<
   OrgAction,
   any,
   { state: RootState }
->("organizations/deleteOrganization", async (orgData: IOrgCode, { getState }) => {
-  const { url, orgCode, token } = orgData;
-  if (!token) return { data: null, type: "updateOne" };
-  const response = await deleteOrganizationAPI(url, token, orgCode);
-  // The value we return becomes the `fulfilled` action payload
-  return {
-    data: response.data,
-    type: "updateOne",
-  };
-});
+>(
+  'organizations/deleteOrganization',
+  async (orgData: IOrgCode, { getState }) => {
+    const { url, orgCode, token } = orgData;
+    if (!token) return { data: null, type: 'updateOne' };
+    const response = await deleteOrganizationAPI(url, token, orgCode);
+    // The value we return becomes the `fulfilled` action payload
+    return {
+      data: response.data,
+      type: 'updateOne',
+    };
+  }
+);
 
 export const getOrganizationStatsAsync = createAsyncThunk<
   OrgStatsAction,
   any,
   { state: RootState }
->("organizations/organizationStats", async (orgData: IOrgCode, { getState }) => {
+>(
+  'organizations/organizationStats',
+  async (orgData: IOrgCode, { getState }) => {
+    const { url, orgCode, token } = orgData;
+    if (!token) return { data: null, type: 'getStats' };
+    const response = await getOrganizationStatsAPI(url, token, orgCode);
+    // The value we return becomes the `fulfilled` action payload
+    // eslint-disable-next-line no-debugger
+    return {
+      data: response.data,
+      type: 'getStats',
+    };
+  }
+);
+
+export const getPostLogoutRedirectUrl = createAsyncThunk<
+  OrgAction,
+  any,
+  { state: RootState }
+>('organization/getOrganization', async (orgData: IOrgCode, { getState }) => {
   const { url, orgCode, token } = orgData;
-  if (!token) return { data: null, type: "getStats" };
-  const response = await getOrganizationStatsAPI(url, token, orgCode);
+  if (!token) return { data: null, type: 'getStats' };
+  const response = await getOrganizationAPI(url, token, orgCode);
   // The value we return becomes the `fulfilled` action payload
   return {
     data: response.data,
-    type: "getStats",
+    type: 'getOne',
   };
 });
 
@@ -191,16 +218,19 @@ export const getAllOrganizationsDomains = createAsyncThunk<
   AllOrgDomainsAction,
   any,
   { state: RootState }
->("organizations/organizationDomains", async ({ url, token } : { url: string, token: string }, { getState }) => {
-  if (!token) return { data: null, type: "getAllDomains" };
-  const response = await getAllOrganizationDomainsAPI(url, token);
+>(
+  'organizations/organizationDomains',
+  async ({ url, token }: { url: string; token: string }, { getState }) => {
+    if (!token) return { data: null, type: 'getAllDomains' };
+    const response = await getAllOrganizationDomainsAPI(url, token);
 
-  // The value we return becomes the `fulfilled` action payload
-  return {
-    data: response.data,
-    type: "getAllDomains",
-  };
-});
+    // The value we return becomes the `fulfilled` action payload
+    return {
+      data: response.data,
+      type: 'getAllDomains',
+    };
+  }
+);
 
 const organizationAdapter = createEntityAdapter<Organization>({
   sortComparer: (a, b) => a.id.localeCompare(b.id),
@@ -209,28 +239,29 @@ const organizationAdapter = createEntityAdapter<Organization>({
 const initialState = organizationAdapter.getInitialState<OrganizationsState>({
   organizations: [],
   organization: {
-    name: "",
-    description: "",
-    id: "",
-    orgCode: "",
+    name: '',
+    description: '',
+    id: '',
+    orgCode: '',
     orgDomains: [],
     root: null,
     address: {
-      street: "",
-      city: "",
-      state: "",
-      zip: "",
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
     },
     orgAdmins: [],
     inactiveDate: null,
     startDate: null,
     endDate: null,
-    createdBy: "",
-    modifiedBy: "",
+    createdBy: '',
+    modifiedBy: '',
     createdDate: null,
     modifiedDate: null,
-    officePhone: "",
-    officeEmail: "",
+    officePhone: '',
+    officeEmail: '',
+    postLogoutRedirectUrl: '',
     childOrgs: [],
   },
   organizationStats: {
@@ -238,10 +269,11 @@ const initialState = organizationAdapter.getInitialState<OrganizationsState>({
     sites: 0,
     orgAdmins: 0,
   },
-  selectedId: "",
-  status: "idle",
+  selectedId: '',
+  status: 'idle',
   allOrgDomains: [],
-  orgFormModified : false,
+  orgFormModified: false,
+  postLogoutRedirectUrl: '',
 });
 
 export const organizationSelector = organizationAdapter.getSelectors(
@@ -249,7 +281,7 @@ export const organizationSelector = organizationAdapter.getSelectors(
 );
 
 export const organizationsSlice = createSlice({
-  name: "organizations",
+  name: 'organizations',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -257,7 +289,7 @@ export const organizationsSlice = createSlice({
       state.organization = {
         ...state.organization,
         [action.payload.key]:
-          action.payload.key === "orgDomains"
+          action.payload.key === 'orgDomains'
             ? [action.payload.value]
             : action.payload.value,
       };
@@ -280,60 +312,62 @@ export const organizationsSlice = createSlice({
     resetOrganization: (state) => {
       state.organization = initialState.organization;
     },
-    setOrgFormModified : (state, action: PayloadAction<boolean>) => {
-      state.orgFormModified = action.payload
-    }
+    setOrgFormModified: (state, action: PayloadAction<boolean>) => {
+      state.orgFormModified = action.payload;
+    },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
   // including actions generated by createAsyncThunk or in other slices.
   extraReducers: (builder) => {
     builder
       .addCase(getOrganizationsAsync.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(getOrganizationsAsync.fulfilled, (state, action) => {
-
         state.organizations = action.payload.data;
         state.selectedId = action.payload.data[0].id;
-        organizationAdapter.upsertMany(state, action.payload.data as Organization[]);
-        state.status = "idle";
+        organizationAdapter.upsertMany(
+          state,
+          action.payload.data as Organization[]
+        );
+        state.status = 'idle';
       })
       .addCase(getOrganizationsAsync.rejected, (state) => {
-        state.status = "failed";
+        state.status = 'failed';
       })
       .addCase(updateOrganizationAsync.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(updateOrganizationAsync.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = 'idle';
       })
       .addCase(updateOrganizationAsync.rejected, (state) => {
-        state.status = "failed";
+        state.status = 'failed';
       })
       .addCase(createOrganizationAsync.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(createOrganizationAsync.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = 'idle';
         // state.organizations = [...state.organizations, action.payload].filter(
         //   (item) => item?.id
         // );
       })
       .addCase(createOrganizationAsync.rejected, (state) => {
-        state.status = "failed";
+        state.status = 'failed';
       })
       .addCase(deleteOrganizationAsync.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(deleteOrganizationAsync.fulfilled, (state) => {
-        state.status = "idle";
+        state.status = 'idle';
       })
       .addCase(deleteOrganizationAsync.rejected, (state) => {
-        state.status = "failed";
+        state.status = 'failed';
       })
       .addCase(getOrganizationStatsAsync.fulfilled, (state, action) => {
         state.organizationStats = action.payload.data;
-        state.status = "idle";
+        state.status = 'idle';
       })
       .addCase(getOrganizationStatsAsync.rejected, (state, action) => {
         state.organizationStats = {
@@ -341,7 +375,18 @@ export const organizationsSlice = createSlice({
           sites: 0,
           orgAdmins: 0,
         };
-        state.status = "failed";
+        state.status = 'failed';
+      })
+      .addCase(getPostLogoutRedirectUrl.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(getPostLogoutRedirectUrl.fulfilled, (state, action) => {
+        state.postLogoutRedirectUrl =
+          action?.payload?.data?.postLogoutRedirectUrl;
+        state.status = 'idle';
+      })
+      .addCase(getPostLogoutRedirectUrl.rejected, (state) => {
+        state.status = 'failed';
       })
       .addCase(getAllOrganizationsDomains.fulfilled, (state, action) => {
         state.allOrgDomains = action?.payload?.data;
@@ -355,7 +400,7 @@ export const {
   updateField,
   updateAddress,
   resetOrganization,
-  setOrgFormModified
+  setOrgFormModified,
 } = organizationsSlice.actions;
 
 export const selectOrganizations = (state: RootState) =>
@@ -365,10 +410,9 @@ export const selectedId = (state: RootState) => state.organizations.selectedId;
 export const selectedOrganization = (state: RootState) =>
   state.organizations.organization;
 
-export const getOrgFormModified = (state : RootState) => {
+export const getOrgFormModified = (state: RootState) => {
   return state.organizations.orgFormModified;
-}
-  
+};
 
 export const organizationStats = (state: RootState) =>
   state.organizations.organizationStats;
@@ -376,9 +420,12 @@ export const organizationStats = (state: RootState) =>
 export const allOrgDomains = (state: RootState) =>
   state.organizations.allOrgDomains.map((org) => org.domainName);
 
+export const postLogoutRedirectUrl = (state: RootState) =>
+  state.organizations.postLogoutRedirectUrl;
+
 export const selectOrganizationByDomain = (state: RootState, email: string) => {
   //strip email part and do domain
-  const domain = email.split("@")[1];
+  const domain = email.split('@')[1];
   const org = state.organizations.organizations.find((p) =>
     p.orgDomains?.includes(domain)
   );
@@ -395,20 +442,21 @@ export const selectOrgByOrgCode = (state: RootState, orgCode: string) => {
 };
 
 export const checkIfRootOrganization = (state: RootState, orgCode: string) => {
-
-  const org = state.organizations.organizations.find(p => p.orgCode?.includes(orgCode))
+  const org = state.organizations.organizations.find((p) =>
+    p.orgCode?.includes(orgCode)
+  );
   const root = org?.root;
   return root;
-}
+};
 
 export const organizationList = (state: RootState) =>
-state.organizations.organizations.map( function(organization) {
-  return organization['name'];
-})
+  state.organizations.organizations.map(function (organization) {
+    return organization['name'];
+  });
 
 export const getOrgCodeFromName = (state: RootState) => {
   const org = state.organizations.organizations;
   return org;
-}
+};
 
 export const organizationsReducer = organizationsSlice.reducer;

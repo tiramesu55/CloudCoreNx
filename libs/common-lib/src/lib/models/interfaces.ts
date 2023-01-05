@@ -17,6 +17,7 @@ export enum ActionType{
 export interface IUiReport {
     reportId: string;
     reportName: string;
+    beta?: boolean;
   }
 
 export interface IUiReportList {

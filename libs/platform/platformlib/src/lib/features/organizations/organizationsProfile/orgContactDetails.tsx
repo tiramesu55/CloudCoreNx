@@ -58,7 +58,7 @@ export const OrgContactDetails = () => {
               {<Box component={'span'}>{orgDomains && orgDomains[0]}</Box>}
             </Typography>
 
-            <Typography>
+            <Typography component={"div"}>
               {orgDomains && orgDomains.length > 1 ? (
                 <Tooltip
                   sx={{ cursor: 'default' }}

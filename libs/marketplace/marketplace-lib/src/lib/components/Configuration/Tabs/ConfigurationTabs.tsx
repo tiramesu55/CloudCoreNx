@@ -1,10 +1,10 @@
 import { Tab, Box, Tabs, lighten, Stack, Typography, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, InputBase, styled } from "@mui/material"
 import { useMemo, useState } from "react"
 import LabelSettings from "../LabelSettings/LabelSettings"
-import InventorySettings from "../InventorySettings/inventorySettings"
 import TabPanel from "./TabPanel"
 import BusinessRules from "../BusinessRules/BuisnessRules"
 import FormularyList from "../FormularyList/FormularyList"
+import GeneralSettings from "../GeneralSettings/GeneralSettingsCard"
 
 const tabPadding = { paddingBottom: '5px', }
 export interface IConfigurationPermissions {
@@ -60,7 +60,7 @@ const ConfigurationTabs = (props: ConfigurationTabsProps) => {
             </Stack>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tab} onChange={changeTab} aria-label="basic tabs example">
-                    <Tab disabled={!checkedPermissions.inventory} data-testid="inventorySettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">Inventory Settings</Typography>} />
+                    {/* <Tab disabled={!checkedPermissions.inventory} data-testid="inventorySettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">Inventory Settings</Typography>} /> */}
                     <Tab disabled={!checkedPermissions.general} data-testid="generalSettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">General Settings</Typography>} />
                     <Tab disabled={!checkedPermissions.label} data-testid="labelSettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">Label Settings</Typography>} />
                     <Tab disabled={!checkedPermissions.formulary} data-testid="formularyListTab" sx={tabPadding} label={<Typography variant="tabLabel">Formulary List</Typography>} />
@@ -96,19 +96,19 @@ const ConfigurationTabs = (props: ConfigurationTabsProps) => {
                     )}
                 </Tabs>
             </Box>
-            <TabPanel value={tab} index={0}>
+            {/* <TabPanel value={tab} index={0}>
                 <InventorySettings />
+            </TabPanel> */}
+            <TabPanel value={tab} index={0}>
+                <GeneralSettings />
             </TabPanel>
             <TabPanel value={tab} index={1}>
-                Item Two
-            </TabPanel>
-            <TabPanel value={tab} index={2}>
                 <LabelSettings />
             </TabPanel>
-            <TabPanel value={tab} index={3}>
+            <TabPanel value={tab} index={2}>
                 <FormularyList />
             </TabPanel>
-            <TabPanel value={tab} index={4}>
+            <TabPanel value={tab} index={3}>
                 <BusinessRules />
             </TabPanel>
         </Box>

@@ -32,6 +32,7 @@ import {
   interface AvailableReport {
     ReportId : string;
     ReportName : string;
+    beta?: boolean;
   }
   
   interface AvailableReports {
@@ -42,6 +43,8 @@ import {
     suites: Suite[];
     workspaces: Workspace[];
     selectedPermission: string;
+    selectedSuiteName : string;
+    selectedSuiteId : string;
     availableReports : AvailableReports;
     status: "idle" | "loading" | "failed" | "error";
     suiteFormModified: boolean;
@@ -87,6 +90,8 @@ import {
 const initialState: SuiteState = {
     suites: [],
     selectedPermission: "",
+    selectedSuiteName : "",
+    selectedSuiteId : "",
     workspaces: [],
     availableReports : {Result : []},
     status: "idle",
@@ -212,6 +217,15 @@ const initialState: SuiteState = {
       setResetForm: (state, action: PayloadAction<boolean>) => {
         state.resetForm = action.payload;
       },
+      setSelectedPermission : (state, action :PayloadAction<string>) => {
+        state.selectedPermission = action.payload;
+      },
+      setSelectedSuiteName : (state, action:PayloadAction<string>) => {
+        state.selectedSuiteName = action.payload
+      },
+      setSelectedSuiteId : (state, action:PayloadAction<string>) => {
+        state.selectedSuiteId = action.payload
+      },
       resetAvailableReports: (state) => {
         state.availableReports.Result = initialState.availableReports.Result;
       },
@@ -296,7 +310,8 @@ const initialState: SuiteState = {
     },
   });
   
-  export const { setSuiteFormModified, setResetForm, resetAvailableReports } = suiteManagementSlice.actions;
+  export const { setSuiteFormModified, setResetForm, resetAvailableReports, setSelectedPermission,
+  setSelectedSuiteName, setSelectedSuiteId } = suiteManagementSlice.actions;
   
   export const getWorkspaceId = (state: RootState, domain: string) => {
     const workspace = state.suiteManagement.workspaces.find((ws) => {
@@ -310,13 +325,6 @@ const initialState: SuiteState = {
     });
 
     return selectedSuite;
-  };
-  
-  export const getSuiteByPermission = (state: RootState, permission: string) => {
-    const suite = state.suiteManagement.suites.find((suite) => {
-      return suite?.permission === permission;
-    });
-    return suite;
   };
   
   export const selectedReports = (state: RootState, permission: string) => {

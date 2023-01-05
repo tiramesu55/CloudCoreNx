@@ -1,6 +1,7 @@
 import { Box, Typography, Button } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useTheme, Theme } from '@mui/material/styles';
 import { useContext } from 'react';
 import {
@@ -156,9 +157,17 @@ const AppsMenu = (props: AppsMenuProps) => {
           ) : (
             <Box component={'span'}></Box>
           )}
-          <Box>
-            <KeyboardArrowDownIcon sx={{ mt: 1 }} />
-          </Box>
+          {Array.from(permissions).filter(([app, value]) => {
+            return value;
+          }).length > 1 && dropdown ? (
+            <Box>
+              <KeyboardArrowUpIcon sx={{ mt: 1 }} />
+            </Box>
+          ) : (
+            <Box>
+              <KeyboardArrowDownIcon sx={{ mt: 1 }} />
+            </Box>
+          )}
         </Typography>
       </Button>
 
@@ -167,22 +176,26 @@ const AppsMenu = (props: AppsMenuProps) => {
         sx={dropdown ? { display: 'block' } : { display: 'none' }}
       >
         {/* filter is a temporary solution to the missing or incorrect disabledList sheet.  I hide the  */}
-        {availableApps.filter( app => app.permission).map((app) => {
-          return (
-            <Box
-              component={'button'}
-              onClick={(e: React.MouseEvent) => {
-                app.permission ? handleAppRouting(app.url) : e.preventDefault();
-              }}
-              key={app.name}
-              className={
-                app.permission ? 'subMenuList' : `disabledList subMenuList`
-              }
-            >
-              {app.name}
-            </Box>
-          );
-        })}
+        {availableApps
+          .filter((app) => app.permission)
+          .map((app) => {
+            return (
+              <Box
+                component={'button'}
+                onClick={(e: React.MouseEvent) => {
+                  app.permission
+                    ? handleAppRouting(app.url)
+                    : e.preventDefault();
+                }}
+                key={app.name}
+                className={
+                  app.permission ? 'subMenuList' : `disabledList subMenuList`
+                }
+              >
+                {app.name}
+              </Box>
+            );
+          })}
       </Box>
     </Box>
   );

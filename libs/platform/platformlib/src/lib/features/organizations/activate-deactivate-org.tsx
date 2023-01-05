@@ -92,6 +92,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
         modifiedDate: new Date(),
         createdBy: null,
         modifiedBy: null,
+        postLogoutRedirectUrl: organization.postLogoutRedirectUrl,
         childOrgs: [],
       };
       dispatch(

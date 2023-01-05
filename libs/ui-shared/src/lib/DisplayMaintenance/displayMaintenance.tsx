@@ -9,17 +9,35 @@ import { Box, IconButton, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from '@mui/material';
 import maintenanceIcon from '../assets/maintenanceIcon.svg';
+import moment from 'moment';
 
 interface Props {
-    open : boolean;
-    handleDisplayMaintenanceDialog : (value : boolean) => void;
+    open: boolean;
+    handleDisplayMaintenanceDialog: (value: boolean) => void;
+    maintenanceStartDate: string;
+    maintenanceEndDate: string;
+    maintenanceReason?: string;
+    fullLockout?: boolean;
+    mainApp?: boolean;
+    logout?: any;
+    underMaintenance?: boolean;
+    bypassUser?: boolean;
+    application?: string;
+    ignoreMaintenance?: () => void;
 }
 
-const DisplayMiantenance = (props : Props) => {
+export const DisplayMaintenance = (props: Props) => {
     const theme = useTheme();
 
     const handleClose = () => {
-       props.handleDisplayMaintenanceDialog(false);
+        if (props.mainApp === true || !props.fullLockout || props.bypassUser || props.underMaintenance === false) {
+            if (props?.application === "platform") {
+                props.ignoreMaintenance && props.ignoreMaintenance()
+            }
+            props.handleDisplayMaintenanceDialog(false);
+        } else if (props.mainApp === undefined && props.fullLockout === true && props.underMaintenance === true) {
+            props.logout();
+        }
     }
 
     return (
@@ -64,31 +82,28 @@ const DisplayMiantenance = (props : Props) => {
                         </Box>
                         <Box>
                             Maintenance start time : <Box component={"span"} sx={{ color: `${theme.palette.blackFont.main}` }}>
-                                10:00 AM EST (10/19/2022)
+                                {moment(props.maintenanceStartDate).format("hh:mm A (MM/DD/YYYY)")}
                             </Box>
                         </Box>
                         <Box>
                             Maintenance end time : <Box component={"span"} sx={{ color: `${theme.palette.blackFont.main}` }}>
-                                10:00 AM EST (10/20/2022)
+                                {moment(props.maintenanceEndDate).format("hh:mm A (MM/DD/YYYY)")}
                             </Box>
                         </Box>
                         <Box sx={{
                             fontSize: `${theme.typography.body2.fontSize}`,
                             paddingTop: `${theme.spacing(2)}`
                         }}>
-                            we are currently facing an issue in our Beta Enterprise Analytics cloud app and will be performing emergency
-                            maintenance on the system today.
+                            {props.maintenanceReason}
                         </Box>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button variant="contained" onClick={handleClose}>
-                        CLOSE
+                        {(props.mainApp || !props.fullLockout || !props.underMaintenance || props.bypassUser) ? "CLOSE" : "LOGOUT"}
                     </Button>
                 </DialogActions>
             </Dialog>
         </div>
     )
 }
-
-export default DisplayMiantenance

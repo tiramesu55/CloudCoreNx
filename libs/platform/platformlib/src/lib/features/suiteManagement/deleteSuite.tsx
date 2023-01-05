@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -8,35 +7,88 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Box, IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material';
-import { platformStore } from '@cloudcore/redux-store';
+import { deleteSuiteAsync, getSuitesAsync, platformStore, setSelectedPermission, setSelectedSuiteId, setSelectedSuiteName, setSuiteFormModified } from '@cloudcore/redux-store';
+import { ConfigCtx, UseClaimsAndSignout, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+import { useContext } from 'react';
+import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 interface Props {
   open: boolean;
   handleLeave: (open: boolean) => void;
   suiteName: string;
-  handleDelete: () => void;
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+  selectedDomain : string;
 }
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
 const DeleteSuite = (props: Props) => {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [suiteName, setSuiteName] = React.useState('');
-  //   const token = useAppSelector(selectToken);
+  const selectedSuiteName = useAppSelector((state) => state.suiteManagement.selectedSuiteName);
+  const selectedSuiteId = useAppSelector((state) => state.suiteManagement.selectedSuiteId);
+  const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
+  const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app);
   const dispatch = useAppDispatch();
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     props.handleLeave(false);
   };
 
-  React.useEffect(() => {
-    setSuiteName(props.suiteName);
-  }, [props.suiteName]);
+  const handleDelete = () => {
+    try {
+      props.handleLeave(false);
+      dispatch(
+        deleteSuiteAsync({
+          token,
+          url: platformBaseUrl,
+          id: selectedSuiteId,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            props.handleOpenAlert({
+              content: 'Suite deleted successfully',
+              type: 'success',
+            });
+            dispatch(setSuiteFormModified(false));
+            if (token && props.selectedDomain !== '') {
+              dispatch(
+                getSuitesAsync({
+                  token,
+                  url: platformBaseUrl,
+                  domain: props.selectedDomain,
+                })
+              )
+                .unwrap()
+                .then(
+                  (value: any) => {
+                    dispatch(setSelectedSuiteName(''));
+                    dispatch(setSelectedSuiteId(''));
+                  },
+                  (reason: any) => {
+                    props.handleOpenAlert({
+                      content: reason.message,
+                      type: 'error',
+                    });
+                  }
+                );
+            }
+          },
+          (reason: any) => {
+            props.handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
+      dispatch(setSelectedPermission(''))
+    } catch (err) {
+      console.log('failed to delete suite', err);
+    }
+  };
 
   return (
     <div>
@@ -71,14 +123,14 @@ const DeleteSuite = (props: Props) => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText id="alert-dialog-description" component={"div"}>
             <Box
               color={theme.palette.blackFont.main}
               fontSize={'32px'}
               my={6}
               fontWeight={400}
             >
-              {`We will delete "${suiteName}" Suite.`}
+              {`We will delete "${selectedSuiteName}" Suite.`}
             </Box>
             <Box
               color={theme.palette.blackFont.main}
@@ -93,7 +145,7 @@ const DeleteSuite = (props: Props) => {
           <Button variant="outlined" onClick={handleClose}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={props.handleDelete} autoFocus>
+          <Button variant="contained" onClick={handleDelete} autoFocus>
             Delete
           </Button>
         </DialogActions>

@@ -29,7 +29,6 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import TitleAndCloseIcon from '../components/TitleAndClose/TitleAndClose';
-import DisplayMiantenance from 'libs/ui-shared/src/lib/DisplayMaintenance/displayMaintenance';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
 const { useAppDispatch, useAppSelector } = platformStore;
 
@@ -52,7 +51,6 @@ export const Dashboard = (props: Props) => {
   const history = useHistory();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
-  const [displayMaintenance, setDisplayMaintenance] = useState(false);
   const orgsCount = useAppSelector(getAllOrgCount);
   const sitesCount = useAppSelector(getAllSitesCount);
   const usersCount = useAppSelector(getAllUsersCount);
@@ -114,10 +112,6 @@ export const Dashboard = (props: Props) => {
     });
   };
 
-  const handleDisplayMaintenanceDialog = (value: boolean) => {
-    setDisplayMaintenance(value);
-  };
-
   return (
     <Grid>
       <Snackbar
@@ -127,12 +121,6 @@ export const Dashboard = (props: Props) => {
         onClose={handleCloseAlert}
         duration={3000}
       />
-      {
-        <DisplayMiantenance
-          open={displayMaintenance}
-          handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
-        />
-      }
       <Grid item xs={12}>
         <TitleAndCloseIcon
           breadCrumbOrigin={'Dashboard'}

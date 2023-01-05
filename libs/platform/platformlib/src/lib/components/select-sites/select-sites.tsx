@@ -163,29 +163,30 @@ export const SelectSites = (props: Props) => {
         props.orgCode !== '' &&
         allApps.map((appDetail) => {
           const justRoles: Option[] = [];
-          if (appDetail.appCode === 'admin') {
-            appDetail.roles.forEach((roles) => {
-              if (
-                (!root && roles.role === 'organization') ||
-                (root && roles.role === 'admin')
-              ) {
+          if (appDetail.roles) {
+            if (appDetail.appCode === 'admin') {
+              appDetail.roles.forEach((roles) => {
+                if (
+                  (!root && roles.role === 'organization') ||
+                  (root && roles.role === 'admin')
+                ) {
+                  justRoles.push({
+                    name: roles.role,
+                    value: roles.role,
+                    permissions: roles.permissions,
+                  });
+                }
+              });
+            } else {
+              appDetail.roles.forEach((roles) => {
                 justRoles.push({
                   name: roles.role,
                   value: roles.role,
                   permissions: roles.permissions,
                 });
-              }
-            });
-          } else {
-            appDetail.roles.forEach((roles) => {
-              justRoles.push({
-                name: roles.role,
-                value: roles.role,
-                permissions: roles.permissions,
               });
-            });
+            }
           }
-
           //Roles and Sites are returned for the particular application
           const application =
             selectedApps &&

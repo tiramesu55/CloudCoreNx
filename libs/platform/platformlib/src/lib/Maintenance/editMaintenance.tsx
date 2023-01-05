@@ -10,7 +10,7 @@ import { useTheme } from '@mui/material';
 import { DateAndTimeInput } from '../components/date-and-time-input/dateAndTimeInput';
 import moment from 'moment-timezone';
 import { parseISO } from 'date-fns';
-import { createMaintenance, getApplications, platformStore } from '@cloudcore/redux-store';
+import { createMaintenance, getApplications, getMaintenanceAsync, platformStore } from '@cloudcore/redux-store';
 import { ConfigCtx,  IConfig,  useOktaAuth } from '@cloudcore/okta-and-config';
 import { CustomMultiSelectBox } from '../components/custom-multi-select-box/custom-multi-select-box'
 export interface App {
@@ -106,7 +106,7 @@ const EditMaintenanceMode = (props: Props) => {
                         maintenanceDisplayStartDate: moment(announcementStartDate).tz('est').format("MM-DD-YYYY HH:mm"),
                         maintenanceDisplayEndDate :  moment(maintenanceEndDate).tz('est').format("MM-DD-YYYY HH:mm"),
                         maintenanceReason: reason,
-                        bypassUsers: ["rosh@gmail.com", "alec@gmail.com","wag@walgreens.com"],
+                        bypassUsers: ["rosh@gmail.com", "alec@gmail.com"],
                         appCode: [...appCode],
                         fullLockOut
                     }
@@ -115,7 +115,7 @@ const EditMaintenanceMode = (props: Props) => {
                 .unwrap()
                 .then(
                     () => {
-                        dispatch(getApplications({
+                        dispatch(getMaintenanceAsync({
                             url: platformBaseUrl,
                             token: token,
                         }))

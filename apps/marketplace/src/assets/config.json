@@ -1,17 +1,15 @@
 {
-    "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
-    "logoutSSO" : "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/SSOLogout",
-    "postLogoutRedirectUri":"https://ssotest.walgreens.com/idp/idpLogout",
-     "oidcConfig": {
-      "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
-      "clientId": "0oa2e7f4dvYLDDdmw1d7",
-      "redirectUri": "http://localhost:3000/login/callback",
-      "pkce":true
-    },
-    "instrumentationKey": "8f2e56e0-9ec2-491d-80bb-42f37ada0f5f",
-    "REACT_APP_POWERBI_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/Reports/Report",
-    "mpReports":{
-      "dashboard":"3c7d3cd2-a042-4632-b88e-73517df4678d"
-    }
- 
+  "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
+  "logoutSSO": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/SSOLogout",
+  "oidcConfig": {
+    "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",
+    "clientId": "0oa2e7f4dvYLDDdmw1d7",
+    "redirectUri": "http://localhost:3000/login/callback",
+    "pkce": true
+  },
+  "instrumentationKey": "8f2e56e0-9ec2-491d-80bb-42f37ada0f5f",
+  "REACT_APP_POWERBI_URL": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/Reports/Report",
+  "mpReports": {
+    "dashboard": "3c7d3cd2-a042-4632-b88e-73517df4678d"
+  }
 }

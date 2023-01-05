@@ -48,6 +48,7 @@ import {
   fetchUsers,
   usersDomain,
   resetSite,
+  getPostLogoutRedirectUrl,
 } from '@cloudcore/redux-store';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -87,7 +88,7 @@ export const OrganizationForm = (props: Props) => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
   }, [config.isMainApp]);
   const { token, permissions } = useClaimsAndSignout() as UseClaimsAndSignout;
-
+  const disableEditDomain = (permissions.get('admin') ?? []).includes('global');
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
   const { platformBaseUrl } = config; // at this point config is not null (see app)
@@ -117,7 +118,9 @@ export const OrganizationForm = (props: Props) => {
   const usedDomains = useAppSelector(usersDomain);
   const [orgDomainDialogOpen, setOrgDomainDialogOpen] = useState(false);
   const [orgDomainList, setOrgDomainList] = useState<string[]>([]);
-  const addOrgButtonEnabled = (permissions.get('admin') ?? []).includes(
+  const [postRedirectUrlValue, setPostRedirectUrlValue] = useState('');
+  const [postRedirectUrlInvalid, setPostRedirectUrlInvalid] = useState(false);
+  const adminRightsEnabled = (permissions.get('admin') ?? []).includes(
     'global'
   );
   const isAddOrganization = location.state?.from === 'addOrganization';
@@ -260,6 +263,11 @@ export const OrganizationForm = (props: Props) => {
     )
     ? true
     : false;
+  const validPostRedirectUrl = adminRightsEnabled
+    ? validURL(organization?.postLogoutRedirectUrl)
+      ? true
+      : false
+    : true;
   const validDomain = orgDomainList.length > 0 ? true : false;
   const validPhone =
     organization.officePhone === null || organization.officePhone === ''
@@ -402,6 +410,28 @@ export const OrganizationForm = (props: Props) => {
     dispatch(setOrgFormModified(true));
   };
 
+  function validURL(str: string) {
+    const pattern = new RegExp(
+      '^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$',
+      'i'
+    ); // fragment locator
+    return !!pattern.test(str);
+  }
+
+  const handlePostRedirectUrl = (key: string, val: any) => {
+    validURL(val)
+      ? setPostRedirectUrlInvalid(false)
+      : setPostRedirectUrlInvalid(true);
+    setPostRedirectUrlValue(val);
+    dispatch(updateField({ value: val, key, id: selected }));
+    dispatch(setOrgFormModified(true));
+  };
+
   const onEmailFocused = (e: any) => {
     String(e)
       .trim()
@@ -410,6 +440,12 @@ export const OrganizationForm = (props: Props) => {
       )
       ? setEmailInvalid(false)
       : setEmailInvalid(true);
+  };
+
+  const onPostRedirectFocused = (e: any) => {
+    validURL(e.value)
+      ? setPostRedirectUrlInvalid(false)
+      : setPostRedirectUrlInvalid(true);
   };
 
   const handleChangeStreet = (key: string, val: any) => {
@@ -458,6 +494,8 @@ export const OrganizationForm = (props: Props) => {
     };
   });
 
+  const loggedInOrgCode = useAppSelector((state) => state.maintenance.orgCode);
+
   const handleSubmit = (event: any) => {
     if (isAddOrganization) {
       try {
@@ -481,6 +519,7 @@ export const OrganizationForm = (props: Props) => {
           modifiedDate: new Date(),
           createdBy: null,
           modifiedBy: null,
+          postLogoutRedirectUrl: organization.postLogoutRedirectUrl,
           childOrgs: [],
         };
         if (
@@ -491,6 +530,7 @@ export const OrganizationForm = (props: Props) => {
           !cityInvalid &&
           !stateInvalid &&
           !zipInvalid &&
+          !postRedirectUrlInvalid &&
           validOrgCode &&
           validOrgName &&
           validDescription &&
@@ -500,7 +540,8 @@ export const OrganizationForm = (props: Props) => {
           validStreet &&
           validCity &&
           validState &&
-          validZipCode
+          validZipCode &&
+          validPostRedirectUrl
         ) {
           dispatch(
             createOrganizationAsync({
@@ -555,6 +596,10 @@ export const OrganizationForm = (props: Props) => {
           if (validEmail === false) {
             setEmailInvalid(true);
             document.getElementById('officeEmail')?.focus();
+          }
+          if (validPostRedirectUrl === false) {
+            setPostRedirectUrlInvalid(true);
+            document.getElementById('postLogoutRedirectUrl')?.focus();
           }
           if (validDomain !== true) {
             setOrgDomainInvalid(true);
@@ -616,6 +661,7 @@ export const OrganizationForm = (props: Props) => {
           modifiedDate: new Date(),
           createdBy: null,
           modifiedBy: null,
+          postLogoutRedirectUrl: organization.postLogoutRedirectUrl,
           childOrgs: [],
         };
         if (
@@ -627,6 +673,7 @@ export const OrganizationForm = (props: Props) => {
           !cityInvalid &&
           !stateInvalid &&
           !zipInvalid &&
+          !postRedirectUrlInvalid &&
           validOrgCode &&
           validOrgName &&
           validDescription &&
@@ -636,7 +683,8 @@ export const OrganizationForm = (props: Props) => {
           validStreet &&
           validCity &&
           validState &&
-          validZipCode
+          validZipCode &&
+          validPostRedirectUrl
         ) {
           dispatch(
             updateOrganizationAsync({
@@ -648,6 +696,28 @@ export const OrganizationForm = (props: Props) => {
             .unwrap()
             .then(
               () => {
+                if (loggedInOrgCode === organization.orgCode) {
+                  dispatch(
+                    getPostLogoutRedirectUrl({
+                      orgCode: loggedInOrgCode,
+                      url: platformBaseUrl,
+                      token: token,
+                    })
+                  )
+                    .unwrap()
+                    .then(
+                      (value: any) => {
+                        //Do Nothing
+                      },
+                      (reason: any) => {
+                        handleOpenAlert({
+                          content: reason.message,
+                          type: 'error',
+                        });
+                      }
+                    );
+                }
+                dispatch(setOrgFormModified(false));
                 handleOpenAlert({
                   content: 'Changes were updated successfully',
                   type: 'success',
@@ -724,6 +794,10 @@ export const OrganizationForm = (props: Props) => {
             setZipInvalid(true);
             document.getElementById('Zip/Postal')?.focus();
           }
+          if (validPostRedirectUrl === false) {
+            setPostRedirectUrlInvalid(true);
+            document.getElementById('postLogoutRedirectUrl')?.focus();
+          }
         }
       } catch (err) {
         console.log('Failed to save the organization', err);
@@ -785,7 +859,7 @@ export const OrganizationForm = (props: Props) => {
             breadCrumbTitle={
               isAddOrganization ? 'Add New Organization' : 'Edit Organization'
             }
-            addBtn={!isAddOrganization && addOrgButtonEnabled}
+            addBtn={!isAddOrganization && adminRightsEnabled}
             onClickAddBtn={addNewSite}
             addBtnText="ADD NEW SITE"
           />
@@ -927,13 +1001,18 @@ export const OrganizationForm = (props: Props) => {
                               : ''
                           }
                         />
-                        <Button
-                          size="small"
-                          onClick={() => handleOrgDomainDialog(true)}
-                          sx={{ height: '45px', marginTop: theme.spacing(2.5) }}
-                        >
-                          {isAddOrganization ? 'Add' : 'Edit'}
-                        </Button>
+                        {disableEditDomain && (
+                          <Button
+                            size="small"
+                            onClick={() => handleOrgDomainDialog(true)}
+                            sx={{
+                              height: '45px',
+                              marginTop: theme.spacing(2.5),
+                            }}
+                          >
+                            {isAddOrganization ? 'Add' : 'Edit'}
+                          </Button>
+                        )}
                       </Box>
                     )}
                   />
@@ -1080,6 +1159,28 @@ export const OrganizationForm = (props: Props) => {
                     focusHandler={onZipFocused}
                   />
                 </Grid>
+                {adminRightsEnabled && (
+                  <Grid xs={3} item>
+                    <InputTextWithLabel
+                      label="Post Redirect Url"
+                      id="postLogoutRedirectUrl"
+                      value={organization['postLogoutRedirectUrl']}
+                      formWidth="90%"
+                      fieldName="postLogoutRedirectUrl"
+                      orgChangeHandler={handlePostRedirectUrl}
+                      error={postRedirectUrlInvalid}
+                      required={true}
+                      helperText={
+                        postRedirectUrlInvalid && postRedirectUrlValue === ''
+                          ? 'Post Redirect Url is Required'
+                          : postRedirectUrlInvalid
+                          ? 'Invalid Url'
+                          : ''
+                      }
+                      focusHandler={onPostRedirectFocused}
+                    />
+                  </Grid>
+                )}
               </Grid>
             </Grid>
             {(isEditOrganization || isEditOrganizationRedirect) && (
@@ -1131,12 +1232,14 @@ export const OrganizationForm = (props: Props) => {
         >
           {(isEditOrganization || isEditOrganizationRedirect) && (
             <Box>
-              <ActivateDeactivateOrg
-                orgDomain={orgDomain}
-                openAlert={handleOpenAlert}
-                closeAlert={handleCloseAlert}
-                orgData={orgData}
-              />
+              {adminRightsEnabled && (
+                <ActivateDeactivateOrg
+                  orgDomain={orgDomain}
+                  openAlert={handleOpenAlert}
+                  closeAlert={handleCloseAlert}
+                  orgData={orgData}
+                />
+              )}
             </Box>
           )}
           <Box>

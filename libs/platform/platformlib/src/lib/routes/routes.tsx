@@ -18,14 +18,18 @@ import {
   sign_out_img,
   Snackbar,
   UnsavedData,
+  DisplayMaintenance,
 } from '@cloudcore/ui-shared';
 import { ListUsers } from '../features/users/allUsers';
 import {
+  bypassUserAsync,
   getApplications,
+  getMaintenanceAsync,
   platformStore,
   selectAppRoles,
   closeAlertAction,
   openAlertAction,
+  getPostLogoutRedirectUrl,
 } from '@cloudcore/redux-store';
 import { SiteForm } from '../features/sites/siteForm';
 import { Sites } from '../features/sites/sites';
@@ -38,6 +42,7 @@ import {
 import SuiteManagement from '../features/suiteManagement/suiteManagement';
 import EditMaintenanceMode from '../Maintenance/editMaintenance';
 import { IAlert } from '@cloudcore/common-lib';
+import { useMaintenance } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
@@ -52,9 +57,13 @@ export const Routes = () => {
   const orgFormModified = useAppSelector(
     (state) => state.organizations.orgFormModified
   );
-
+  const loggedInOrgCode = useAppSelector((state) => state.maintenance.orgCode);
   const userFormModified = useAppSelector(
     (state) => state.user.userFormModified
+  );
+
+  const orgCode = useAppSelector(
+    (state) => state.organizations.organization.orgCode
   );
   const siteFormModified = useAppSelector(
     (state) => state.sites.siteFormModified
@@ -89,11 +98,12 @@ export const Routes = () => {
           userLoadingState ||
           dashboardLoadingState ||
           siteLoadingState ||
-          applicationLoadingState
+          applicationLoadingState ||
+          (!loadData && !disableBackdrop)
         : false;
     return x;
   };
-  const { signOut, token, initials, names, permissions } =
+  const { signOut, token, initials, names, permissions, email } =
     useClaimsAndSignout() as UseClaimsAndSignout;
 
   const platformPermissions = (permissions.get('admin') ?? []).length > 0;
@@ -111,9 +121,24 @@ export const Routes = () => {
       name: app.name,
     };
   });
-  const showSuiteManagement = (permissions.get('admin') ?? []).includes(
+  const adminRightsEnabled = (permissions.get('admin') ?? []).includes(
     'global'
   );
+
+  const currentDate = new Date();
+
+  const {
+    displayMaintenance,
+    underMaintenance,
+    maintenanceStartDate,
+    maintenanceEndDate,
+    maintenanceReason,
+    fullLockout,
+    handleDisplayMaintenanceDialog,
+    isBypassUser,
+    loadData,
+    disableBackdrop,
+  } = useMaintenance('Platform Management', currentDate);
 
   const handleDialogBox = (open: boolean) => {
     setDialogBoxOpen(open);
@@ -143,8 +168,45 @@ export const Routes = () => {
             });
           }
         );
+      dispatch(
+        getMaintenanceAsync({
+          url: platformBaseUrl,
+          token: token,
+        })
+      );
+      dispatch(
+        bypassUserAsync({
+          url: platformBaseUrl,
+          token: token,
+          email: email,
+        })
+      );
     }
-  }, [dispatch, platformBaseUrl, token]);
+  }, [platformBaseUrl, token]);
+
+  useEffect(() => {
+    if (loggedInOrgCode) {
+      dispatch(
+        getPostLogoutRedirectUrl({
+          orgCode: loggedInOrgCode,
+          url: platformBaseUrl,
+          token: token,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
+    }
+  }, [loggedInOrgCode, platformBaseUrl, token, orgCode]);
 
   const path = useMemo(() => {
     return `${config.isMainApp ? '/platform/' : '/'}`;
@@ -154,16 +216,35 @@ export const Routes = () => {
     return (
       <>
         <Backdrop open={backDrop()} />
-        <HeaderPlatform />
-        <Component
-          handleOpenAlert={handleOpenAlert}
-          handleCloseAlert={handleCloseAlert}
-          alertData={{
-            openAlert,
-            type,
-            content,
-          }}
+        <EditMaintenanceMode
+          open={maintenanceDialogOpen}
+          handleClose={handleMaintenanceDialog}
+          allApps={allApps}
         />
+        <DisplayMaintenance
+          open={displayMaintenance}
+          underMaintenance={underMaintenance}
+          handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
+          maintenanceStartDate={maintenanceStartDate}
+          maintenanceEndDate={maintenanceEndDate}
+          maintenanceReason={maintenanceReason}
+          fullLockout={fullLockout}
+          bypassUser={isBypassUser}
+          mainApp={config.isMainApp}
+          logout={() => signOut()}
+        />
+        <HeaderPlatform />
+        {loadData && (
+          <Component
+            handleOpenAlert={handleOpenAlert}
+            handleCloseAlert={handleCloseAlert}
+            alertData={{
+              openAlert,
+              type,
+              content,
+            }}
+          />
+        )}
       </>
     );
   };
@@ -200,41 +281,37 @@ export const Routes = () => {
     }
   };
 
-  const navList = showSuiteManagement
-    ? [
-        {
-          label: 'Dashboard',
-          route: path,
-          onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'dashboard'),
-        },
-        {
-          label: 'Users',
-          route: `${path}user`,
-          onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'users'),
-        },
-        {
-          label: 'Suite Management',
-          route: `${path}suiteManagement`,
-          onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'suiteManagement'),
-        },
-      ]
-    : [
-        {
-          label: 'Dashboard',
-          route: path,
-          onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'dashboard'),
-        },
-        {
-          label: 'Users',
-          route: `${path}user`,
-          onClick: (e: React.MouseEvent<HTMLElement>) =>
-            handleNavigation(e, 'users'),
-        },
-      ];
+  const availablePages = [
+    {
+      label: 'Dashboard',
+      route: path,
+      onClick: (e: React.MouseEvent<HTMLElement>) =>
+        handleNavigation(e, 'dashboard'),
+    },
+    {
+      label: 'Users',
+      route: `${path}user`,
+      onClick: (e: React.MouseEvent<HTMLElement>) =>
+        handleNavigation(e, 'users'),
+    },
+    {
+      label: 'Suite Management',
+      route: `${path}suiteManagement`,
+      onClick: (e: React.MouseEvent<HTMLElement>) =>
+        handleNavigation(e, 'suiteManagement'),
+    },
+  ];
+
+  const hideSuiteManagement = availablePages.filter(
+    (el) => el.label !== 'Suite Management'
+  );
+
+  const navList =
+    loadData === false
+      ? []
+      : adminRightsEnabled
+      ? availablePages
+      : hideSuiteManagement;
 
   const [appSwitchUrl, setAppSwitchUrl] = useState('');
   const handleUnSavedDataDialogue = (open: boolean, app: string) => {
@@ -271,11 +348,6 @@ export const Routes = () => {
         seconds={0}
         timer={{ minutes: 5, seconds: 0 }}
       />
-      <EditMaintenanceMode
-        open={maintenanceDialogOpen}
-        handleClose={handleMaintenanceDialog}
-        allApps={allApps}
-      />
       <Header
         title={'Platform Management'}
         logo={{ img: nexia_logo_img, path: path }}
@@ -295,7 +367,7 @@ export const Routes = () => {
           },
         ]}
         maintenance={{
-          showMaintenance: showSuiteManagement,
+          showMaintenance: adminRightsEnabled,
           handleMaintenanceDialog,
         }}
         unSavedData={handleUnSavedDataDialogue}
@@ -342,7 +414,7 @@ export const Routes = () => {
           <Route path={`${path}organization/editOrg/addSite`}>
             {ComponentLayout(SiteForm)}
           </Route>
-          {showSuiteManagement && (
+          {adminRightsEnabled && (
             <Route path={`${path}suiteManagement`}>
               {ComponentLayout(SuiteManagement)}
             </Route>

@@ -26,3 +26,4 @@ export { default as organizations_img } from './lib/assets/organizations.svg';
 export { default as warning_img } from './lib/assets/warning.png';
 export { default as location_img } from './lib/assets/location.svg';
 export { default as maintenance_img } from './lib/assets/maintenanceIcon.svg';
+export { default as betaIcon_img } from './lib/assets/betaIcon.png';

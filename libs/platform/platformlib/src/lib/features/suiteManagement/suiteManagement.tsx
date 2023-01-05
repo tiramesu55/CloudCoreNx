@@ -1,34 +1,14 @@
-import { useContext, useEffect, useState } from 'react';
-import {
-  Grid,
-  Box,
-  Typography,
-  Button,
-  Checkbox,
-  FormGroup,
-  FormControlLabel,
-} from '@mui/material';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Grid, Box, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { Card, Snackbar, UnsavedData } from '@cloudcore/ui-shared';
 import { useHistory } from 'react-router-dom';
 import InputSelectWithLabel from '../../components/InputSelectWithLabel/InputSelectWithLabel';
 import { InputTextWithLabel } from '../../components/input-text-with-label/input-text-with-label';
 import {
-  Organization,
-  selectOrganizations,
-  organizationList,
-} from '@cloudcore/redux-store';
-import {
-  ConfigCtx,
-  UseClaimsAndSignout,
-  useClaimsAndSignout,
-} from '@cloudcore/okta-and-config';
-import {
   addSuiteAsync,
-  deleteSuiteAsync,
   getSuitesAsync,
   getWorkspaceIDByDomainAsync,
-  getSuiteByPermission,
   permissionsList,
   selectedSuite,
   getSuiteFormModified,
@@ -36,26 +16,27 @@ import {
   resetAvailableReports,
   resetForm,
   setResetForm,
-  selectedReports,
   updateSuiteAsync,
   getWorkspaceId,
   updateWorkSpaceIdByDomainAsync,
   getAvailableReportsAsync,
-  availableReports,
   getOrganizationsAsync,
+  Organization,
+  selectOrganizations,
+  organizationList,
+  setSelectedPermission,
+  setSelectedSuiteName,
 } from '@cloudcore/redux-store';
-import DeleteSuite from './deleteSuite';
+import {
+  ConfigCtx,
+  IConfig,
+  useClaimsAndSignout,
+  UseClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 import { platformStore } from '@cloudcore/redux-store';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
-import EditIcon from '@mui/icons-material/Edit';
-import EditReportName from './editReportName';
-
-interface ReportState {
-  value: string;
-  label: string;
-  checked: boolean;
-}
+import AddRemoveDashboardFromSuite from './addRemoveDashboard';
 
 interface Props {
   handleOpenAlert: (payload: IAlert) => void;
@@ -69,30 +50,33 @@ const SuiteManagement = (props: Props) => {
   const theme = useTheme();
   const orgList = useAppSelector(organizationList);
   const permList = useAppSelector(permissionsList);
-  const avalReports = useAppSelector(availableReports);
   const dispatch = useAppDispatch();
   const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const [selectedDomain, setSelectedDomain] = useState('');
-  const [selectedPermission, setSelectedPermission] = useState<string>('');
+  const selectedPermission = useAppSelector(
+    (state) => state.suiteManagement.selectedPermission
+  );
+  const selectedSuiteName = useAppSelector(
+    (state) => state.suiteManagement.selectedSuiteName
+  );
   const [resetDomain, setResetDomain] = useState(false);
   const [resetPermission, setResetPermission] = useState(false);
+  const [resetAddToSuite, setResetAddToSuite] = useState(false);
+  const [unSavedDialogBoxOpen, setUnsavedDialogBoxOpen] = useState(false);
+  const config: IConfig = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
+  const path = useMemo(() => {
+    return `${config.isMainApp ? '/platform/' : '/'}`;
+  }, [config.isMainApp]);
   const currentWorkspaceId = useAppSelector((state: any) =>
     getWorkspaceId(state, selectedDomain)
   );
   const currentSuite = useAppSelector((state: any) =>
     selectedSuite(state, selectedPermission)
   );
-
-  const currentReports = useAppSelector((state: any) =>
-    selectedReports(state, selectedPermission)
-  );
-  const suiteByPermission = useAppSelector((state: any) =>
-    getSuiteByPermission(state, selectedPermission)
-  );
-  const editedSuiteInfo = structuredClone(suiteByPermission);
+  const editedSuiteInfo = structuredClone(currentSuite);
   const closeSuiteManagement = () => {
-    suiteFormModified ? setUnsavedDialogBoxOpen(true) : history.goBack();
+    suiteFormModified ? setUnsavedDialogBoxOpen(true) : history.push(path);
   };
   const changeSuiteManagementSelection = () => {
     if (suiteFormModified) {
@@ -134,7 +118,7 @@ const SuiteManagement = (props: Props) => {
   const resetDomainHandler = (flag: boolean) => {
     setResetDomain(flag);
   };
-  const resetPermisssionHandler = (flag: boolean) => {
+  const resetPermissionHandler = (flag: boolean) => {
     setResetPermission(flag);
   };
   const [isWorkSpaceIdDisabled, setIsWorkSpaceIdDisabled] = useState(true);
@@ -145,42 +129,17 @@ const SuiteManagement = (props: Props) => {
   const suiteFormModified = useAppSelector(getSuiteFormModified);
   const resetFormIndicator = useAppSelector(resetForm);
 
-  const availableDashboard: ReportState[] =
-    avalReports &&
-    avalReports.map((rep: any) => {
-      return {
-        value: rep.ReportId,
-        label: rep.ReportName,
-        checked: false,
-      };
-    });
-
-  const addedToSuiteSample: ReportState[] = [];
-
-  const [addToSuite, setAddToSuite] = useState(addedToSuiteSample);
-  const [addedToSuite, setAddedToSuite] = useState(addedToSuiteSample);
-  const [availableDash, setAvailableDash] = useState<ReportState[]>([]);
-  const [availableDashUpdated, setAvailableDashUpdated] = useState(false);
-  const [disableAddToSuite, setDisableAddToSuite] = useState(true);
-  const [disableRemoveFromSuite, setDisableRemoveFromSuite] = useState(true);
-  const [removeFromSuite, setRemoveFromSuite] = useState([]) as any;
-  const [removedFromSuite, setRemovedFromSuite] = useState([]) as any;
-  const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [workspaceId, setWorkspaceId] = useState('');
   const [suiteNameInvalid, setSuiteNameInvalid] = useState(false);
   const [disableDeleteSuite, setDisableDeleteSuite] = useState(true);
-  const [editReportNameDialog, setEditReportNameDialog] = useState(false);
-  const [selectedReportToUpadted, setSelectedReportToUpdate] =
-    useState<ReportState>();
+  const editedSuiteRef = useRef(null);
 
   const updateSuiteManagement = () => {
     if (editedSuiteInfo) {
-      editedSuiteInfo.name = suiteName;
-      editedSuiteInfo.reports = addedToSuite.map((report) => {
-        return { reportId: report.value, reportName: report.label };
-      });
+      editedSuiteInfo.name = selectedSuiteName;
+      editedSuiteInfo.reports = editedSuiteRef.current;
     }
-    if (editedSuiteInfo && selectedPermission && suiteName) {
+    if (editedSuiteInfo && selectedPermission && selectedSuiteName) {
       dispatch(
         updateSuiteAsync({
           token,
@@ -203,8 +162,7 @@ const SuiteManagement = (props: Props) => {
               })
             );
             dispatch(setSuiteFormModified(false));
-            setAvailableDashUpdated(false);
-            setAddToSuite([]);
+            setResetAddToSuite(true);
           },
           (reason: any) => {
             handleOpenAlert({
@@ -213,7 +171,7 @@ const SuiteManagement = (props: Props) => {
             });
           }
         );
-    } else if (selectedPermission && suiteName) {
+    } else if (selectedPermission && selectedSuiteName) {
       dispatch(
         addSuiteAsync({
           token,
@@ -221,11 +179,9 @@ const SuiteManagement = (props: Props) => {
           suite: {
             discriminator: 'suite',
             domain: selectedDomain,
-            name: suiteName,
+            name: selectedSuiteName,
             permission: selectedPermission,
-            reports: addedToSuite.map((report) => {
-              return { reportId: report.value, reportName: report.label };
-            }),
+            reports: editedSuiteRef.current,
           },
         })
       )
@@ -236,9 +192,15 @@ const SuiteManagement = (props: Props) => {
               content: 'Suite updated successfully',
               type: 'success',
             });
+            dispatch(
+              getSuitesAsync({
+                token,
+                url: platformBaseUrl,
+                domain: selectedDomain,
+              })
+            );
             dispatch(setSuiteFormModified(false));
-            setAvailableDashUpdated(false);
-            setAddToSuite([]);
+            setResetAddToSuite(true);
           },
           (reason: any) => {
             handleOpenAlert({
@@ -247,7 +209,7 @@ const SuiteManagement = (props: Props) => {
             });
           }
         );
-    } else if (suiteName === '') {
+    } else if (selectedSuiteName === '') {
       setSuiteNameInvalid(true);
       document.getElementById('suiteName')?.focus();
     }
@@ -265,135 +227,34 @@ const SuiteManagement = (props: Props) => {
       setOrgDomainList(selectedOrganization[0].orgDomains);
     }
     setSelectedDomain('');
-    setSelectedPermission('');
+    dispatch(setSelectedPermission(''));
     setIsWorkSpaceIdDisabled(true);
-    if (availableDashUpdated) {
-      setAvailableDash(availableDashboard);
-      setAvailableDashUpdated(false);
-    }
     dispatch(resetAvailableReports());
+  };
+
+  const handleSuiteNameInavlid = (value: boolean) => {
+    setSuiteNameInvalid(value);
+  };
+
+  const resetAddTosuiteHandler = (value: boolean) => {
+    setResetAddToSuite(value);
   };
 
   const handleDomainChange = (event: any) => {
     setSelectedDomain(event);
     setIsDomainDisabled(false);
-    setSelectedPermission('');
+    dispatch(setSelectedPermission(''));
     dispatch(resetAvailableReports());
-  };
-
-  const handlePermissionChange = (event: any) => {
-    setSelectedPermission(event);
-    setDisableDeleteSuite(false);
-  };
-
-  const [unSavedDialogBoxOpen, setUnsavedDialogBoxOpen] = useState(false);
-
-  const [suiteName, setSuiteName] = useState('');
-  const [suiteId, setSuiteId] = useState('');
-  const handleDialogBox = (open: boolean) => {
-    setDialogBoxOpen(open);
   };
 
   const handleUnSavedDialogBox = (open: boolean) => {
     setUnsavedDialogBoxOpen(open);
   };
 
-  const suiteChangeHandler = (event: any) => {
-    setSuiteName(event.trim());
-    dispatch(setSuiteFormModified(true));
-  };
-
   const workspaceIdChangeHandler = (event: any) => {
     setWorkspaceId(event.trim());
     dispatch(setSuiteFormModified(true));
     event.trim() ? setDisableDeleteSuite(false) : setDisableDeleteSuite(true);
-  };
-
-  const onSuiteNameFocused = (ele: HTMLInputElement) => {
-    ele.value !== '' ? setSuiteNameInvalid(false) : setSuiteNameInvalid(true);
-  };
-
-  const reportsAddToSuite = (e: any) => {
-    setAddedToSuite([...addedToSuite, ...addToSuite]);
-    addToSuite.forEach((el: any) => {
-      setAvailableDash((prev: any) =>
-        prev.filter((x: any) => x.value !== el.value)
-      );
-    });
-    setAddToSuite([]);
-    dispatch(setSuiteFormModified(true));
-    if (!availableDashUpdated) {
-      setAvailableDashUpdated(true);
-    }
-  };
-
-  const removeReports = (e: any) => {
-    setRemovedFromSuite([...removeFromSuite]);
-    removeFromSuite.forEach((el: any) => {
-      setAddedToSuite((prev: any) =>
-        prev.filter((x: any) => x.value !== el.value)
-      );
-    });
-    const updatedAvailableDashboard = removeFromSuite.map((item: any) => {
-      return { ...item, checked: false };
-    });
-    setAvailableDash([...availableDash, ...updatedAvailableDashboard]);
-    setRemoveFromSuite([]);
-    dispatch(setSuiteFormModified(true));
-    if (!availableDashUpdated) {
-      setAvailableDashUpdated(true);
-    }
-  };
-
-  const handleChange = (e: any, val: string, label: string) => {
-    const updatedAvailableDash: ReportState[] = availableDash.map(
-      (report: ReportState) => {
-        if (report.value === val) {
-          return { ...report, checked: !report.checked };
-        } else {
-          return { ...report };
-        }
-      }
-    );
-    setAvailableDash([...updatedAvailableDash]);
-    const { checked } = e.target;
-    if (checked) {
-      setAddToSuite((prev: ReportState[]) => [
-        ...prev,
-        { value: val, label: label, checked: false },
-      ]) as any;
-      e.target.checked = true;
-      setDisableAddToSuite(false);
-    } else {
-      setAddToSuite((prev: ReportState[]) =>
-        prev.filter((report: ReportState) => report.value !== val)
-      );
-    }
-  };
-
-  const handleChangeAddedToSuite = (e: any, val: string, label: string) => {
-    const updatedSetAddedToSuite: ReportState[] = addedToSuite.map(
-      (report: ReportState) => {
-        if (report.value === val) {
-          return { ...report, checked: !report.checked };
-        } else {
-          return { ...report };
-        }
-      }
-    );
-    setAddedToSuite([...updatedSetAddedToSuite]);
-
-    const { checked } = e.target;
-    if (checked) {
-      setRemoveFromSuite((prev: ReportState[]) => [
-        ...prev,
-        { value: val, label: label, checked: false },
-      ]) as any;
-    } else {
-      setRemoveFromSuite((prev: ReportState[]) =>
-        prev.filter((report: ReportState) => report.value !== val)
-      );
-    }
   };
 
   useEffect(() => {
@@ -465,100 +326,6 @@ const SuiteManagement = (props: Props) => {
   }, [dispatch, platformBaseUrl, token]);
 
   useEffect(() => {
-    if (availableDash.some((item) => item.checked === true)) {
-      setDisableAddToSuite(false);
-    } else {
-      setDisableAddToSuite(true);
-    }
-  }, [availableDash]);
-
-  useEffect(() => {
-    if (availableDashboard && availableDashboard.length > 0) {
-      setAvailableDash(availableDashboard);
-    }
-
-    if (avalReports && avalReports.length === 0) {
-      setAvailableDash([]);
-    }
-  }, [avalReports ? avalReports.length : 0]);
-
-  useEffect(() => {
-    if (addedToSuite.some((item: any) => item.checked === true)) {
-      setDisableRemoveFromSuite(false);
-    } else {
-      setDisableRemoveFromSuite(true);
-    }
-  }, [addedToSuite]);
-
-  useEffect(() => {
-    if (currentSuite) {
-      if (currentSuite.name !== '') {
-        setSuiteName(currentSuite.name);
-      }
-      if (currentSuite.id !== '') {
-        setSuiteId(currentSuite.id);
-      }
-    } else {
-      setSuiteName('');
-      setSuiteId('');
-    }
-  }, [selectedPermission]);
-
-  const handleDelete = () => {
-    try {
-      handleDialogBox(false);
-      dispatch(
-        deleteSuiteAsync({
-          token,
-          url: platformBaseUrl,
-          id: suiteId,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            handleOpenAlert({
-              content: 'Suite deleted successfully',
-              type: 'success',
-            });
-            dispatch(setSuiteFormModified(false));
-            if (token && selectedDomain !== '') {
-              dispatch(
-                getSuitesAsync({
-                  token,
-                  url: platformBaseUrl,
-                  domain: selectedDomain,
-                })
-              )
-                .unwrap()
-                .then(
-                  (value: any) => {
-                    setSuiteName('');
-                    setSuiteId('');
-                  },
-                  (reason: any) => {
-                    handleOpenAlert({
-                      content: reason.message,
-                      type: 'error',
-                    });
-                  }
-                );
-            }
-          },
-          (reason: any) => {
-            handleOpenAlert({
-              content: reason.message,
-              type: 'error',
-            });
-          }
-        );
-      setSelectedPermission('');
-    } catch (err) {
-      console.log('failed to delete suite', err);
-    }
-  };
-
-  useEffect(() => {
     if (currentWorkspaceId === undefined) {
       setWorkspaceId('');
     }
@@ -568,15 +335,14 @@ const SuiteManagement = (props: Props) => {
   }, [currentWorkspaceId]);
 
   useEffect(() => {
-    setSuiteName('');
+    dispatch(setSelectedSuiteName(''));
   }, [selectedDomain]);
 
   useEffect(() => {
     if (resetFormIndicator === true) {
-      setSelectedPermission('');
+      dispatch(setSelectedPermission(''));
       if (resetPermission) {
         setResetPermission(false);
-        setAvailableDash(availableDashboard);
       } else if (resetDomain) {
         setSelectedDomain('');
         setResetDomain(false);
@@ -587,16 +353,6 @@ const SuiteManagement = (props: Props) => {
       dispatch(setResetForm(false));
     }
   }, [resetFormIndicator]);
-
-  useEffect(() => {
-    if (selectedPermission === '') {
-      setAddedToSuite([]);
-      setDisableAddToSuite(true);
-      setDisableRemoveFromSuite(true);
-    } else if (availableDash.some((item) => item.checked === true)) {
-      setDisableAddToSuite(false);
-    }
-  }, [selectedPermission, disableAddToSuite, disableRemoveFromSuite]);
 
   useEffect(() => {
     if (currentWorkspaceId && currentWorkspaceId !== '') {
@@ -622,20 +378,6 @@ const SuiteManagement = (props: Props) => {
     }
   }, [currentWorkspaceId]);
 
-  useEffect(() => {
-    if (currentReports) {
-      setAddedToSuite(
-        currentReports.map((report: any) => ({
-          value: report.reportId,
-          label: report.reportName,
-          checked: false,
-        }))
-      );
-    } else {
-      setAddedToSuite([]);
-    }
-  }, [selectedPermission]);
-
   /* Code to provide popup on reload of Add/edit user page, when data is modified */
   useEffect(() => {
     const preventUnload = (event: BeforeUnloadEvent) => {
@@ -652,30 +394,6 @@ const SuiteManagement = (props: Props) => {
     };
   }, [suiteFormModified]);
 
-  //Edit Report Name
-  const handleCloseEditReportNameDialog = () => {
-    setEditReportNameDialog(false);
-  };
-  const handleEditReportIconClick = (report: any) => {
-    setSelectedReportToUpdate(report);
-    setEditReportNameDialog(true);
-  };
-  const handleUpdateReportName = (updatedReport: any) => {
-    const updatedAddedToSuite = addedToSuite.map((ele) => {
-      if (ele.value === updatedReport.value) {
-        return {
-          ...ele,
-          label: updatedReport.label,
-        };
-      } else {
-        return ele;
-      }
-    });
-    setAddedToSuite([...updatedAddedToSuite]);
-    setEditReportNameDialog(false);
-    dispatch(setSuiteFormModified(true));
-  };
-
   return (
     <Grid container spacing={1}>
       <Snackbar
@@ -685,20 +403,6 @@ const SuiteManagement = (props: Props) => {
         onClose={handleCloseAlert}
         duration={3000}
       />
-      <DeleteSuite
-        open={dialogBoxOpen}
-        handleLeave={handleDialogBox}
-        suiteName={suiteName}
-        handleDelete={handleDelete}
-      />
-      {
-        <EditReportName
-          open={editReportNameDialog}
-          handleUpadteReportName={handleUpdateReportName}
-          handleCloseDialog={handleCloseEditReportNameDialog}
-          selectedReport={selectedReportToUpadted}
-        />
-      }
       {
         <UnsavedData
           open={unSavedDialogBoxOpen}
@@ -800,186 +504,21 @@ const SuiteManagement = (props: Props) => {
               </Grid>
             </Grid>
             {selectedDomain && permList.length > 0 ? (
-              <>
-                <Grid item xs={12}>
-                  <Box
-                    component="span"
-                    sx={{
-                      alignSelf: 'self-end',
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    <Typography
-                      fontSize={theme.typography.h3.fontSize}
-                      fontWeight="bold"
-                      color={theme.palette.blackFont.main}
-                    >
-                      Add / Remove Dashboard from Suite
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid container spacing={2} my={1} direction="row">
-                  <Grid item xs={3}>
-                    <Typography
-                      sx={{
-                        fontSize: `${theme.typography.subtitle1.fontSize}`,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      Available Dashboard
-                    </Typography>
-                    <Card
-                      sx={{
-                        width: '90%',
-                        minHeight: '32vh',
-                        maxHeight: '32vh',
-                        overflowY: 'auto',
-                      }}
-                    >
-                      <FormGroup>
-                        {availableDash.map((report: ReportState) => (
-                          <FormControlLabel
-                            key={report.value}
-                            control={<Checkbox />}
-                            label={report.label}
-                            value={report.value}
-                            onChange={(e) => {
-                              handleChange(e, report.value, report.label);
-                            }}
-                            checked={report.checked}
-                            sx={{ ml: 1 }}
-                          />
-                        ))}
-                      </FormGroup>
-                    </Card>
-                    <Box
-                      sx={{
-                        alignItems: 'flex-end',
-                        display: 'flex',
-                        justifyContent: 'end',
-                        paddingX: theme.spacing(0),
-                        marginRight: '10%',
-                      }}
-                    >
-                      <Button
-                        variant="outlined"
-                        onClick={reportsAddToSuite}
-                        sx={{ mt: 2 }}
-                        disabled={disableAddToSuite}
-                      >
-                        Add to Suite
-                      </Button>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <InputSelectWithLabel
-                      label="Select permissions to modify"
-                      id="permission"
-                      placeholder="Select Permission"
-                      options={permList}
-                      value={selectedPermission}
-                      permissionChangeHandler={handlePermissionChange}
-                      unsavedDataHandler={changeSuiteManagementSelection}
-                      handlePermissionReset={resetPermisssionHandler}
-                      required={true}
-                    />
-                    <Card
-                      sx={{
-                        width: '90%',
-                        mt: 2,
-                        minHeight: '26.5vh',
-                        maxHeight: '26.5vh',
-                        overflowY: 'auto',
-                      }}
-                    >
-                      <FormGroup>
-                        {addedToSuite.map((report: ReportState) => (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                            }}
-                            key={report.value}
-                          >
-                            <FormControlLabel
-                              key={report.value}
-                              control={<Checkbox />}
-                              label={report.label}
-                              value={report.value}
-                              onChange={(e) => {
-                                handleChangeAddedToSuite(
-                                  e,
-                                  report.value,
-                                  report.label
-                                );
-                              }}
-                              checked={report.checked}
-                              sx={{ ml: 1 }}
-                            />
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                marginRight: 1,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <EditIcon
-                                onClick={() =>
-                                  handleEditReportIconClick(report)
-                                }
-                              />
-                            </Box>
-                          </Box>
-                        ))}
-                      </FormGroup>
-                    </Card>
-                    <Button
-                      variant="outlined"
-                      disabled={disableRemoveFromSuite}
-                      onClick={removeReports}
-                      sx={{ mt: 2 }}
-                    >
-                      Remove Reports
-                    </Button>
-                  </Grid>
-                  {selectedPermission ? (
-                    <>
-                      <Grid xs={3} item>
-                        <InputTextWithLabel
-                          id="suiteName"
-                          label="Suite according permission"
-                          fieldName="Suite according permission"
-                          formWidth="90%"
-                          value={suiteName}
-                          error={suiteNameInvalid}
-                          required={true}
-                          changeHandler={suiteChangeHandler}
-                          helperText={
-                            suiteNameInvalid ? 'Suite Name is Required' : ''
-                          }
-                          focusHandler={onSuiteNameFocused}
-                        />
-                      </Grid>
-                      <Button
-                        variant="outlined"
-                        sx={{
-                          marginRight: theme.spacing(2),
-                          mt: 5,
-                          ml: 1,
-                          height: '42px',
-                        }}
-                        onClick={() => setDialogBoxOpen(true)}
-                        disabled={disableDeleteSuite}
-                      >
-                        DELETE SUITE
-                      </Button>{' '}
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </Grid>
-              </>
+              <AddRemoveDashboardFromSuite
+                selectedDomain={selectedDomain}
+                handleOpenAlert={handleOpenAlert}
+                handleCloseAlert={handleCloseAlert}
+                alertData={alertData}
+                handleUnSavedDialogBox={handleUnSavedDialogBox}
+                resetPermissionHandler={resetPermissionHandler}
+                editedSuiteRef={editedSuiteRef}
+                resetPermission={resetPermission}
+                suiteNameInvalid={suiteNameInvalid}
+                handleSuiteNameInavlid={handleSuiteNameInavlid}
+                resetAddToSuite={resetAddToSuite}
+                resetAddToSuiteHandler={resetAddTosuiteHandler}
+                workspaceId={workspaceId}
+              />
             ) : (
               <></>
             )}

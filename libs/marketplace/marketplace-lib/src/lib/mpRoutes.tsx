@@ -1,29 +1,37 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useMemo, useEffect } from 'react';
-import { Route } from 'react-router-dom';
+import { NavLink, Route } from 'react-router-dom';
 import {
   mainStore,
   reportsActions,
   openAlertAction,
   closeAlertAction,
+  getMaintenanceAsync,
+  bypassUserAsync,
 } from '@cloudcore/redux-store';
 import { ConfigCtx, IConfig, UseClaimsAndSignout, useClaimsAndSignout } from '@cloudcore/okta-and-config';
-import InventorySettings from './components/inventorySettings';
 import LabelSettings from './components/labelSettings';
 import {
   Header,
   NotAuthorized,
   nexia_logo_img,
   sign_out_img,
+  DisplayMaintenance
 } from '@cloudcore/ui-shared';
-import PowerbiReport from './powerbi-report/powerbi-report';
-import { IAlert } from '@cloudcore/common-lib';
+
+import { IAlert, useMaintenance } from '@cloudcore/common-lib';
+import ConfigurationTabs from './components/Configuration/Tabs/ConfigurationTabs';
+import LandingPage from './pages/LandingPage';
+import { useTheme } from '@mui/material';
 
 export const MpRoutes = () => {
+
+  const theme = useTheme();
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { isMainApp, marketplaceReports } = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
-  const { signOut, initials, names, permissions, email } =   useClaimsAndSignout() as UseClaimsAndSignout;
+  const { isMainApp, marketplaceReports, platformBaseUrl } = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
+  const { signOut, initials, names, permissions, email, token } = useClaimsAndSignout() as UseClaimsAndSignout;
 
   const mpp = permissions.get('marketplace');
   const mpPermissions = mpp && mpp.length > 0;
@@ -31,10 +39,34 @@ export const MpRoutes = () => {
     return `${isMainApp ? '/marketplace/' : '/'}`;
   }, [isMainApp]);
   const { useAppDispatch, useAppSelector } = mainStore;
+  const config: IConfig = useContext(ConfigCtx)!;
+  const currentDate = new Date();
+  const {
+    displayMaintenance, underMaintenance, maintenanceStartDate, maintenanceEndDate,
+    maintenanceReason, fullLockout, handleDisplayMaintenanceDialog, isBypassUser, loadData
+  } = useMaintenance("Marketplace", currentDate);
 
   const dispatch = useAppDispatch();
   const { loadingReportSingle, selectFilterItemSelected, selectReport } =
     reportsActions;
+
+  useEffect(() => {
+    if (platformBaseUrl) {
+      dispatch(getMaintenanceAsync(
+        {
+          url: platformBaseUrl,
+          token: token,
+        }
+      ))
+      dispatch(
+        bypassUserAsync({
+          url: platformBaseUrl,
+          token: token,
+          email: email,
+        })
+      )
+    }
+  }, [platformBaseUrl])
 
   const ComponentLayout = (Component: any, isReport?: boolean) => {
     const { loadingSingleReport, reportFilter, selectedReports } =
@@ -100,95 +132,91 @@ export const MpRoutes = () => {
       email,
       names,
       openAlert,
+      loadData
     ]);
     return (
       <>
         {HeaderMerketplace}
-        {ComponentToRender}
+        {loadData && ComponentToRender}
       </>
     );
   };
   const HeaderMerketplace = useMemo(
     () => (
-      <Header
-        title={'Marketplace'}
-        logo={{ img: nexia_logo_img, path: `${path}` }}
-        betaIcon={true}
-        reportIssue={false}
-        navLinkMenuList={[
-          // submenu
-          {
-            label: 'Configuration',
-            subMenuList: [
+      <>
+        <DisplayMaintenance
+          open={displayMaintenance}
+          underMaintenance={underMaintenance}
+          handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
+          maintenanceStartDate={
+            maintenanceStartDate
+          }
+          maintenanceEndDate={maintenanceEndDate}
+          maintenanceReason={maintenanceReason}
+          fullLockout={fullLockout}
+          bypassUser={isBypassUser}
+          mainApp={config.isMainApp}
+          logout={() => signOut()}
+        />
+        <Header
+          title={'Marketplace'}
+          logo={{ img: nexia_logo_img, path: `${path}` }}
+          betaIcon={true}
+          reportIssue={false}
+          marketplaceConfiguration={
+            <NavLink
+              to="/marketplace/configuration/inventory"
+              exact
+              style={{
+                textDecoration: 'none',
+                color: theme.palette.primary.main,
+                fontSize: theme.typography.subtitle1.fontSize,
+                marginRight: theme.spacing(3),
+                fontFamily: theme.typography.fontFamily,
+                marginTop: "auto",
+                marginBottom: "auto"
+              }}
+            >
+              Configuration
+            </NavLink>
+          }
+          userMenu={{
+            userName: names ? names[0] + ' ' + names[1] : '',
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            userInitials: initials!,
+          }}
+          userMenuList={
+            [
               {
-                label: 'Inventory Settings',
-                route: `${path}configuration/inventory`,
+                icon: sign_out_img,
+                label: 'Logout',
+                onClick: signOut,
               },
-              { label: 'Label Setting', route: `${path}configuration/label` },
-            ],
-          },
-          {
-            label: 'Partner Reports',
-            subMenuList: [
-              {
-                label: 'Partner 1',
-                route: path,
-                onClick: () =>
-                  dispatch(
-                    selectReport({
-                      key: 'selectedReportMarketplaceId',
-                      value: marketplaceReports[1],
-                    })
-                  ),
-              },
-              {
-                label: 'Partner 2',
-                route: path,
-                onClick: () =>
-                  dispatch(
-                    selectReport({
-                      key: 'selectedReportMarketplaceId',
-                      value: marketplaceReports[2],
-                    })
-                  ),
-              },
-            ],
-          },
-        ]}
-        userMenu={{
-          userName: names ? names[0] + ' ' + names[1] : '',
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          userInitials: initials!,
-        }}
-        userMenuList={[
-          {
-            icon: sign_out_img,
-            label: 'Logout',
-            onClick: signOut,
-          },
-        ]}
-      />
+            ]}
+        />
+      </>
     ),
-    [initials, names, path, signOut]
+    [initials, names, path, signOut, displayMaintenance]
   );
   useEffect(() => {
-    dispatch(
-      selectReport({
-        key: 'selectedReportMarketplaceId',
-        value: marketplaceReports[0],
-      })
-    );
+    // dispatch(
+    //   selectReport({
+    //     key: 'selectedReportMarketplaceId',
+    //     value: marketplaceReports[0],
+    //   })
+    // );
   }, []);
+
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {mpPermissions ? (
         <>
           <Route exact path={`${path}`}>
-            {ComponentLayout(PowerbiReport, true)}
+            {ComponentLayout(LandingPage)}
           </Route>
           <Route path={`${path}configuration/inventory`}>
-            {ComponentLayout(InventorySettings)}
+            {ComponentLayout(ConfigurationTabs)}
           </Route>
           <Route path={`${path}configuration/label`}>
             {ComponentLayout(LabelSettings)}

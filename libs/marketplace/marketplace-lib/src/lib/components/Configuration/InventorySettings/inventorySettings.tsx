@@ -17,39 +17,6 @@ export interface Component1Props { }
 const { useAppDispatch, useAppSelector } = marketplaceStore;
 
 function InventorySettings(props: Component1Props) {
-  const config: IConfig = useContext(ConfigCtx)!;
-  const { token } = useClaimsAndSignout(
-    config.logoutSSO,
-    config.postLogoutRedirectUri
-  );
-  const theme = useTheme();
-  const dispatch = useAppDispatch();
-  const [snackbar, setSnackbar] = useState(false);
-  const [snackbarType, setSnackBarType] = useState('');
-  const [snackBarMsg, setSnackBarMsg] = useState('');
-  const inventoryConfig = useAppSelector(selectConfiguration);
-
-  useEffect(() => {
-    if (config.marketBaseUrl) {
-      dispatch(
-        getConfiguration({
-          url: config.marketBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            setSnackbar(true);
-            setSnackBarMsg('fetchError');
-            setSnackBarType('failure');
-          }
-        );
-    }
-  }, [dispatch, config, token]);
 
   return (
     // <Grid container spacing={1} marginTop={4} marginLeft={10}>
