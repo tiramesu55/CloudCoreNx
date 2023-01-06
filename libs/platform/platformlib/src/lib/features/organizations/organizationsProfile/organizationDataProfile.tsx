@@ -198,3 +198,5 @@ export const OrganizationDataProfile = () => {
     </Grid>
   );
 };
+
+export default OrganizationDataProfile;

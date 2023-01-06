@@ -164,3 +164,5 @@ export const AddUserForm = () => {
     </Grid>
   );
 };
+
+export default AddUserForm;

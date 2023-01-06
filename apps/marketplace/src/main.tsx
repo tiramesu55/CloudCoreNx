@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { Suspense } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { marketplaceStore } from '@cloudcore/redux-store';
@@ -14,13 +14,13 @@ const root = ReactDOM.createRoot(
 root.render(
   <ConfigContext>
     <Provider store={marketplaceStore.store}> 
-
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ThemeProvider>
-
+      <Suspense fallback={<span>Loading ....</span>}>
+          <ThemeProvider theme={theme}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ThemeProvider>
+      </Suspense>
     </Provider>
   </ConfigContext>
 );

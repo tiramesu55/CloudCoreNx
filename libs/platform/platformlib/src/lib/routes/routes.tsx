@@ -2,13 +2,8 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 
 //@TODO get rid of OKTA
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, lazy } from 'react';
 import { Route, useHistory } from 'react-router-dom';
-import { UserForm } from '../features/users/userForm';
-import { AddUserForm as UserEmail } from '../features/users/userEmail';
-import { Dashboard } from '../Dashboard/dashboard';
-import { OrganizationForm as AddNewOrganisation } from '../features/organizations/OrganisationForm';
-import UserOnboarding from '../features/users/userOnboardingForm';
 import {
   IdlePopUp,
   Header,
@@ -20,7 +15,6 @@ import {
   UnsavedData,
   DisplayMaintenance,
 } from '@cloudcore/ui-shared';
-import { ListUsers } from '../features/users/allUsers';
 import {
   bypassUserAsync,
   getApplications,
@@ -31,20 +25,27 @@ import {
   openAlertAction,
   getPostLogoutRedirectUrl,
 } from '@cloudcore/redux-store';
-import { SiteForm } from '../features/sites/siteForm';
-import { Sites } from '../features/sites/sites';
 import {
   ConfigCtx,
   IConfig,
   UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import SuiteManagement from '../features/suiteManagement/suiteManagement';
 import EditMaintenanceMode from '../Maintenance/editMaintenance';
 import { IAlert } from '@cloudcore/common-lib';
 import { useMaintenance } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
+
+const SuiteManagement = lazy( () =>  import( '../features/suiteManagement/suiteManagement'));
+const SiteForm = lazy( () =>  import( '../features/sites/siteForm'));
+const Sites = lazy( () =>  import( '../features/sites/sites'));
+const UserOnboarding = lazy( () =>  import( '../features/users/userOnboardingForm'));
+const UserForm = lazy( () =>  import( '../features/users/userForm'));
+const UserEmail = lazy( () =>  import( '../features/users/userEmail'));
+const AddNewOrganisation = lazy( () =>  import( '../features/organizations/OrganisationForm'));
+const ListUsers = lazy( () =>  import( '../features/users/allUsers'));
+const Dashboard = lazy( () =>  import( '../Dashboard/dashboard'));
 
 export const Routes = () => {
   const handleOpenAlert = (payload: IAlert) =>

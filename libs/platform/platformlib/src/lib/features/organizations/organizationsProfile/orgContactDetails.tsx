@@ -193,3 +193,5 @@ export const OrgContactDetails = () => {
     </Box>
   );
 };
+
+export default OrgContactDetails;

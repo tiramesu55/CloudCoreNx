@@ -762,3 +762,5 @@ export const SiteForm = (props: Props) => {
     </Grid>
   );
 };
+
+export default SiteForm;

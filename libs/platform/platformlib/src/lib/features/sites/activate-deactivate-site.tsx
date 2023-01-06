@@ -275,3 +275,5 @@ export const ActivateDeactivateSite = (props: Props) => {
     </div>
   );
 };
+
+export default ActivateDeactivateSite;

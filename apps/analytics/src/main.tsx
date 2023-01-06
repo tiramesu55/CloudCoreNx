@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { Suspense } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
 import { Provider } from 'react-redux';
@@ -16,11 +16,13 @@ const root = ReactDOM.createRoot(
 root.render(
   <ConfigContext>
     <Provider store={analyticsStore.store}>
+      <Suspense fallback={<span>Loading ....</span>}>
         <ThemeProvider theme={theme}>
           <BrowserRouter>
             <App />
           </BrowserRouter>
         </ThemeProvider>
+      </Suspense>
     </Provider>
   </ConfigContext>
 );

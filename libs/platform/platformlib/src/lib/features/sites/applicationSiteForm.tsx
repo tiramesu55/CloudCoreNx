@@ -206,3 +206,5 @@ export const ApplicationSiteForm = (props: Props) => {
     </Grid>
   );
 };
+
+export default ApplicationSiteForm;

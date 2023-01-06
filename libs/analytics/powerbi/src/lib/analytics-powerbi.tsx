@@ -13,6 +13,7 @@ import {
   useMemo,
   useRef,
   useState,
+  lazy
 } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
@@ -25,7 +26,6 @@ import {
   sign_out_img,
   DisplayMaintenance,
 } from '@cloudcore/ui-shared';
-import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import {
   useAppInsightHook,
   IErrorTypeResponse,
@@ -52,6 +52,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 /* eslint-disable-next-line */
 export interface AnalyticsPowerbiProps {}
+
+const ReportBiClientComponent = lazy(() => import('@cloudcore/powerbi'));
 
 export const AnalyticsPowerbi = () => {
   const theme = useTheme();

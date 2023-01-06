@@ -1290,3 +1290,5 @@ export const OrganizationForm = (props: Props) => {
     </Grid>
   );
 };
+
+export default OrganizationForm;

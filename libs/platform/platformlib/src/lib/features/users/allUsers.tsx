@@ -372,3 +372,5 @@ export const ListUsers = (props: Props) => {
     </Grid>
   );
 };
+
+export default ListUsers;

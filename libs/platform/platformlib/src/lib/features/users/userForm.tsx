@@ -593,3 +593,5 @@ export const UserForm = (props: Props) => {
     </Grid>
   );
 };
+
+export default UserForm;

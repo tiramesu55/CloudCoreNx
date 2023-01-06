@@ -105,3 +105,5 @@ export const DeleteOrgDomain = (props: Props) => {
     </div>
   );
 };
+
+export default DeleteOrgDomain;

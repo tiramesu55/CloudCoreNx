@@ -251,3 +251,5 @@ export const ReportBiClientComponent = ({
     </>
   );
 };
+
+export default ReportBiClientComponent;
