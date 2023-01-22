@@ -3,13 +3,15 @@ import { reportReducer } from './PowerBI/reducers/reportReducer';
 import { configReducer } from './marketplace/configuration/configurationSlice';
 import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux';
 import { commonReducer } from './Common/commonSlice';
-import { maintenanceReducer } from "./Maintenance/maintenanceSlice";
+import { maintenanceReducer } from './Maintenance/maintenanceSlice';
+import { labelaryReduce } from './marketplace/labelry/labelrySlice';
 export const store = configureStore({
   reducer: {
     report: reportReducer,
     configuration: configReducer,
     common: commonReducer,
     maintenance: maintenanceReducer,
+    labelary: labelaryReduce,
   },
   devTools: process.env['NODE_ENV'] !== 'production',
   // Optional Redux store enhancers

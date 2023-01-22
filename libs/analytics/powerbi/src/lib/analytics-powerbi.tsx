@@ -24,6 +24,7 @@ import {
   nexia_logo_img,
   sign_out_img,
   DisplayMaintenance,
+  Snackbar,
 } from '@cloudcore/ui-shared';
 import { ReportBiClientComponent } from '@cloudcore/powerbi';
 import {
@@ -32,6 +33,7 @@ import {
   requests,
   IAlert,
   useMaintenance,
+  IAppsMenu,
 } from '@cloudcore/common-lib';
 import {
   analyticsStore,
@@ -51,14 +53,16 @@ import { Button, Grid, Typography, useTheme } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 /* eslint-disable-next-line */
-export interface AnalyticsPowerbiProps {}
+interface Props {
+  appsMenu?: IAppsMenu;
+}
 
-export const AnalyticsPowerbi = () => {
+export const AnalyticsPowerbi = (props: Props) => {
   const theme = useTheme();
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
 
- // const [listReportLoading, setListReportLoading] = useState<boolean>(false);
+  // const [listReportLoading, setListReportLoading] = useState<boolean>(false);
   const [defaultReport, setDefaultReport] = useState<string>('');
   const [activityModal, setActivityModal] = useState<boolean>(false);
   const config: IConfig = useContext(ConfigCtx) as IConfig;
@@ -135,28 +139,26 @@ export const AnalyticsPowerbi = () => {
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
 
   useEffect(() => {
-    const getDefaultReport = async () =>{
-      try{
+    const getDefaultReport = async () => {
+      try {
         //todo get default report from API and setDefaultReport state
-        const resp = await requests.get(config.platformBaseUrl + '/UserConfiguration' || '', 
-        {   
-          'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,   
-        }
-        //todo: need to set type for the return
-       
-      );
-       const reportId = resp.lastOpenedReportId;
-       setDefaultReport( reportId);
-      }catch(err){
+        const resp = await requests.get(
+          config.platformBaseUrl + '/UserConfiguration' || '',
+          {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          }
+          //todo: need to set type for the return
+        );
+        const reportId = resp.lastOpenedReportId;
+        setDefaultReport(reportId);
+      } catch (err) {
         //we do not care it it is succesful or not, but want to see the error
-        console.log('cannot put default report')
+        console.log('cannot put default report');
       }
-    }
+    };
     if (token) {
-      getDefaultReport(); 
       if (config?.platformBaseUrl) {
-
         // setListReportLoading(true);  //  too quick. No point running spinner
         requests
           .get(config?.platformBaseUrl + '/GetSuitesByPermission', {
@@ -168,7 +170,7 @@ export const AnalyticsPowerbi = () => {
             dispatch(loadReports(response.suites));
           })
           .catch((error) => {
-          //  setListReportLoading(false);
+            //  setListReportLoading(false);
             handleErrorResponse({
               type: 'GetGroupReports',
               message: error.message,
@@ -203,24 +205,24 @@ export const AnalyticsPowerbi = () => {
       selectReport({
         key: 'selectedReportId',
         value: reportId,
-      }));
-    try{  
-    await requests.put(config.platformBaseUrl + '/UserConfiguration' || '', 
-      { 
-        'lastOpenedReportId': reportId
-      },
-      {   
-        'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,   
-      }
-
-    )
-    }catch(err){
+      })
+    );
+    try {
+      await requests.put(
+        config.platformBaseUrl + '/UserConfiguration' || '',
+        {
+          lastOpenedReportId: reportId,
+        },
+        {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }
+      );
+    } catch (err) {
       //we do not care it it is succesful or not, but want to see the error
-      console.log('cannot put default report')
+      console.log('cannot put default report');
     }
 
-    
     HandleReportEvent({
       properties: {
         userName: names ? names[0] + ' ' + names[1] : '',
@@ -234,11 +236,11 @@ export const AnalyticsPowerbi = () => {
 
   useEffect(() => {
     openDefaultReport();
-  }, [reports,defaultReport]);
+  }, [reports, defaultReport]);
 
   const openDefaultReport = useCallback(() => {
     if (!reports) return;
-    if(defaultReport){
+    if (defaultReport) {
       dispatch(
         selectReport({
           key: 'selectedReportId',
@@ -256,7 +258,7 @@ export const AnalyticsPowerbi = () => {
   }, [reports, defaultReport]);
 
   const navLinkMenuList = useMemo(() => {
-    return reports && loadData === true
+    return reports //&& loadData === true
       ? reports?.map((item) => ({
           label: item.name,
           subMenuList:
@@ -316,6 +318,13 @@ export const AnalyticsPowerbi = () => {
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
         />
+        <Snackbar
+          open={openAlert}
+          type={type}
+          content={content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <DisplayMaintenance
           open={displayMaintenance}
           underMaintenance={underMaintenance}
@@ -345,8 +354,9 @@ export const AnalyticsPowerbi = () => {
               onClick: signOut,
             },
           ]}
+          appsMenu={props.appsMenu}
         />
-        {selectedReports['selectedReportId'] && loadData && (
+        {selectedReports['selectedReportId'] && (
           <ErrorBoundary fallbackRender={ErrorFallback}>
             <ReportBiClientComponent
               userName={names ? names[0] + ' ' + names[1] : ''}

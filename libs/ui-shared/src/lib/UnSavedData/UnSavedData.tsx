@@ -30,6 +30,7 @@ interface Props {
   handleLeave: (open: boolean) => void;
   location?: string;
   appSwitchUrl?: string;
+  resetAppSwitch ?: ()=> void
 }
 
 export const UnsavedData = (props: Props) => {
@@ -100,6 +101,7 @@ export const UnsavedData = (props: Props) => {
     } else if (props.location === 'appSwitch') {
       history.push(props.appSwitchUrl);
       setForms();
+      props.resetAppSwitch && props.resetAppSwitch();
     } else {
       history.goBack();
     }

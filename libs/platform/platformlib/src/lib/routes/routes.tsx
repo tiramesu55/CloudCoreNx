@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react/jsx-no-useless-fragment */
 
@@ -42,11 +44,15 @@ import {
 import SuiteManagement from '../features/suiteManagement/suiteManagement';
 import EditMaintenanceMode from '../Maintenance/editMaintenance';
 import { IAlert } from '@cloudcore/common-lib';
-import { useMaintenance } from '@cloudcore/common-lib';
+import { useMaintenance, IAppsMenu } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
-export const Routes = () => {
+interface Props {
+  appsMenu?: IAppsMenu;
+}
+
+export const Routes = (props: Props) => {
   const handleOpenAlert = (payload: IAlert) =>
     dispatch(openAlertAction(payload));
   const handleCloseAlert = () => dispatch(closeAlertAction());
@@ -115,6 +121,10 @@ export const Routes = () => {
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
+  const [modifiedDataLogout, setModifiedDataLogout] = useState(false);
+  const [modifiedDataApp, setModifiedDataApp] = useState(false);
+
+  const [appSwitchUrl, setAppSwitchUrl] = useState('');
   const allApps = useAppSelector(selectAppRoles).map((app) => {
     return {
       appCode: app.appCode,
@@ -185,7 +195,7 @@ export const Routes = () => {
   }, [platformBaseUrl, token]);
 
   useEffect(() => {
-    if (loggedInOrgCode) {
+    if (platformBaseUrl && loggedInOrgCode) {
       dispatch(
         getPostLogoutRedirectUrl({
           orgCode: loggedInOrgCode,
@@ -233,7 +243,7 @@ export const Routes = () => {
           mainApp={config.isMainApp}
           logout={() => signOut()}
         />
-        <HeaderPlatform />
+        {HeaderPlatform}
         {loadData && (
           <Component
             handleOpenAlert={handleOpenAlert}
@@ -249,131 +259,155 @@ export const Routes = () => {
     );
   };
 
-  const formModified =
-    orgFormModified === true ||
-    siteFormModified === true ||
-    userFormModified === true ||
-    suiteFormModified === true;
+  const HeaderPlatform = useMemo(() => {
+    const formModified =
+      orgFormModified === true ||
+      siteFormModified === true ||
+      userFormModified === true ||
+      suiteFormModified === true;
 
-  const handleNavigation = (e: React.MouseEvent<HTMLElement>, loc: string) => {
-    e.preventDefault();
-    if (formModified) {
-      setDialogBoxOpen(true);
-      setRedirectUrl(loc);
-      setModifiedDataLogout(false);
-    } else {
-      loc === 'dashboard' && history.push(`${path}`);
-      loc === 'users' && history.push(`${path}user`);
-      loc === 'suiteManagement' && history.push(`${path}suiteManagement`);
-      setModifiedDataLogout(false);
-    }
-  };
+    const handleUnSavedDataDialogue = (open: boolean, app: string) => {
+      setDialogBoxOpen(open);
+      setModifiedDataApp(open);
+      setAppSwitchUrl(app);
+    };
 
-  const [modifiedDataLogout, setModifiedDataLogout] = useState(false);
-  const [modifiedDataApp, setModifiedDataApp] = useState(false);
+    const handleLogout = () => {
+      if (formModified) {
+        setModifiedDataLogout(true);
+        setDialogBoxOpen(true);
+      } else {
+        signOut();
+      }
+    };
 
-  const handleLogout = () => {
-    if (formModified) {
-      setModifiedDataLogout(true);
-      setDialogBoxOpen(true);
-    } else {
-      signOut();
-    }
-  };
+    const handleNavigation = (
+      e: React.MouseEvent<HTMLElement>,
+      loc: string
+    ) => {
+      e.preventDefault();
+      if (formModified) {
+        setDialogBoxOpen(true);
+        setRedirectUrl(loc);
+        setModifiedDataLogout(false);
+      } else {
+        loc === 'dashboard' && history.push(`${path}`);
+        loc === 'users' && history.push(`${path}user`);
+        loc === 'suiteManagement' && history.push(`${path}suiteManagement`);
+        setModifiedDataLogout(false);
+      }
+    };
 
-  const availablePages = [
-    {
-      label: 'Dashboard',
-      route: path,
-      onClick: (e: React.MouseEvent<HTMLElement>) =>
-        handleNavigation(e, 'dashboard'),
-    },
-    {
-      label: 'Users',
-      route: `${path}user`,
-      onClick: (e: React.MouseEvent<HTMLElement>) =>
-        handleNavigation(e, 'users'),
-    },
-    {
-      label: 'Suite Management',
-      route: `${path}suiteManagement`,
-      onClick: (e: React.MouseEvent<HTMLElement>) =>
-        handleNavigation(e, 'suiteManagement'),
-    },
-  ];
+    const availablePages = [
+      {
+        label: 'Dashboard',
+        route: path,
+        onClick: (e: React.MouseEvent<HTMLElement>) =>
+          handleNavigation(e, 'dashboard'),
+      },
+      {
+        label: 'Users',
+        route: `${path}user`,
+        onClick: (e: React.MouseEvent<HTMLElement>) =>
+          handleNavigation(e, 'users'),
+      },
+      {
+        label: 'Suite Management',
+        route: `${path}suiteManagement`,
+        onClick: (e: React.MouseEvent<HTMLElement>) =>
+          handleNavigation(e, 'suiteManagement'),
+      },
+    ];
 
-  const hideSuiteManagement = availablePages.filter(
-    (el) => el.label !== 'Suite Management'
-  );
+    const hideSuiteManagement = availablePages.filter(
+      (el) => el.label !== 'Suite Management'
+    );
 
-  const navList =
-    loadData === false
-      ? []
-      : adminRightsEnabled
-      ? availablePages
-      : hideSuiteManagement;
+    const resetAppSwitch = () => {
+      setModifiedDataApp(false);
+      setAppSwitchUrl('');
+    };
 
-  const [appSwitchUrl, setAppSwitchUrl] = useState('');
-  const handleUnSavedDataDialogue = (open: boolean, app: string) => {
-    setDialogBoxOpen(open);
-    setModifiedDataApp(open);
-    setAppSwitchUrl(app);
-  };
-
-  const HeaderPlatform = () => (
-    <>
-      {' '}
-      <Snackbar
-        open={openAlert}
-        type={type}
-        content={content}
-        onClose={handleCloseAlert}
-        duration={3000}
-      />
-      <UnsavedData
-        open={dialogBoxOpen}
-        location={
-          modifiedDataLogout
-            ? 'logout'
-            : modifiedDataApp
-            ? 'appSwitch'
-            : redirectUrl
-        }
-        handleLeave={handleDialogBox}
-        appSwitchUrl={appSwitchUrl}
-      />
-      <IdlePopUp
-        logOut={signOut}
-        minutes={5}
-        seconds={0}
-        timer={{ minutes: 5, seconds: 0 }}
-      />
-      <Header
-        title={'Platform Management'}
-        logo={{ img: nexia_logo_img, path: path }}
-        betaIcon={true}
-        reportIssue={false}
-        navLinkMenuList={navList}
-        isFormModified={formModified}
-        userMenu={{
-          userName: names ? names[0] + ' ' + names[1] : '',
-          userInitials: initials!,
-        }}
-        userMenuList={[
-          {
-            icon: sign_out_img,
-            label: 'Logout',
-            onClick: () => handleLogout(),
-          },
-        ]}
-        maintenance={{
-          showMaintenance: adminRightsEnabled,
-          handleMaintenanceDialog,
-        }}
-        unSavedData={handleUnSavedDataDialogue}
-      />
-    </>
-  );
+    const navList =
+      loadData === false
+        ? []
+        : adminRightsEnabled
+        ? availablePages
+        : hideSuiteManagement;
+    return (
+      <>
+        {' '}
+        <Snackbar
+          open={openAlert}
+          type={type}
+          content={content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
+        <UnsavedData
+          open={dialogBoxOpen}
+          location={
+            modifiedDataLogout
+              ? 'logout'
+              : modifiedDataApp
+              ? 'appSwitch'
+              : redirectUrl
+          }
+          handleLeave={handleDialogBox}
+          appSwitchUrl={appSwitchUrl}
+          resetAppSwitch={resetAppSwitch}
+        />
+        <IdlePopUp
+          logOut={signOut}
+          minutes={5}
+          seconds={0}
+          timer={{ minutes: 5, seconds: 0 }}
+        />
+        <Header
+          title={'Platform Management'}
+          logo={{ img: nexia_logo_img, path: path }}
+          betaIcon={true}
+          reportIssue={false}
+          navLinkMenuList={navList}
+          isFormModified={formModified}
+          userMenu={{
+            userName: names ? names[0] + ' ' + names[1] : '',
+            userInitials: initials!,
+          }}
+          userMenuList={[
+            {
+              icon: sign_out_img,
+              label: 'Logout',
+              onClick: () => handleLogout(),
+            },
+          ]}
+          maintenance={{
+            showMaintenance: adminRightsEnabled,
+            handleMaintenanceDialog,
+          }}
+          unSavedData={handleUnSavedDataDialogue}
+          appsMenu={props.appsMenu}
+        />
+      </>
+    );
+  }, [
+    adminRightsEnabled,
+    appSwitchUrl,
+    content,
+    dialogBoxOpen,
+    handleCloseAlert,
+    initials,
+    loadData,
+    modifiedDataApp,
+    modifiedDataLogout,
+    names,
+    openAlert,
+    path,
+    props.appsMenu,
+    redirectUrl,
+    signOut,
+    type,
+  ]);
 
   return (
     <>

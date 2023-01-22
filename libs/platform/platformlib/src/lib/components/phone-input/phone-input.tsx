@@ -9,6 +9,8 @@ interface Props {
   id?: string;
   label?: string;
   required?: boolean;
+  field : any;
+  meta : any;
 }
 
 const BootstrapInput = styled(TextField)(({ theme }) => ({
@@ -20,7 +22,6 @@ const BootstrapInput = styled(TextField)(({ theme }) => ({
     border: '1px yellow',
     position: 'relative',
     backgroundColor: theme.palette.secondary.main,
-    // border: `1px solid #A7A9AC`,
     fontSize: '18px',
     width: '100%',
     padding: '10px 12px',
@@ -31,7 +32,6 @@ const BootstrapInput = styled(TextField)(({ theme }) => ({
       'box-shadow',
     ]),
     '&:focus': {
-      // boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
       borderColor: theme.palette.secondary.main,
     },
   },
@@ -64,11 +64,13 @@ export const PhoneInput = forwardRef((props: Props, ref: any) => {
       </InputLabel>
       <BootstrapInput
         {...props}
+        {...props.field}
         inputRef={ref}
         fullWidth
         helperText={error ? props.inputProps.label : ''}
         error={error}
         required={required}
+        name={props.inputProps.name}
       />
     </FormControl>
   );

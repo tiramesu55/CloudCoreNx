@@ -197,15 +197,15 @@ export const UserForm = (props: Props) => {
     try {
       setAddRequestStatus('pending');
       if (updatedUserInfo) {
-        updatedUserInfo.firstName = firstName;
-        updatedUserInfo.lastName = lastName;
-        updatedUserInfo.address.street = street;
-        updatedUserInfo.address.city = city;
-        updatedUserInfo.address.state = state;
-        updatedUserInfo.address.zip = zip;
-        updatedUserInfo.phone = phone;
-        updatedUserInfo.title = title;
-        updatedUserInfo.email = email;
+        updatedUserInfo.firstName = firstName.trim();
+        updatedUserInfo.lastName = lastName.trim();
+        updatedUserInfo.address.street = street.trim();
+        updatedUserInfo.address.city = city.trim();
+        updatedUserInfo.address.state = state?.trim();
+        updatedUserInfo.address.zip = zip.trim();
+        updatedUserInfo.phone = phone.trim();
+        updatedUserInfo.title = title.trim();
+        updatedUserInfo.email = email.trim();
         updatedUserInfo.applications = selectedApps;
         updatedUserInfo.modifiedDate = new Date();
       }
@@ -263,20 +263,20 @@ export const UserForm = (props: Props) => {
   const saveUserClick = () => {
     try {
       const newUser: User = {
-        firstName: firstName,
-        lastName: lastName,
+        firstName: firstName?.trim(),
+        lastName: lastName?.trim(),
         address: {
-          street: street,
-          city: city,
-          state: state,
-          zip: zip,
+          street: street?.trim(),
+          city: city?.trim(),
+          state: state?.trim(),
+          zip: zip?.trim(),
         },
-        phone: phone,
-        title: title,
-        email: email,
+        phone: phone?.trim(),
+        title: title?.trim(),
+        email: email?.trim(),
         applications: selectedApps,
-        id: email,
-        orgCode: orgCode,
+        id: email?.trim(),
+        orgCode: orgCode?.trim(),
         inactiveDate: null,
         createdDate: new Date(),
         modifiedDate: new Date(),
@@ -297,6 +297,7 @@ export const UserForm = (props: Props) => {
                 type: 'success',
               });
               setSnackbarRouting(history.push(`${path}user/`));
+              dispatch(setUserFormModified(false));
             },
             (reason) => {
               handleOpenAlert({
@@ -554,15 +555,13 @@ export const UserForm = (props: Props) => {
                 paddingX: theme.spacing(0),
               }}
             >
-              {isEditUser ? (
+              {isEditUser && (
                 <ActivateOrDeactiveUser
                   user={updatedUserInfo}
                   setActiveDate={onInActiveDateChanged}
                   openAlert={handleOpenAlert}
                   closeAlert={handleCloseAlert}
                 />
-              ) : (
-                <></>
               )}
               <Box>
                 <Button

@@ -17,45 +17,17 @@ interface Props {
   error?: boolean;
   helperText?: string;
   focusHandler?: (val: any) => void;
-  orgChangeHandler?: (key: string, event: any) => void;
+  orgChangeHandler?: ( event: any, onFieldChange : any) => void;
   siteChangeHandler?: (key: string, event: any) => void;
   InputProps?: any;
   params?: {};
+  field ?: any;
 }
 
 export const InputTextWithLabel = (props: Props) => {
   const theme = useTheme();
-  // const BootstrapInput = styled(TextField)(() => ({
-  //   'label + &': {
-  //     marginTop: theme.spacing(3),
-  //   },
-  //   '& .MuiInputBase-input': {
-  //     borderRadius: 4,
-  //     position: 'relative',
-  //     backgroundColor: theme.palette.secondary.main,
-  //     fontSize: '18px',
-  //     width: '100%',
-  //     padding: '10px 12px',
-  //     height: '24px',
-  //     transition: theme.transitions.create([
-  //       'border-color',
-  //       'background-color',
-  //       'box-shadow',
-  //     ]),
-  //     '&:focus': {
-  //       // boxShadow: `${alpha(theme.palette.primary.main, 0.25)} 0 0 0 0.2rem`,
-  //       //borderColor: theme.palette.primary.main,
-  //     },
-  //     border: theme.palette.inputBorder.main,
-  //   },
-  //   '& .Mui-disabled': {
-  //     backgroundColor: theme.palette.text.disabled,
-  //     color: theme.palette.blackFont.main,
-  //     WebkitTextFillColor: 'black !important',
-  //   },
-  // }));
-
   const required = props.required ? true : false;
+  
   return (
     <FormControl variant="standard" sx={{ width: props.formWidth }}>
       <InputLabel
@@ -85,9 +57,9 @@ export const InputTextWithLabel = (props: Props) => {
         disabled={props.disabled}
         required={required}
         onChange={
-          props.orgChangeHandler
+          props?.orgChangeHandler
             ? (e: React.ChangeEvent<HTMLInputElement>) =>
-                props.orgChangeHandler!(props.fieldName!, e.target.value)
+                props.orgChangeHandler!( e, props.field.onChange)
             : props.siteChangeHandler
             ? (e: React.ChangeEvent<HTMLInputElement>) =>
                 props.siteChangeHandler!(props.fieldName!, e.target.value)

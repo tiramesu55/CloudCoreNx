@@ -95,7 +95,7 @@ export const AddUserForm = () => {
                   sx={{ textAlign: 'center', marginTop: '10%' }}
                 >
                   <Typography sx={{ marginBottom: 2 }}>
-                    Please input the user email ID to fetch the user Data
+                    Please input the user email ID
                   </Typography>
                   <TextField
                     value={emailID}

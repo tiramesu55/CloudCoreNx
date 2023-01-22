@@ -46,29 +46,30 @@ export const ApplicationBySites = (props: Props) => {
         </Grid>
       </Grid>
       <Divider sx={{ color: theme.palette.cardBorder.main }} />
-
       {applications.map((app, key) => {
         return (
-          <Grid
-            item
-            container
-            xs={12}
-            sx={{
-              fontSize: theme.typography.h6.fontSize,
-              mt: theme.spacing(2),
-            }}
-            key={key}
-          >
-            <Grid item xs={6}>
-              {allApps && allApps.get(app.appCode)}
+          app.appCode !== 'admin' && (
+            <Grid
+              item
+              container
+              xs={12}
+              sx={{
+                fontSize: theme.typography.h6.fontSize,
+                mt: theme.spacing(2),
+              }}
+              key={key}
+            >
+              <Grid item xs={6}>
+                {allApps && allApps.get(app.appCode)}
+              </Grid>
+              <Grid item xs={3}>
+                {dateFormat(app.subscriptionStart?.toString(), 'dd mmmm yyyy')}
+              </Grid>
+              <Grid item xs={3}>
+                {dateFormat(app.subscriptionEnd?.toString(), 'dd mmmm yyyy')}
+              </Grid>
             </Grid>
-            <Grid item xs={3}>
-              {dateFormat(app.subscriptionStart?.toString(), 'dd mmmm yyyy')}
-            </Grid>
-            <Grid item xs={3}>
-              {dateFormat(app.subscriptionEnd?.toString(), 'dd mmmm yyyy')}
-            </Grid>
-          </Grid>
+          )
         );
       })}
     </>

@@ -16,26 +16,31 @@ import { InputTextWithLabel } from '../../components';
 import { useTheme } from '@mui/material';
 import { DeleteOrgDomain } from './delete-org-domain';
 import { Tooltip } from '@cloudcore/ui-shared';
+import {useFormikContext} from 'formik';
+import { platformStore, setOrgFormModified , allOrgDomains, usersDomain} from '@cloudcore/redux-store';
+
+
+const { useAppDispatch, useAppSelector } = platformStore;
 
 interface Props {
   open: boolean;
   handleDialog: (value: boolean) => void;
   orgDomains: string[];
-  addOrgDomain: (value: string) => void;
-  deleteOrgDomain: (value: number) => void;
-  allOrganizationDomain: string[];
-  usedDomains?: string[];
 }
 
 export const OrgDomainModal = (props: Props) => {
   const theme = useTheme();
   const [fullWidth, setFullWidth] = useState(true);
   const [inputValue, setInputValue] = useState<string>('');
-  const [allOrgDomains, setAllOrgDomains] = useState<string[]>([]);
+  const allDomains = useAppSelector(allOrgDomains);
+  const [allOrganizationDomains, setAllOrganizationDomains] = useState<string[]>(allDomains.map((d) => d.toLowerCase()));
   const [orgDomainInvalid, setOrgDomainInvalid] = useState(false);
   const [orgDomainExits, setOrgDomainExist] = useState(false);
   const [index, setIndex] = useState<number>(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const {setFieldValue} = useFormikContext();
+  const usedDomains = useAppSelector(usersDomain);
 
   const handleDialogClose = () => {
     setInputValue('');
@@ -43,10 +48,6 @@ export const OrgDomainModal = (props: Props) => {
     setOrgDomainExist(false);
     props.handleDialog(false);
   };
-
-  useEffect(() => {
-    setAllOrgDomains(props.allOrganizationDomain.map((d) => d.toLowerCase()));
-  }, [props.allOrganizationDomain]);
 
   //disable button
   const disableButton =
@@ -56,22 +57,25 @@ export const OrgDomainModal = (props: Props) => {
 
   const handleDelete = () => {
     const orgDomain = props.orgDomains[index];
-    props.deleteOrgDomain(index);
+    const updatedOrgDomains = props.orgDomains.filter(domain => domain !== orgDomain );
+    setFieldValue("orgDomains", [...updatedOrgDomains]);
     const updateAllorgDomains =
-      allOrgDomains !== null
-        ? allOrgDomains.filter((domain) => domain !== orgDomain)
+      allOrganizationDomains !== null
+        ? allOrganizationDomains.filter((domain) => domain !== orgDomain)
         : [];
-    setAllOrgDomains(updateAllorgDomains);
+    setAllOrganizationDomains(updateAllorgDomains);
     setInputValue('');
     setOrgDomainInvalid(false);
     setOrgDomainExist(false);
+    dispatch(setOrgFormModified(true));
   };
 
   const handleAdd = () => {
     if (inputValue !== '' && !orgDomainInvalid && !orgDomainExits) {
-      props.addOrgDomain(inputValue);
-      allOrgDomains.push(inputValue);
+      setFieldValue("orgDomains", [...props.orgDomains, inputValue])
+      allOrganizationDomains.push(inputValue);
       setInputValue('');
+      dispatch(setOrgFormModified(true));
     }
   };
 
@@ -79,7 +83,7 @@ export const OrgDomainModal = (props: Props) => {
     event.trim().match(/[a-zA-Z\-0-9]+\.com$/)
       ? setOrgDomainInvalid(false)
       : setOrgDomainInvalid(true);
-    allOrgDomains.includes(event.trim())
+    allOrganizationDomains.includes(event.trim())
       ? setOrgDomainExist(true)
       : setOrgDomainExist(false);
     setInputValue(event.trim().toLowerCase());
@@ -201,7 +205,7 @@ export const OrgDomainModal = (props: Props) => {
                   >
                     {domain}
                   </Typography>
-                  {!props.usedDomains?.includes(domain) ? (
+                  {!usedDomains?.includes(domain) ? (
                     <Button
                       color="error"
                       onClick={() => {
@@ -234,7 +238,7 @@ export const OrgDomainModal = (props: Props) => {
           }}
         >
           <Button
-            variant="outlined"
+            variant="contained"
             onClick={handleDialogClose}
             sx={{ marginRight: theme.spacing(1) }}
           >

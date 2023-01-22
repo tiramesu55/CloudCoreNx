@@ -1,14 +1,19 @@
 import moment from 'moment';
 import { DateInput } from '../../components';
-import { Grid, Box, Typography } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  FormGroup,
+  FormControlLabel,
+  FormControl,
+  Switch,
+} from '@mui/material';
 import { useTheme } from '@mui/material';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import Switch from '@mui/material/Switch';
+
 import { useEffect, useState } from 'react';
 import { parseISO } from 'date-fns';
-import {platformStore } from '@cloudcore/redux-store';
+import { platformStore } from '@cloudcore/redux-store';
 import {
   applicationMapping,
   selectAllApplications,
@@ -20,7 +25,7 @@ interface Application {
   subscriptionEnd: Date | null;
   status?: boolean;
 }
-const { useAppSelector } = platformStore
+const { useAppSelector } = platformStore;
 interface Props {
   siteApplications: Application[];
   siteApplicationsHandler: (value: any) => void;
@@ -146,63 +151,68 @@ export const ApplicationSiteForm = (props: Props) => {
           </Typography>
         </Box>
       </Grid>
-      {applications.map((app, index) => (
-        <Grid
-          container
-          item
-          xs={12}
-          sx={{ paddingY: theme.spacing(2) }}
-          key={index}
-        >
-          <Grid item xs={3}>
-            <FormControl component="fieldset">
-              <FormGroup aria-label="position" row>
-                <FormControlLabel
-                  checked={app.status}
-                  control={
-                    <Switch
-                      color="primary"
-                      inputProps={{ 'aria-label': 'controlled' }}
+      {applications.map(
+        (app, index) =>
+          app.appCode !== 'admin' && (
+            <Grid
+              container
+              item
+              xs={12}
+              sx={{ paddingY: theme.spacing(2) }}
+              key={index}
+            >
+              <Grid item xs={3}>
+                <FormControl component="fieldset">
+                  <FormGroup aria-label="position" row>
+                    <FormControlLabel
                       checked={app.status}
-                      disabled={props.disableEditApp}
-                      onChange={(e) => handleChange(e, app.appCode, app.status)}
+                      control={
+                        <Switch
+                          color="primary"
+                          inputProps={{ 'aria-label': 'controlled' }}
+                          checked={app.status}
+                          disabled={props.disableEditApp}
+                          onChange={(e) =>
+                            handleChange(e, app.appCode, app.status)
+                          }
+                        />
+                      }
+                      label={allApps.get(app.appCode)}
+                      labelPlacement="end"
                     />
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={3}>
+                {/* date format we need provide is yyyy-mm-dd */}
+                <DateInput
+                  label="Start Date"
+                  value={parseISO(app.subscriptionStart)}
+                  width="90%"
+                  disabled={!app.status || props.disableEditApp}
+                  handleStartDate={(value: any) =>
+                    handleStartDateChange(value, app.appCode)
                   }
-                  label={allApps.get(app.appCode)}
-                  labelPlacement="end"
                 />
-              </FormGroup>
-            </FormControl>
-          </Grid>
-          <Grid item xs={3}>
-            {/* date format we need provide is yyyy-mm-dd */}
-            <DateInput
-              label="Start Date"
-              value={parseISO(app.subscriptionStart)}
-              width="90%"
-              disabled={!app.status || props.disableEditApp}
-              handleStartDate={(value: any) =>
-                handleStartDateChange(value, app.appCode)
-              }
-            />
-          </Grid>
-          <Grid item xs={3}>
-            {/* date format we need provide is yyyy-mm-dd */}
-            <DateInput
-              label="End Date"
-              value={parseISO(app.subscriptionEnd)}
-              width="90%"
-              disabled={!app.status || props.disableEditApp}
-              minDate={parseISO(
-                moment(app.subscriptionStart).format('YYYY-MM-DD')
-              )}
-              handleEndDate={(value: any) =>
-                handleEndDateChange(value, app.appCode)
-              }
-            />
-          </Grid>
-        </Grid>
-      ))}
+              </Grid>
+              <Grid item xs={3}>
+                {/* date format we need provide is yyyy-mm-dd */}
+                <DateInput
+                  label="End Date"
+                  value={parseISO(app.subscriptionEnd)}
+                  width="90%"
+                  disabled={!app.status || props.disableEditApp}
+                  minDate={parseISO(
+                    moment(app.subscriptionStart).format('YYYY-MM-DD')
+                  )}
+                  handleEndDate={(value: any) =>
+                    handleEndDateChange(value, app.appCode)
+                  }
+                />
+              </Grid>
+            </Grid>
+          )
+      )}
     </Grid>
   );
 };

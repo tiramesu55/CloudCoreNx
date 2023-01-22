@@ -14,7 +14,7 @@ const ConfigContext = ({ children, isMainApp }: any) => {
       try {
         const configData = await service.GetConfig();
 
-        setConfig({...configData, isMainApp});
+        setConfig({ ...configData, isMainApp });
       } catch (err) {
         console.log(err);
       }

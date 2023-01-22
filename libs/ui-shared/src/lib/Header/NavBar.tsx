@@ -42,12 +42,22 @@ const CustomSelectCss = withStyles((theme) => ({
           '-webkit-border-bottom-right-radius': theme.spacing(1),
           '-moz-border-bottom-right-radius': theme.spacing(1),
         },
+        '& .defaultApp': {
+          visibility: 'visible',
+        },
       },
       '&:hover:': {
         backgroundColor: theme.palette.menuHoverColor.main,
+        display: 'block',
+        defaultApp: {
+          display: 'block !important',
+        },
       },
       width: '100%',
       fontSize: theme.typography.body1.fontSize,
+    },
+    '.defaultApp': {
+      visibility: 'hidden',
     },
     '.dropdown': {
       position: 'absolute',

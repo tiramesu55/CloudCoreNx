@@ -15,11 +15,10 @@ import {
   getSites,
   checkIfRootOrganization,
   selectAppRoles,
+  ApplicationSite,
 } from '@cloudcore/redux-store';
-import { ConfigCtx } from '@cloudcore/okta-and-config';
+import { ConfigCtx, useOktaAuth } from '@cloudcore/okta-and-config';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
-
-import { useOktaAuth } from '@cloudcore/okta-and-config';
 
 interface Props {
   orgCode: string;
@@ -34,6 +33,8 @@ export interface Option {
   name: string;
   value: string;
   permissions?: string[]; // this is for permissions
+  applications?: ApplicationSite[];
+  inactiveDate?: Date | null;
 }
 
 export const SelectSites = (props: Props) => {
@@ -57,7 +58,15 @@ export const SelectSites = (props: Props) => {
     const rawSites = allSites
       ? allSites.filter(
           (p) =>
-            p.applications && p.applications.map((x) => x.appCode).includes(app)
+            p.inactiveDate === null &&
+            p.applications &&
+            p.applications.find(
+              (x) =>
+                x.appCode === app &&
+                (x.subscriptionEnd === null ||
+                  (x.subscriptionEnd &&
+                    new Date(x.subscriptionEnd) >= new Date()))
+            )
         )
       : [];
     const rtn = rawSites.map((p) => ({
@@ -202,7 +211,12 @@ export const SelectSites = (props: Props) => {
 
           const selectedSites = allSites
             .filter((site) => selectedSitesCode.indexOf(site.siteCode) > -1)
-            .map((site) => ({ name: site.siteName, value: site.id }));
+            .map((site) => ({
+              name: site.siteName,
+              value: site.id,
+              inactiveDate: site.inactiveDate,
+              applications: site.applications,
+            }));
 
           const selectedAppRoles =
             application && application.roles

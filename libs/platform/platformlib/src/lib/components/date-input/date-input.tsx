@@ -1,11 +1,11 @@
 import * as React from 'react';
-import TextField from '@mui/material/TextField';
+import { TextField, styled } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { withStyles } from '@mui/styles';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { parseISO } from 'date-fns';
 import moment from 'moment';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 interface Props {
   label: string;
@@ -18,31 +18,20 @@ interface Props {
   handleError?: (value: boolean) => void;
 }
 
-const CustomSelectCss = withStyles(() => ({
-  '@global': {
-    '.css-sbxayt-MuiButtonBase-root-MuiIconButton-root-MuiPickersArrowSwitcher-button,.css-1ofniyl-MuiButtonBase-root-MuiIconButton-root':
-      {
-        color: `#646264 !important`,
-      },
-    '.css-1nydx7t-MuiButtonBase-root-MuiIconButton-root-MuiPickersArrowSwitcher-button':
-      {
-        color: `#646264 !important`,
-      },
-    '.css-sbxayt-MuiButtonBase-root-MuiIconButton-root-MuiPickersArrowSwitcher-button.Mui-disabled':
-      {
-        color: `#d3d3d3 !important`,
-      },
-    '.css-1ofniyl-MuiButtonBase-root-MuiIconButton-root.Mui-disabled': {
-      color: '#d3d3d3 !important',
-    },
-    '.css-ymu73s-MuiFormLabel-root-MuiInputLabel-root.Mui-disabled': {
-      color: '#d3d3d3 !important',
-    },
-    '.MuiPickersDay-dayWithMargin.Mui-disabled': {
-      color: '#d3d3d3 !important',
-    },
+const StyledDesktopDatePicker = styled(DesktopDatePicker)(({ theme }) => ({
+  '& .MuiButtonBase-root': {
+    color: theme.palette.primary.main,
+    '&.Mui-disabled': { opacity: 0.5 },
   },
-}))(() => null);
+}));
+
+const LeftArrowButton = () => {
+  return <KeyboardArrowLeftIcon sx={{ color: '#646264' }} />;
+};
+
+const RightArrowButton = () => {
+  return <KeyboardArrowRightIcon sx={{ color: '#646264' }} />;
+};
 
 export const DateInput = (props: Props) => {
   const [value, setValue] = React.useState<Date | null>(props.value);
@@ -56,8 +45,7 @@ export const DateInput = (props: Props) => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <CustomSelectCss />
-      <DatePicker
+      <StyledDesktopDatePicker
         label={props.label}
         value={value}
         onError={(reason: any, value: any) => {
@@ -100,6 +88,10 @@ export const DateInput = (props: Props) => {
         disabled={props.disabled}
         minDate={props.minDate}
         className={'date$$$$$'}
+        components={{
+          LeftArrowIcon: LeftArrowButton,
+          RightArrowIcon: RightArrowButton,
+        }}
       />
     </LocalizationProvider>
   );

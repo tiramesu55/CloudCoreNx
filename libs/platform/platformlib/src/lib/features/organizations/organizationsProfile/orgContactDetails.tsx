@@ -64,12 +64,13 @@ export const OrgContactDetails = () => {
                   sx={{ cursor: 'default' }}
                   title={
                     <Box>
-                      {orgDomains.slice(1).map((domain) => (
+                      {orgDomains.slice(1).map((domain, index) => (
                         <Box
                           sx={{
                             fontSize: theme.typography.subtitle1.fontSize,
                             p: 1,
                           }}
+                          key = {index}
                         >
                           {domain}
                         </Box>

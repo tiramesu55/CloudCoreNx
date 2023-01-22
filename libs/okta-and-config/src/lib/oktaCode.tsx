@@ -23,6 +23,9 @@ export function OktaCode(props: OktaAndConfigProps) {
       clientId: props.oidc.clientId,
       redirectUri: props.oidc.redirectUri,
       scopes: ['openid', 'email', 'profile', 'offline_access'],
+      tokenManager: {
+        storage: 'sessionStorage'
+      }
     })
   );
   const { HandleUserLogIn } = useAppInsightHook();
@@ -36,7 +39,7 @@ export function OktaCode(props: OktaAndConfigProps) {
   // };
 
   const triggerLogin = async () => {
-    await oktaAuthClient.signInWithRedirect({maxAge:1});
+    await oktaAuthClient.signInWithRedirect({ maxAge: 1 });
   };
 
   const customAuthHandler = async () => {

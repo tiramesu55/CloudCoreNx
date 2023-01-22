@@ -3,48 +3,68 @@
 import { useContext, useMemo, useEffect } from 'react';
 import { NavLink, Route } from 'react-router-dom';
 import {
-  mainStore,
+  marketplaceStore,
   reportsActions,
   openAlertAction,
   closeAlertAction,
   getMaintenanceAsync,
   bypassUserAsync,
 } from '@cloudcore/redux-store';
-import { ConfigCtx, IConfig, UseClaimsAndSignout, useClaimsAndSignout } from '@cloudcore/okta-and-config';
+import {
+  ConfigCtx,
+  IConfig,
+  UseClaimsAndSignout,
+  useClaimsAndSignout,
+} from '@cloudcore/okta-and-config';
 import LabelSettings from './components/labelSettings';
 import {
   Header,
   NotAuthorized,
   nexia_logo_img,
   sign_out_img,
-  DisplayMaintenance
+  DisplayMaintenance,
+  Snackbar,
 } from '@cloudcore/ui-shared';
-
-import { IAlert, useMaintenance } from '@cloudcore/common-lib';
+import { IAlert, useMaintenance, IAppsMenu } from '@cloudcore/common-lib';
 import ConfigurationTabs from './components/Configuration/Tabs/ConfigurationTabs';
 import LandingPage from './pages/LandingPage';
 import { useTheme } from '@mui/material';
 
-export const MpRoutes = () => {
+interface Props {
+  appsMenu: IAppsMenu;
+}
 
+export const MpRoutes = (props: Props) => {
   const theme = useTheme();
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { isMainApp, marketplaceReports, platformBaseUrl } = useContext(ConfigCtx) as IConfig; // at this point config is not null (see app)
-  const { signOut, initials, names, permissions, email, token } = useClaimsAndSignout() as UseClaimsAndSignout;
+  const { isMainApp, marketplaceReports, platformBaseUrl } = useContext(
+    ConfigCtx
+  ) as IConfig; // at this point config is not null (see app)
+  const { signOut, initials, names, permissions, email, token } =
+    useClaimsAndSignout() as UseClaimsAndSignout;
+  const { useAppDispatch, useAppSelector } = marketplaceStore;
+  const { openAlert, type, content } = useAppSelector((state) => state.common);
+  const handleCloseAlert = () => dispatch(closeAlertAction());
 
   const mpp = permissions.get('marketplace');
   const mpPermissions = mpp && mpp.length > 0;
   const path = useMemo(() => {
     return `${isMainApp ? '/marketplace/' : '/'}`;
   }, [isMainApp]);
-  const { useAppDispatch, useAppSelector } = mainStore;
   const config: IConfig = useContext(ConfigCtx)!;
   const currentDate = new Date();
   const {
-    displayMaintenance, underMaintenance, maintenanceStartDate, maintenanceEndDate,
-    maintenanceReason, fullLockout, handleDisplayMaintenanceDialog, isBypassUser, loadData
-  } = useMaintenance("Marketplace", currentDate);
+    displayMaintenance,
+    underMaintenance,
+    maintenanceStartDate,
+    maintenanceEndDate,
+    maintenanceReason,
+    fullLockout,
+    handleDisplayMaintenanceDialog,
+    isBypassUser,
+    loadData,
+  } = useMaintenance('Marketplace', currentDate);
 
   const dispatch = useAppDispatch();
   const { loadingReportSingle, selectFilterItemSelected, selectReport } =
@@ -52,21 +72,21 @@ export const MpRoutes = () => {
 
   useEffect(() => {
     if (platformBaseUrl) {
-      dispatch(getMaintenanceAsync(
-        {
+      dispatch(
+        getMaintenanceAsync({
           url: platformBaseUrl,
           token: token,
-        }
-      ))
+        })
+      );
       dispatch(
         bypassUserAsync({
           url: platformBaseUrl,
           token: token,
           email: email,
         })
-      )
+      );
     }
-  }, [platformBaseUrl])
+  }, [platformBaseUrl]);
 
   const ComponentLayout = (Component: any, isReport?: boolean) => {
     const { loadingSingleReport, reportFilter, selectedReports } =
@@ -132,7 +152,7 @@ export const MpRoutes = () => {
       email,
       names,
       openAlert,
-      loadData
+      loadData,
     ]);
     return (
       <>
@@ -144,13 +164,18 @@ export const MpRoutes = () => {
   const HeaderMerketplace = useMemo(
     () => (
       <>
+        <Snackbar
+          open={openAlert}
+          type={type}
+          content={content}
+          onClose={handleCloseAlert}
+          duration={3000}
+        />
         <DisplayMaintenance
           open={displayMaintenance}
           underMaintenance={underMaintenance}
           handleDisplayMaintenanceDialog={handleDisplayMaintenanceDialog}
-          maintenanceStartDate={
-            maintenanceStartDate
-          }
+          maintenanceStartDate={maintenanceStartDate}
           maintenanceEndDate={maintenanceEndDate}
           maintenanceReason={maintenanceReason}
           fullLockout={fullLockout}
@@ -173,8 +198,8 @@ export const MpRoutes = () => {
                 fontSize: theme.typography.subtitle1.fontSize,
                 marginRight: theme.spacing(3),
                 fontFamily: theme.typography.fontFamily,
-                marginTop: "auto",
-                marginBottom: "auto"
+                marginTop: 'auto',
+                marginBottom: 'auto',
               }}
             >
               Configuration
@@ -185,14 +210,14 @@ export const MpRoutes = () => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             userInitials: initials!,
           }}
-          userMenuList={
-            [
-              {
-                icon: sign_out_img,
-                label: 'Logout',
-                onClick: signOut,
-              },
-            ]}
+          userMenuList={[
+            {
+              icon: sign_out_img,
+              label: 'Logout',
+              onClick: signOut,
+            },
+          ]}
+          appsMenu={props.appsMenu}
         />
       </>
     ),

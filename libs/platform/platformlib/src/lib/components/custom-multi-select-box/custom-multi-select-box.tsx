@@ -12,12 +12,10 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { useTheme } from '@mui/material';
-import { withStyles, makeStyles } from '@mui/styles';
+import { useTheme, Theme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import { Option } from '../../components/select-sites/select-sites';
-import { Theme } from '@mui/material/styles';
 import { App } from '../../Maintenance/editMaintenance';
 
 interface Props {
@@ -29,12 +27,36 @@ interface Props {
   title?: any;
   appsList?: App[];
   handleAppChange?: (updatedList: any) => void;
-  invalid ?: boolean;
-  helperText ?: string;
-  inputAppList ? : App[];
+  invalid?: boolean;
+  helperText?: string;
+  inputAppList?: App[];
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const SelectInput = styled(InputBase)(({ theme }) => ({
+  'label + &': {
+    marginTop: theme.spacing(3),
+  },
+  '& .MuiInputBase-input': {
+    borderRadius: 4,
+    position: 'relative',
+    backgroundColor: theme.palette.secondary.main,
+    border: `1px solid ${theme.palette.inputBorder.main}`,
+    fontSize: 16,
+    padding: '10px 26px 10px 12px',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    // Use the system font instead of the default Roboto font.
+    '&:focus': {
+      /* borderRadius: 4,
+        borderColor: "#80bdff",
+        boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
+    },
+  },
+  '& .MuiSelect-icon': {
+    color: theme.palette.inputBorder.main,
+  },
+}));
+
+const styles = (theme: Theme) => ({
   formControl: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
@@ -53,95 +75,67 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   dropdownStyle: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.common.white,
   },
-  initialChip: {
-    color: `${theme.palette['chipYellow'].main} !important`,
-    border: `1px solid ${theme.palette['chipYellow'].main} !important`,
+  defaultChip: {
+    color: `${theme.palette.primary.main} !important`,
+    border: `1px solid ${theme.palette.primary.main} !important`,
     marginRight: `${theme.spacing(1)} !important`,
     marginBottom: `${theme.spacing(1)} !important`,
   },
-  newChip: {
-    color: `${theme.palette['linkBlue'].main} !important`,
-    border: `1px solid ${theme.palette['linkBlue'].main} !important`,
+  warningChip: {
+    color: `${theme.palette.warning.main} !important`,
+    border: `1px solid ${theme.palette.warning.main} !important`,
     marginRight: `${theme.spacing(1)} !important`,
     marginBottom: `${theme.spacing(1)} !important`,
   },
-  yellowCloseIcon: {
-    color: `1px solid ${theme.palette['chipYellow'].main} !important`,
-  },
-}));
+});
 
 export const CustomMultiSelectBox = (props: Props) => {
   const theme = useTheme();
-  const SelectInput = styled(InputBase)(({error, placeholder } : {error : boolean | undefined, placeholder : string}) => ({
-    'label + &': {
-      marginTop: theme.spacing(3),
-    },
-    '& .MuiInputBase-input': {
-      borderRadius: 4,
-      position: 'relative',
-      backgroundColor: theme.palette.secondary.main,
-      border: error ? `1px solid red` : `1px solid ${theme.palette.inputBorder.main}`,
-      fontSize: 16,
-      padding: '10px 26px 10px 12px',
-      transition: theme.transitions.create(['border-color', 'box-shadow']),
-      // Use the system font instead of the default Roboto font.
-      '&:focus': {
-        /* borderRadius: 4,
-          borderColor: "#80bdff",
-          boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", */
-      },
-    },
-  }));
 
-  const CustomSelectCss = withStyles(() => ({
-    '@global': {
-      '.css-dtoucc-MuiSvgIcon-root-MuiSelect-icon': {
-        color: `${theme.palette.common.black} !important`,
-      },
-      '.css-og9e4b-MuiSvgIcon-root-MuiSelect-icon': {
-        color: `${theme.palette.common.black} !important`,
-      },
-    },
-  }))(() => null);
-
-  const classes = useStyles();
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-        backgroundColor: '#fffff !important',
-      },
-    },
-    classes: { paper: classes.dropdownStyle },
-  };
+  const deactivatedSites = new Map<string, string>();
 
   const [currentList, setCurrentList] = useState<string[]>(
-    props.inputAppList ? props.inputAppList.map((ele) => {
-      return ele['name'];
-    }) : props.inputList ? props.inputList.map((el) => {
-      return el['name'];
-    }) : []
+    props.inputAppList
+      ? props.inputAppList.map((ele) => {
+          return ele['name'];
+        })
+      : props.inputList
+      ? props.inputList.map((site) => {
+          site.inactiveDate !== null &&
+            deactivatedSites.set(site.name, 'Deactivated Site!');
+          site.applications &&
+            site.applications.forEach((app) => {
+              if (
+                app.subscriptionEnd &&
+                new Date(app.subscriptionEnd) < new Date()
+              ) {
+                deactivatedSites.set(site.name, 'Subscription Expired!');
+              }
+            });
+          return site['name'];
+        })
+      : []
   );
 
   const permissions = new Map<string, string>();
 
   const [totalList, setTotalList] = useState<string[]>(
-    props.totalList ? props.totalList.map((el) => {
-      permissions.set(
-        el.name,
-        el.permissions === undefined ? '' : el.permissions.toString()
-      );
-      return el['name'];
-    }) : props.appsList ? props.appsList.map(ele => {
-      return ele['name']
-    }) : []
+    props.totalList
+      ? props.totalList.map((el) => {
+          permissions.set(
+            el.name,
+            el.permissions === undefined ? '' : el.permissions.toString()
+          );
+          return el['name'];
+        })
+      : props.appsList
+      ? props.appsList.map((ele) => {
+          return ele['name'];
+        })
+      : []
   );
-
   const isAllSelected =
     totalList.length > 0 && currentList.length === totalList.length;
 
@@ -149,43 +143,51 @@ export const CustomMultiSelectBox = (props: Props) => {
     const onChangeList = event.target.value;
     if (onChangeList[onChangeList.length - 1] === 'all') {
       setCurrentList(currentList.length === totalList.length ? [] : totalList);
-      (props.appsList && props.handleAppChange) && props.handleAppChange(
-        currentList.length === totalList.length ? [] : props.appsList
-      );
+      props.appsList &&
+        props.handleAppChange &&
+        props.handleAppChange(
+          currentList.length === totalList.length ? [] : props.appsList
+        );
       return;
     }
     setCurrentList(
       typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
     );
-    (props.appsList && props.handleAppChange) && props.handleAppChange(
-      props.appsList.filter((el) => {
-        return onChangeList.indexOf(el.name) > -1;
-      })
-    );
-  }
+    props.appsList &&
+      props.handleAppChange &&
+      props.handleAppChange(
+        props.appsList.filter((el) => {
+          return onChangeList.indexOf(el.name) > -1;
+        })
+      );
+  };
 
   const handleChange = (event: SelectChangeEvent<typeof currentList>) => {
     const onChangeList = event.target.value;
     if (onChangeList[onChangeList.length - 1] === 'all') {
       setCurrentList(currentList.length === totalList.length ? [] : totalList);
 
-      (props.totalList && props.handleChange) && props.handleChange(
-        props.application,
-        props.customSelectLabel,
-        currentList.length === totalList.length ? [] : props.totalList
-      );
+      props.totalList &&
+        props.handleChange &&
+        props.handleChange(
+          props.application,
+          props.customSelectLabel,
+          currentList.length === totalList.length ? [] : props.totalList
+        );
       return;
     }
     setCurrentList(
       typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
     );
-    (props.totalList && props.handleChange) && props.handleChange(
-      props.application,
-      props.customSelectLabel,
-      props.totalList.filter((el) => {
-        return onChangeList.indexOf(el.name) > -1;
-      })
-    );
+    props.totalList &&
+      props.handleChange &&
+      props.handleChange(
+        props.application,
+        props.customSelectLabel,
+        props.totalList.filter((el) => {
+          return onChangeList.indexOf(el.name) > -1;
+        })
+      );
   };
 
   const handleDelete = (e: React.MouseEvent, value: string) => {
@@ -195,26 +197,27 @@ export const CustomMultiSelectBox = (props: Props) => {
       } else return true;
     });
     setCurrentList(filterList);
-    (props.totalList && props.handleChange) && props.handleChange(
-      props.application,
-      props.customSelectLabel,
-      props.totalList.filter((el) => {
-        return filterList.indexOf(el.name) > -1;
-      })
-    );
+    props.totalList &&
+      props.handleChange &&
+      props.handleChange(
+        props.application,
+        props.customSelectLabel,
+        props.totalList.filter((el) => {
+          return filterList.indexOf(el.name) > -1;
+        })
+      );
   };
 
   return (
     <>
-      <CustomSelectCss />
-      <FormControl sx={{ my: 1, width: 300 }} className={classes.formControl} error={props.invalid}>
+      <FormControl sx={styles(theme).formControl} error={props.invalid}>
         <Select
           labelId="demo-multiple-checkbox-label"
           id="demo-multiple-checkbox"
           multiple
           value={[...currentList]}
           onChange={props.appsList ? handleAppchange : handleChange}
-          input={<SelectInput placeholder="input" error = {props.invalid}/>}
+          input={<SelectInput placeholder="input" error={props.invalid} />}
           renderValue={(selected) => {
             const selectedArr: string[] = [];
             selected.map((ele) => {
@@ -224,18 +227,20 @@ export const CustomMultiSelectBox = (props: Props) => {
               ? selectedArr.join(', ')
               : props.customSelectLabel;
           }}
-          MenuProps={MenuProps}
+          inputProps={{
+            MenuProps: {
+              MenuListProps: {
+                sx: { backgroundColor: theme.palette.common.white },
+              },
+            },
+          }}
+          // MenuProps={MenuProps}
           displayEmpty={true}
         >
-          <MenuItem
-            value="all"
-            classes={{
-              root: isAllSelected ? classes.selectedAll : '',
-            }}
-          >
+          <MenuItem value="all" sx={styles(theme).selectedAll}>
             <ListItemIcon>
               <Checkbox
-                classes={{ indeterminate: classes.indeterminateColor }}
+                sx={styles(theme).indeterminateColor}
                 checked={isAllSelected}
                 indeterminate={
                   currentList.length > 0 &&
@@ -244,7 +249,7 @@ export const CustomMultiSelectBox = (props: Props) => {
               />
             </ListItemIcon>
             <ListItemText
-              classes={{ primary: classes.selectAllText }}
+              sx={styles(theme).indeterminateColor}
               primary="Select All"
             />
           </MenuItem>
@@ -253,7 +258,7 @@ export const CustomMultiSelectBox = (props: Props) => {
               <MenuItem key={index} value={element as any}>
                 <ListItemIcon>
                   <Checkbox
-                    classes={{ indeterminate: classes.indeterminateColor }}
+                    sx={styles(theme).indeterminateColor}
                     checked={currentList.indexOf(element) > -1}
                   />
                 </ListItemIcon>
@@ -263,46 +268,46 @@ export const CustomMultiSelectBox = (props: Props) => {
           })}
           Apply
         </Select>
-        { props.invalid && <FormHelperText>{props.helperText}</FormHelperText>}
+        {props.invalid && <FormHelperText>{props.helperText}</FormHelperText>}
       </FormControl>
-      {
-        props.totalList && <Box component="div">
+      {props.totalList && (
+        <Box component="div">
           <>
             {currentList.map((value, index) => {
               return (
                 <Chip
+                  sx={
+                    deactivatedSites.get(value) && !permissions.get(value)
+                      ? styles(theme).warningChip
+                      : styles(theme).defaultChip
+                  }
                   key={index}
                   variant="outlined"
                   label={value}
-                  title={permissions.get(value)}
+                  title={permissions.get(value) || deactivatedSites.get(value)}
                   clickable
                   deleteIcon={
-                    currentList.indexOf(value) > -1 ? (
+                    deactivatedSites.get(value) && !permissions.get(value) ? (
                       <CloseIcon
                         sx={{
-                          color: `${theme.palette.chipYellow.main} !important`,
+                          color: `${theme.palette.warning.main} !important`,
                         }}
                       />
                     ) : (
                       <CloseIcon
                         sx={{
-                          color: `${theme.palette.linkBlue.main} !important`,
+                          color: `${theme.palette.primary.main} !important`,
                         }}
                       />
                     )
                   }
                   onDelete={(e) => handleDelete(e, value)}
-                  className={
-                    currentList.indexOf(value) > -1
-                      ? classes.initialChip
-                      : classes.newChip
-                  }
                 />
               );
             })}
           </>
         </Box>
-      }
+      )}
     </>
   );
 };

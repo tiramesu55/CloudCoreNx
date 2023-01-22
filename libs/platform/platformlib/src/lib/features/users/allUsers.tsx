@@ -61,7 +61,6 @@ export const ListUsers = (props: Props) => {
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const allApps = useAppSelector(applicationMapping);
   const users = useAppSelector(allUsers);
-  console.log(users, 'dsgdfg');
   const orgData = useAppSelector(selectOrganizations);
   const usersWithOrg = users.map((user) => {
     const orgName = orgData.find((org) => {
@@ -143,7 +142,6 @@ export const ListUsers = (props: Props) => {
         filter: true,
         sort: true,
         customBodyRender: (value: string, tableMeta: any) => {
-          console.log(value, 'user');
           return (
             <Tooltip
               title={

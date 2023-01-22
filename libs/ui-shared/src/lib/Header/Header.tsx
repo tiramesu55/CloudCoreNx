@@ -10,6 +10,7 @@ import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
 import NavBar from './NavBar';
 import Maintenance from './Maintenance';
 import { NavLink } from 'react-router-dom';
+import { IAppsMenu } from '@cloudcore/common-lib';
 
 interface headerProps {
   title: string;
@@ -23,6 +24,7 @@ interface headerProps {
   maintenance?: maintenanceProps;
   isFormModified?: boolean;
   unSavedData?: (open: boolean, app: string) => void;
+  appsMenu?: IAppsMenu;
 }
 
 interface logoProps {
@@ -64,7 +66,7 @@ interface maintenanceProps {
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { marketplaceConfiguration } = props
+  const { marketplaceConfiguration } = props;
   const config: IConfig = useContext(ConfigCtx)!;
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
@@ -125,57 +127,56 @@ export const Header = (props: headerProps) => {
 
   const userMenuList = props.userMenuList
     ? props.userMenuList.map((item) => {
-      return {
-        icon: item.icon,
-        label: item.label,
-        onClick: item.onClick,
-      };
-    })
+        return {
+          icon: item.icon,
+          label: item.label,
+          onClick: item.onClick,
+        };
+      })
     : [
-      {
-        icon: '',
-        label: '',
-        onClick: () => {
-          return null;
+        {
+          icon: '',
+          label: '',
+          onClick: () => {
+            return null;
+          },
         },
-      },
-    ];
+      ];
 
   const navLinkList = props.navLinkMenuList
     ? props.navLinkMenuList.map((item) => {
-      return {
-        label: item.label,
-        route: item.route,
-        onClick: item.onClick,
-        subMenuList: item.subMenuList?.map((item) => {
-          return {
-            label: item.label,
-            onClick: item.onClick,
-            route: item.route,
+        return {
+          label: item.label,
+          route: item.route,
+          onClick: item.onClick,
+          subMenuList: item.subMenuList?.map((item) => {
+            return {
+              label: item.label,
+              onClick: item.onClick,
+              route: item.route,
               betaIcon: item.betaIcon,
             };
-
-        }),
-      };
-    })
+          }),
+        };
+      })
     : [
-      {
-        label: '',
-        route: '',
-        onClick: () => {
-          return null;
-        },
-        subMenuList: [
-          {
-            label: '',
-            onClick: () => {
-              return null;
-            },
-            route: undefined,
+        {
+          label: '',
+          route: '',
+          onClick: () => {
+            return null;
           },
-        ],
-      },
-    ];
+          subMenuList: [
+            {
+              label: '',
+              onClick: () => {
+                return null;
+              },
+              route: undefined,
+            },
+          ],
+        },
+      ];
 
   const CustomCss = withStyles((theme) => ({
     '@global': {
@@ -205,7 +206,7 @@ export const Header = (props: headerProps) => {
               sx={{ mr: 2, display: { md: 'flex', alignItems: 'center' } }}
             >
               <NavLink
-                to={`/${window.location.pathname.substring(1).split("/")[0]}`}
+                to={`/${window.location.pathname.substring(1).split('/')[0]}`}
                 exact
               >
                 <img
@@ -222,6 +223,7 @@ export const Header = (props: headerProps) => {
                 betaIcon={props.betaIcon}
                 isFormModified={props.isFormModified}
                 unSavedData={props.unSavedData}
+                appsMenu={props.appsMenu}
               />
             ) : (
               <Box

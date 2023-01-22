@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useHistory } from 'react-router-dom';
 import { subMenuListProps } from './NavBar';
 import betaIcon from '../assets/betaIcon.png';
@@ -35,8 +35,13 @@ const Dropdown = (props: Props) => {
           }}
           key={index}
         >
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
-            {submenu.label}
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: { xs: 'flex', md: 'flex' },
+            }}
+          >
+            <Typography>{submenu.label}</Typography>
             {submenu.betaIcon && (
               <Box
                 component={'img'}
