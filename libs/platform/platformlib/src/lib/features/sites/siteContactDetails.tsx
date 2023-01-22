@@ -136,3 +136,4 @@ export const SiteContactDetails = (props: Props) => {
     </>
   );
 };
+export default SiteContactDetails;

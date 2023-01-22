@@ -1022,3 +1022,4 @@ export const OrganizationForm = (props: Props) => {
     </Formik>
   );
 };
+export default OrganizationForm;

@@ -271,3 +271,4 @@ export const ActivateDeactivateOrg = (props: Props) => {
     </div>
   );
 };
+export default ActivateDeactivateOrg;

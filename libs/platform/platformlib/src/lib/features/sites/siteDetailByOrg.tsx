@@ -132,3 +132,4 @@ export const SiteDetailByOrg = () => {
     </Grid>
   );
 };
+export default SiteDetailByOrg;

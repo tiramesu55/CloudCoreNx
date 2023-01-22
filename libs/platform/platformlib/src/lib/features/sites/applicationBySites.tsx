@@ -75,3 +75,4 @@ export const ApplicationBySites = (props: Props) => {
     </>
   );
 };
+export default ApplicationBySites;

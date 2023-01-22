@@ -13,6 +13,7 @@ import {
   useMemo,
   useRef,
   useState,
+  lazy
 } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
@@ -26,7 +27,7 @@ import {
   DisplayMaintenance,
   Snackbar,
 } from '@cloudcore/ui-shared';
-import { ReportBiClientComponent } from '@cloudcore/powerbi';
+
 import {
   useAppInsightHook,
   IErrorTypeResponse,
@@ -56,7 +57,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 interface Props {
   appsMenu?: IAppsMenu;
 }
-
+const ReportBiClientComponent = lazy(() => import('@cloudcore/powerbi'));
 export const AnalyticsPowerbi = (props: Props) => {
   const theme = useTheme();
   const { useAppDispatch, useAppSelector } = analyticsStore;

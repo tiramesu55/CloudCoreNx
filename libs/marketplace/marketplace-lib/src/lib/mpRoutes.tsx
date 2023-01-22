@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useContext, useMemo, useEffect } from 'react';
+import { useContext, useMemo, useEffect, lazy } from 'react';
 import { NavLink, Route } from 'react-router-dom';
 import {
   marketplaceStore,
@@ -16,7 +16,7 @@ import {
   UseClaimsAndSignout,
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
-import LabelSettings from './components/labelSettings';
+
 import {
   Header,
   NotAuthorized,
@@ -26,13 +26,16 @@ import {
   Snackbar,
 } from '@cloudcore/ui-shared';
 import { IAlert, useMaintenance, IAppsMenu } from '@cloudcore/common-lib';
-import ConfigurationTabs from './components/Configuration/Tabs/ConfigurationTabs';
-import LandingPage from './pages/LandingPage';
+
 import { useTheme } from '@mui/material';
 
 interface Props {
   appsMenu: IAppsMenu;
 }
+
+const LabelSettings = lazy( () =>  import( './components/labelSettings'));
+const ConfigurationTabs = lazy( () =>  import( './components/Configuration/Tabs/ConfigurationTabs'));
+const LandingPage = lazy( () =>  import( './pages/LandingPage'));
 
 export const MpRoutes = (props: Props) => {
   const theme = useTheme();

@@ -249,3 +249,4 @@ export const OrgDomainModal = (props: Props) => {
     </Dialog>
   );
 };
+export default OrgDomainModal;

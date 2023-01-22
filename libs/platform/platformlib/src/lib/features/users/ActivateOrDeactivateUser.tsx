@@ -256,3 +256,4 @@ export const DeactivateUser = (props: Props) => {
     </div>
   );
 };
+export default DeactivateUser;

@@ -176,3 +176,4 @@ export const Dashboard = (props: Props) => {
     </Grid>
   );
 };
+export default Dashboard;
