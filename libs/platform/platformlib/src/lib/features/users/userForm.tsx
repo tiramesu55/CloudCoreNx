@@ -430,6 +430,7 @@ export const UserForm = (props: Props) => {
                     fieldName="emailId"
                     changeHandler={onEmailChanged}
                     disabled={true}
+                    data-testid="emailid"
                   />
                 </Grid>
                 <Grid item xs={2.5}>
@@ -580,7 +581,7 @@ export const UserForm = (props: Props) => {
                     UPDATE USER
                   </Button>
                 ) : (
-                  <Button variant="outlined" onClick={saveUserClick}>
+                  <Button variant="outlined" onClick={saveUserClick} data-testid="save">
                     Save
                   </Button>
                 )}

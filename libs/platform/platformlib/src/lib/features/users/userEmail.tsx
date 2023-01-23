@@ -104,6 +104,7 @@ export const AddUserForm = () => {
                     fullWidth={true}
                     label="Email ID"
                     variant="outlined"
+                    data-testid="emailid"
                     inputProps={{ maxLength: 100 }}
                     onChange={(e) => setEmailID(e.target.value)}
                     InputProps={{
@@ -154,6 +155,7 @@ export const AddUserForm = () => {
                   fontWeight: 'bold',
                   paddingX: theme.spacing(5),
                 }}
+                data-testid="next"
               >
                 NEXT
               </Button>

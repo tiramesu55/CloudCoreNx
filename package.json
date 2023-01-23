@@ -9,7 +9,8 @@
     "start-marketplace": "npx nx serve marketplace",
     "start-main": "npx nx serve main",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "test:e2e": "nx e2e main-e2e --watch"
   },
   "private": true,
   "dependencies": {

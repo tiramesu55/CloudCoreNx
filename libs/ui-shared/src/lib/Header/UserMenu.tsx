@@ -82,6 +82,7 @@ export const UserMenu = (props: userMenuProps) => {
                 height: 32,
                 backgroundColor: theme.palette.primary.main,
               }}
+              data-testid="user"
             >
               {props.userMenuProps?.userInitials}
             </Avatar>
@@ -134,7 +135,7 @@ export const UserMenu = (props: userMenuProps) => {
               key={ind}
             >
               <ListItemIcon>
-                <img src={item.icon} alt="SignOut" />
+                <img src={item.icon} alt="SignOut" data-testid="Logout"/>
               </ListItemIcon>
               {item.label}
             </MenuItem>

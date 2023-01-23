@@ -242,6 +242,7 @@ export const ListUsers = (props: Props) => {
               task: 'addUser',
             });
           }}
+          data-testid="addnewuser"
         >
           Add New User
         </Button>

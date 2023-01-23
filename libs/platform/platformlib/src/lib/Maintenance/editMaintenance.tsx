@@ -292,7 +292,7 @@ const EditMaintenanceMode = (props: Props) => {
                     <Button variant="outlined" onClick={handleClose}>
                         Cancel
                     </Button>
-                    <Button variant="contained" onClick={handleSubmit}>
+                    <Button variant="contained" onClick={handleSubmit} data-testid="save">
                         Save
                     </Button>
                 </DialogActions>

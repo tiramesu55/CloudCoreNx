@@ -149,6 +149,7 @@ export const DeactivateUser = (props: Props) => {
           fontWeight: 'bold',
         }}
         onClick={handleClickOpen}
+        data-testid="activeuser"
       >
         {props.user?.inactiveDate === null ? (
           <>Deactivate User</>

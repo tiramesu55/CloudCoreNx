@@ -750,7 +750,7 @@ export const SiteForm = (props: Props) => {
                     UPDATE SITE
                   </Button>
                 ) : (
-                  <Button variant="outlined" onClick={handleSubmit}>
+                  <Button variant="outlined" onClick={handleSubmit} data-testid="save">
                     Save
                   </Button>
                 )}
