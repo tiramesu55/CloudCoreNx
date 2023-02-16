@@ -2,6 +2,8 @@ import { Card, CardHeader, Typography, Divider, Stack, FormControl, IconButton, 
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from "react";
 import FormularyTable from "./FormularyTable";
+import Avatar from '@mui/material/Avatar';
+import { deepOrange, deepPurple } from '@mui/material/colors';
 
 const FormularyListHeader = () => {
 
@@ -22,50 +24,16 @@ const FormularyListHeader = () => {
 
     return (
         <Stack direction="row">
-            <Typography component={'span'} sx={{ padding: '5px', fontSize: 16, fontWeight: 600, }}>Formulary List</Typography>
-            <FormControl sx={{
+            {/* <FormControl sx={{
+                height: '40px',
+                backgroundColor: 'white',
                 "& .MuiInputBase-root": {
-                    height: '65%',
                     borderRadius: '2px',
-                    paddingRight: '13px',
-                    backgroundColor: 'white'
-                }, m: 1, marginTop: '2px', width: '25ch'
-            }} variant="outlined" size="small">
-                <OutlinedInput
-                    id="outlined-adornment-password"
-                    type='text'
-                    value={searchValue}
-                    onChange={handleChange}
-                    placeholder="Search"
-                    endAdornment={
-                        <InputAdornment position="end">
-                            <IconButton
-                                sx={{
-                                    backgroundColor: 'white', color: 'black', height: '32px',
-                                    width: "32px",
-                                    marginLeft: "35px",
-                                    borderRadius: "4px"
-                                }}
-                                aria-label="toggle password visibility"
-                                onClick={handleSearch}
-                                onMouseDown={handleSearch}
-                                edge="end"
-                            >
-                                <SearchIcon />
-                            </IconButton>
-                        </InputAdornment>
-                    }
-                    label="Search"
-                />
-            </FormControl>
-            <FormControl sx={{
-                "& .MuiInputBase-root": {
-                    height: '70%',
-                    borderRadius: '2px',
-                }, ml: 'auto !important',
-                m: 1,
+                    fontSize: "10pt",
+                }, ml: '0px',
+                m: 0,
                 minWidth: 120,
-                width: '15%',
+                width: '20%',
                 marginBottom: '5px !important',
                 marginTop: '0px !important'
             }} size="small">
@@ -78,28 +46,73 @@ const FormularyListHeader = () => {
                         "& .MuiSvgIcon-root": {
                             color: 'black'
                         },
-
                     }}
                 >
-                    <MenuItem value="">
-                        Partner 01
+                    <MenuItem value="" sx={{ fontSize: "10pt", backgroundColor: "white", }}>
+                        Green Pharmacy
+
                     </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
+
+                    <MenuItem value={10} sx={{ fontSize: "10pt", backgroundColor: "white", }}>New Metro Pharmacy</MenuItem>
+                    <MenuItem value={20} sx={{ fontSize: "10pt", backgroundColor: "white", }}>Get Well Pharmacy</MenuItem>
+
                 </Select>
+            </FormControl> */}
+
+            <FormControl sx={{
+                "& .MuiInputBase-root": {
+                    height: '85%',
+                    borderRadius: '2px',
+                    paddingRight: '13px',
+                    backgroundColor: 'white',
+                    fontSize: "12pt"
+                }, m: 0, marginTop: '0px', width: '45ch', marginBottom: ".5em"
+            }} variant="outlined" size="small">
+                <OutlinedInput
+                    id="outlined-basic"
+                    type='text'
+                    value={searchValue}
+                    onChange={handleChange}
+                    placeholder="Search"
+                    endAdornment={
+                        <InputAdornment position="end">
+                            <IconButton
+                                sx={{
+                                    backgroundColor: 'white', color: 'white', height: '32px',
+                                    width: "32px",
+                                    marginLeft: "35px",
+                                    borderRadius: "4px"
+                                }}
+                                aria-label="toggle password visibility"
+                                onClick={handleSearch}
+                                onMouseDown={handleSearch}
+                                edge="end"
+                            >
+                                <SearchIcon sx={{ backgroundColor: "#6513F0" }} />
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                    label="Search"
+                />
             </FormControl>
+
         </Stack>
     )
 }
 
 const FormularyList = () => {
     return (
-        < Card raised sx={{ borderRadius: '4px' }}>
-            <CardHeader title={<FormularyListHeader />} />
-            <Divider variant='fullWidth' sx={{ width: '100%', color: '#F8F8F8' }} />
-            <FormularyTable />
-        </Card >
+        <>
+            {<FormularyListHeader />}
+            < Card raised sx={{ borderRadius: '4px' }}>
+                <Stack direction="row" sx={{ marginLeft: "2em", marginTop: "1em", marginBottom: '1em' }}>
+                    {/* <Avatar sx={{ bgcolor: "#c0ca33", width: 45, height: 45, fontSize: "14px", fontWeight: "bold" }}>GP</Avatar> */}
+                    <Typography sx={{ color: "black", fontWeight: "bold", marginLeft: "-.5em", marginTop: ".2em", fontSize: "15pt" }}>Orlando, Florida</Typography>
+                </Stack>
+                <Divider variant='fullWidth' sx={{ width: '100%', color: '#F8F8F8' }} />
+                <FormularyTable />
+            </Card >
+        </>
     )
 }
 

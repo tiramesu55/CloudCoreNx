@@ -11,6 +11,7 @@ import {
   updateUserApi,
   addUserApi,
   deleteUserApi,
+  deleteUsersSiteMappingApi,
   addMultipleUsers,
 } from './userAPI';
 
@@ -51,7 +52,7 @@ export interface SiteUser {
   siteId: string;
 }
 
-export interface ApplicationUser {
+interface ApplicationUser {
   id?: string;
   appCode: string;
   roles: Role[];
@@ -210,6 +211,26 @@ export const deleteUser = createAsyncThunk<
     return {
       data: response.data,
       type: 'updateOne',
+    };
+  }
+);
+
+export const deleteUsersSiteMapping = createAsyncThunk<
+  UserAction,
+  any,
+  { state: RootState }
+>(
+  'Users/deleteUsersSiteMapping',
+  async (
+    { siteID, url, token }: { siteID: string; url: string; token: string },
+    { getState }
+  ) => {
+    if (!token) return { data: null, type: 'updateAll' };
+    const response = await deleteUsersSiteMappingApi(url, token, siteID);
+    // The value we return becomes the `fulfilled` action payload
+    return {
+      data: response.data,
+      type: 'updateAll',
     };
   }
 );

@@ -10,36 +10,38 @@ export interface IApiResponseId extends IApiResponse {
 
 //DashboardDetails Interfaces
 export interface IDashboardDetailsPartner {
-  partnerId: number;
-  partnerName: string;
-}
-
-export interface IDashboardContractedRX extends IDashboardDetailsPartner {
-  contractedRx: number;
-}
-
-export interface IDashboardRXFilled extends IDashboardDetailsPartner {
-  rxsFilled: number;
-}
-
-export interface IDashboardDetails {
-  customerId: number;
-  facilityId: number;
-  partner: {
-    totalPartners: number;
-    partners: IDashboardDetailsPartner[];
-  };
-  contractedRx: {
-    totalContractedRxs: number;
-    contractedRxs: IDashboardContractedRX[];
-  };
-  noOfRxsFilled: {
-    totalRxsFilled: number;
-    rxsFilled: IDashboardRXFilled[];
-  };
-  dailyUtilization: number;
-  totalPendingRxs: number;
-}
+    assocPharmacyId: number;
+    assocPharmacyName: string;
+  }
+  export interface IDashboardContractedRX extends IDashboardDetailsPartner {
+    contractedRx: number;
+  }
+  export interface IDashboardRXFilled extends IDashboardDetailsPartner {
+    filledRx: number;
+  } 
+  export interface IDashboardAvailableRx extends IDashboardDetailsPartner {
+    availableRx: number;
+  }      
+  export interface IDashboardDetails {
+    pharmacyId: number;
+    facilityId: number;
+    association: {
+      totalAssociatedPharmacies: number;
+      assocPharmacies: IDashboardDetailsPartner[];
+    };      
+    contractedRx: {    
+      totalContractedRxs: number;
+      contractedRxs: IDashboardContractedRX[];
+    };  
+    filledRx: {
+      totalRxsFilled: number;
+      filledRxs: IDashboardRXFilled[];
+    };
+    availableRx: {
+        totalRxsAvailable: number;
+        availableRxs: IDashboardAvailableRx[];
+      };
+  }
 
 //InventoryConfiguration Interfaces
 export interface IInventoryConfigurationPartner {

@@ -12,7 +12,7 @@ import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import React from 'react';
 import theme from '../themes';
 
-const UserTooltip = styled(({ className, ...props }: TooltipProps) => (
+export const UserTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
@@ -68,7 +68,14 @@ export const UserMenu = (props: userMenuProps) => {
 
   return (
     <Fragment>
-      <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          float: 'right',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
         <IconButton
           onClick={handleClick}
           size="small"
@@ -135,7 +142,7 @@ export const UserMenu = (props: userMenuProps) => {
               key={ind}
             >
               <ListItemIcon>
-                <img src={item.icon} alt="SignOut" data-testid="Logout"/>
+                <img src={item.icon} alt="SignOut" data-testid="Logout" />
               </ListItemIcon>
               {item.label}
             </MenuItem>

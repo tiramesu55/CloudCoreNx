@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { UserAction } from '../Platform-UI/users/userSlice';
 
-export interface MaintenanceState {
-  appsMaintenance: Application[];
+interface MaintenanceState {
+  appsMaintenance: ApplicationMaintenance[];
   bypassUser?: boolean;
   loadAnalyticsData: boolean;
   loadPlatformData: boolean;
@@ -27,7 +27,7 @@ interface Role {
   permissions: string[];
 }
 
-interface Application {
+interface ApplicationMaintenance {
   id: string;
   name: string;
   appCode: string;
@@ -41,7 +41,7 @@ interface Application {
 }
 
 interface AppsMaintenanceGetAction {
-  data: Application[];
+  data: ApplicationMaintenance[];
   type: string;
 }
 

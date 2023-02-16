@@ -1,4 +1,4 @@
-const site_url = 'http://localhost:3000'; // Cypress.env('site_url'); 
+const site_url =  Cypress.env('site_url'); 
 describe('Basic tests IARX', () => {
   it('Create, Activate/Deactivate and Delete User', () => {
     cy.visit(`${site_url}/platform`, {

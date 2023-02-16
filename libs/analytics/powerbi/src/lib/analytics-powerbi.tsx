@@ -13,7 +13,7 @@ import {
   useMemo,
   useRef,
   useState,
-  lazy
+  lazy,
 } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
@@ -123,6 +123,7 @@ export const AnalyticsPowerbi = (props: Props) => {
   const { HandleReportEvent } = useAppInsightHook();
   const ap = permissions.get('analytics');
   const anltPermissions = ap && ap.length > 0;
+  const isExportAllowed = ap?.includes('_export') ?? false;
   const handleErrorResponse = (err: IErrorTypeResponse) => {
     HandleReportEvent({
       properties: {
@@ -159,6 +160,7 @@ export const AnalyticsPowerbi = (props: Props) => {
       }
     };
     if (token) {
+      getDefaultReport();
       if (config?.platformBaseUrl) {
         // setListReportLoading(true);  //  too quick. No point running spinner
         requests
@@ -182,24 +184,6 @@ export const AnalyticsPowerbi = (props: Props) => {
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (platformBaseUrl) {
-      dispatch(
-        getMaintenanceAsync({
-          url: platformBaseUrl,
-          token: token,
-        })
-      );
-      dispatch(
-        bypassUserAsync({
-          url: platformBaseUrl,
-          token: token,
-          email: email,
-        })
-      );
-    }
-  }, [platformBaseUrl, token, dispatch]);
 
   const handleReportClick = async (reportId: string, reportName: string) => {
     dispatch(
@@ -342,6 +326,7 @@ export const AnalyticsPowerbi = (props: Props) => {
           title={'Enterprise Analytics'}
           logo={{ img: nexia_logo_img, path }}
           betaIcon={true}
+          isMainApp={config?.isMainApp}
           reportIssue={false}
           navLinkMenuList={navLinkMenuList}
           userMenu={{
@@ -356,6 +341,12 @@ export const AnalyticsPowerbi = (props: Props) => {
             },
           ]}
           appsMenu={props.appsMenu}
+          roadMap={{
+            url: 'https://innovation-associates.aha.io/published/da19c0e98b3bf53c2b3c0cc2ff962572?page=1',
+            title: 'Analytics Road Map',
+            height: '900',
+            dialogTitle: 'Enterprise Analytics Roadmap',
+          }}
         />
         {selectedReports['selectedReportId'] && (
           <ErrorBoundary fallbackRender={ErrorFallback}>
@@ -363,6 +354,7 @@ export const AnalyticsPowerbi = (props: Props) => {
               userName={names ? names[0] + ' ' + names[1] : ''}
               userEmail={email ?? ''}
               reset={resetTimerRef.current}
+              isExportAllowed = {isExportAllowed }
               openAlert={handleOpenAlert}
               closeAlert={handleCloseAlert}
               loadingReportSingle={handleLoadingReportSingle}

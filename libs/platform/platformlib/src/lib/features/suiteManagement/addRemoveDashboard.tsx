@@ -326,7 +326,7 @@ const AddRemoveDashboardFromSuite = (props: Props) => {
     } else {
       props.handleSuiteNameInavlid(false);
     }
-    dispatch(setSelectedSuiteName(event.trim()));
+    dispatch(setSelectedSuiteName(event));
     dispatch(setSuiteFormModified(true));
   };
 

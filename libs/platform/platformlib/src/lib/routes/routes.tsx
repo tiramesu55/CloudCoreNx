@@ -22,6 +22,7 @@ import {
 import {
   bypassUserAsync,
   getApplications,
+  getOrganizationsAsync,
   getMaintenanceAsync,
   platformStore,
   selectAppRoles,
@@ -46,15 +47,21 @@ const { useAppDispatch, useAppSelector } = platformStore;
 interface Props {
   appsMenu?: IAppsMenu;
 }
-const SuiteManagement = lazy( () =>  import( '../features/suiteManagement/suiteManagement'));
-const SiteForm = lazy( () =>  import( '../features/sites/siteForm'));
-const Sites = lazy( () =>  import( '../features/sites/sites'));
-const UserOnboarding = lazy( () =>  import( '../features/users/userOnboardingForm'));
-const UserForm = lazy( () =>  import( '../features/users/userForm'));
-const UserEmail = lazy( () =>  import( '../features/users/userEmail'));
-const AddNewOrganisation = lazy( () =>  import( '../features/organizations/OrganisationForm'));
-const ListUsers = lazy( () =>  import( '../features/users/allUsers'));
-const Dashboard = lazy( () =>  import( '../Dashboard/dashboard'));
+const SuiteManagement = lazy(
+  () => import('../features/suiteManagement/suiteManagement')
+);
+const SiteForm = lazy(() => import('../features/sites/siteForm'));
+const Sites = lazy(() => import('../features/sites/sites'));
+const UserOnboarding = lazy(
+  () => import('../features/users/userOnboardingForm')
+);
+const UserForm = lazy(() => import('../features/users/userForm'));
+const UserEmail = lazy(() => import('../features/users/userEmail'));
+const AddNewOrganisation = lazy(
+  () => import('../features/organizations/OrganisationForm')
+);
+const ListUsers = lazy(() => import('../features/users/allUsers'));
+const Dashboard = lazy(() => import('../Dashboard/dashboard'));
 
 export const Routes = (props: Props) => {
   const handleOpenAlert = (payload: IAlert) =>
@@ -195,6 +202,24 @@ export const Routes = (props: Props) => {
           email: email,
         })
       );
+      dispatch(
+        getOrganizationsAsync({
+          url: platformBaseUrl,
+          token: token,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
     }
   }, [platformBaseUrl, token]);
 
@@ -374,6 +399,7 @@ export const Routes = (props: Props) => {
           reportIssue={false}
           navLinkMenuList={navList}
           isFormModified={formModified}
+          isMainApp={config?.isMainApp}
           userMenu={{
             userName: names ? names[0] + ' ' + names[1] : '',
             userInitials: initials!,

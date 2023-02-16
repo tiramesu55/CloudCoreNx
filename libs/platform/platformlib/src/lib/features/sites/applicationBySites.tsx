@@ -1,11 +1,17 @@
 import { Divider, Grid, useTheme } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { platformStore } from '@cloudcore/redux-store';
-import { ApplicationSite, applicationMapping } from '@cloudcore/redux-store';
+import { applicationMapping } from '@cloudcore/redux-store';
 import dateFormat from 'dateformat';
 
+interface Application {
+  appCode: string;
+  subscriptionStart: Date | null;
+  subscriptionEnd: Date | null;
+}
+
 interface Props {
-  applications: ApplicationSite[] | undefined;
+  applications: Application[] | undefined;
 }
 
 const { useAppSelector } = platformStore;
@@ -13,7 +19,7 @@ const { useAppSelector } = platformStore;
 export const ApplicationBySites = (props: Props) => {
   const theme = useTheme();
   const allApps = useAppSelector(applicationMapping);
-  const [applications, setApplications] = useState<ApplicationSite[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   useEffect(() => {
     if (props.applications) {

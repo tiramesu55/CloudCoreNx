@@ -8,14 +8,14 @@ function SettingsMenu() {
 
     return (
 
-        <Stack direction="row" sx={{ fontSize: "10pt" }} >
+        <Stack direction="row" sx={{ fontSize: "10pt", flexGrow: 1, overflow: "hidden" }} >
             <Stack>
-                <Typography sx={{ textAlign: "left", marginLeft: "11em", fontSize: "10pt", fontWeight: "bold" }}>Adam Smith</Typography>
+                <Typography sx={{ textAlign: "left", marginLeft: "11em", fontSize: "10pt", fontWeight: "bold", overflow: "hidden" }}>Adam Smith</Typography>
                 <Typography sx={{ textAlign: "left", marginLeft: "11em", fontSize: "10pt", fontWeight: "bold" }}><Link>Adam@email.com</Link></Typography>
             </Stack>
-            <Typography sx={{ textAlign: "left", marginLeft: "2em", fontSize: "10pt", fontWeight: "bold" }}>4hrs</Typography>
-            <Typography sx={{ textAlign: "left", marginLeft: "5em", fontSize: "10pt", fontWeight: "bold" }}>No Electricty</Typography>
-            <Typography sx={{ textAlign: "left", marginLeft: "6em", fontSize: "10pt", fontWeight: "bold" }} ><WarningLabel /></Typography>
+            <Typography sx={{ textAlign: "left", marginLeft: "3em", fontSize: "10pt", fontWeight: "bold" }}>4hrs</Typography>
+            <Typography sx={{ textAlign: "left", marginLeft: "6em", fontSize: "10pt", fontWeight: "bold" }}>No Electricty</Typography>
+            <Typography sx={{ textAlign: "left", marginLeft: "4em", fontSize: "10pt", fontWeight: "bold" }} ><WarningLabel /></Typography>
         </Stack>
     )
 }

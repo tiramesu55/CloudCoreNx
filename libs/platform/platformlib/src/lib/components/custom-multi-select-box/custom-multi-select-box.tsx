@@ -16,20 +16,24 @@ import { useTheme, Theme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import { styled } from '@mui/material/styles';
 import { Option } from '../../components/select-sites/select-sites';
-import { App } from '../../Maintenance/editMaintenance';
+interface Application {
+  appCode: string;
+  name: string;
+}
 
 interface Props {
-  application: string;
+  application?: string;
   inputList?: Option[];
   totalList?: Option[];
   customSelectLabel: string;
-  handleChange?: (app: string, ent: string, updatedList: Option[]) => void;
   title?: any;
-  appsList?: App[];
-  handleAppChange?: (updatedList: any) => void;
+  appsList?: Application[];
   invalid?: boolean;
   helperText?: string;
-  inputAppList?: App[];
+  inputAppList?: Application[];
+  handleChange?: (app: string, ent: string, updatedList: Option[]) => void;
+  handleAppChange?: (updatedList: any) => void;
+  handleOrgAppChange?: (updatedList: Option[]) => void;
 }
 
 const SelectInput = styled(InputBase)(({ theme }) => ({
@@ -168,10 +172,17 @@ export const CustomMultiSelectBox = (props: Props) => {
       setCurrentList(currentList.length === totalList.length ? [] : totalList);
 
       props.totalList &&
+        props.application &&
         props.handleChange &&
         props.handleChange(
           props.application,
           props.customSelectLabel,
+          currentList.length === totalList.length ? [] : props.totalList
+        );
+
+      props.totalList &&
+        props.handleOrgAppChange &&
+        props.handleOrgAppChange(
           currentList.length === totalList.length ? [] : props.totalList
         );
       return;
@@ -180,10 +191,19 @@ export const CustomMultiSelectBox = (props: Props) => {
       typeof onChangeList === 'string' ? onChangeList.split(',') : onChangeList
     );
     props.totalList &&
+      props.application &&
       props.handleChange &&
       props.handleChange(
         props.application,
         props.customSelectLabel,
+        props.totalList.filter((el) => {
+          return onChangeList.indexOf(el.name) > -1;
+        })
+      );
+
+    props.totalList &&
+      props.handleOrgAppChange &&
+      props.handleOrgAppChange(
         props.totalList.filter((el) => {
           return onChangeList.indexOf(el.name) > -1;
         })
@@ -198,10 +218,19 @@ export const CustomMultiSelectBox = (props: Props) => {
     });
     setCurrentList(filterList);
     props.totalList &&
+      props.application &&
       props.handleChange &&
       props.handleChange(
         props.application,
         props.customSelectLabel,
+        props.totalList.filter((el) => {
+          return filterList.indexOf(el.name) > -1;
+        })
+      );
+
+    props.totalList &&
+      props.handleOrgAppChange &&
+      props.handleOrgAppChange(
         props.totalList.filter((el) => {
           return filterList.indexOf(el.name) > -1;
         })

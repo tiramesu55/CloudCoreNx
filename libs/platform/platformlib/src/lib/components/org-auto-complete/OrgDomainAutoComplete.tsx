@@ -19,9 +19,7 @@ export const OrgDomainAutoComplete = (props : Props) => {
             <Autocomplete
                 multiple
                 id="OrgDomains"
-                // options={orgFormik.values.orgDomains}
                 limitTags={1}
-                // value={[...orgFormik.values.orgDomains]}
                 size="small"
                 sx={{ width: '93%' }}
                 readOnly
@@ -45,6 +43,7 @@ export const OrgDomainAutoComplete = (props : Props) => {
                                 helperText={
                                     meta.touched && meta.error ? meta.error : ""
                                 }
+                                required = {true}
                               />
                               {disableEditDomain && (
                                 <Button

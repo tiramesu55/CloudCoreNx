@@ -11,7 +11,7 @@ import {
 import { Card } from '@cloudcore/ui-shared';
 import CheckIcon from '@mui/icons-material/Check';
 import {
-  selectOrganizationByDomain,
+  checkIfValidDomain,
   selectUserByIdEntity,
   selectUserID,
 } from '@cloudcore/redux-store';
@@ -32,7 +32,7 @@ export const AddUserForm = () => {
   const dispatch = useAppDispatch();
 
   const domainValidIndicator = useAppSelector((state) =>
-    selectOrganizationByDomain(state, emailID.toLowerCase())
+    checkIfValidDomain(state, emailID.toLowerCase())
   );
   const usr = useAppSelector(selectUserByIdEntity(emailID));
 
@@ -105,6 +105,12 @@ export const AddUserForm = () => {
                     label="Email ID"
                     variant="outlined"
                     data-testid="emailid"
+                    error={emailID !== '' && !domainValidIndicator}
+                    helperText={
+                      emailID !== '' && !domainValidIndicator
+                        ? 'Please enter an Email Address within your domain'
+                        : ''
+                    }
                     inputProps={{ maxLength: 100 }}
                     onChange={(e) => setEmailID(e.target.value)}
                     InputProps={{

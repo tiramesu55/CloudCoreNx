@@ -5,4 +5,8 @@ import { ThemeProvider } from '@mui/material';
 
 import theme from '../src/lib/themes';
 
+export default {
+  parameters: { actions: { argTypesRegex: '^on.*' } },
+};
+
 addDecorator((story) => <ThemeProvider theme={theme}>{story()}</ThemeProvider>);

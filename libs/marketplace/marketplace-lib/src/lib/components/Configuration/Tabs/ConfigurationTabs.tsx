@@ -1,4 +1,4 @@
-import { Tab, Box, Tabs, lighten, Stack, Typography, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, InputBase, styled } from "@mui/material"
+import { Tab, Box, Tabs, lighten, Stack, Typography, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, InputBase, styled, Grid, } from "@mui/material"
 import { useMemo, useState } from "react"
 import LabelSettings from "../LabelSettings/LabelSettings"
 import TabPanel from "./TabPanel"
@@ -23,11 +23,11 @@ const ConfigurationTabs = (props: ConfigurationTabsProps) => {
     const [tab, setTab] = useState(0)
 
     const checkedPermissions = {
-        inventory: permissions?.inventory !== undefined ? permissions?.inventory : true,
-        general: permissions?.general !== undefined ? permissions?.general : true,
+        // inventory: permissions?.inventory !== undefined ? permissions?.inventory : true,
+        // general: permissions?.general !== undefined ? permissions?.general : true,
         label: permissions?.label !== undefined ? permissions?.label : true,
         formulary: permissions?.formulary !== undefined ? permissions?.formulary : true,
-        business: permissions?.business !== undefined ? permissions?.business : true,
+        // business: permissions?.business !== undefined ? permissions?.business : true,
     }
 
     useMemo(() => {
@@ -55,62 +55,72 @@ const ConfigurationTabs = (props: ConfigurationTabsProps) => {
     return (
         <Box marginLeft={1.5} marginRight={1.5} sx={{ width: '95%' }}>
             <Stack direction="row" spacing={.5} sx={{ mt: 2 }}>
-                <Typography component={'span'} sx={{ textTransform: "uppercase", fontWeight: 'bold', color: 'rgb(88, 89, 91)' }}>Operations Dashboard</Typography>
-                <Typography variant="body2" component={'span'} sx={{ textTransform: "capitalize", mb: 'auto !important', color: 'rgb(88, 89, 91)', mt: 'auto !important' }}>(Configuration)</Typography>
+                <Typography component={'span'} sx={{ color: 'rgb(88, 89, 91)', fontSize: "10pt" }}>OPERATIONS DASHBOARD / </Typography>
+                <Typography variant="body2" component={'span'} sx={{ mb: 'auto !important', color: 'rgb(88, 89, 91)', mt: 'auto !important', fontWeight: 'bold', fontSize: "10pt" }}>CONFIGURATION</Typography>
             </Stack>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', width: "100%" }}>
                 <Tabs value={tab} onChange={changeTab} aria-label="basic tabs example">
                     {/* <Tab disabled={!checkedPermissions.inventory} data-testid="inventorySettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">Inventory Settings</Typography>} /> */}
-                    <Tab disabled={!checkedPermissions.general} data-testid="generalSettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">General Settings</Typography>} />
+
+                    {/* Below tabs are commented out for Beta 1 */}
+
+                    {/* <Tab disabled={!checkedPermissions.general} data-testid="generalSettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">General Settings</Typography>} /> */}
                     <Tab disabled={!checkedPermissions.label} data-testid="labelSettingsTab" sx={tabPadding} label={<Typography variant="tabLabel">Label Settings</Typography>} />
                     <Tab disabled={!checkedPermissions.formulary} data-testid="formularyListTab" sx={tabPadding} label={<Typography variant="tabLabel">Formulary List</Typography>} />
-                    <Tab disabled={!checkedPermissions.business} data-testid="businessRulesTab" sx={tabPadding} label={<Typography variant="tabLabel">Business Rules</Typography>} />
+                    {/* <Tab disabled={!checkedPermissions.business} data-testid="businessRulesTab" sx={tabPadding} label={<Typography variant="tabLabel">Business Rules</Typography>} /> */}
                     {tab < 3 && (
-                        <FormControl sx={{
-                            "& .MuiInputBase-root": {
-                                height: '70%',
-                                borderRadius: '2px',
-                                backgroundColor: 'white'
-                            }, ml: 'auto !important', m: 1, minWidth: 120, width: '15%', marginBottom: '5px !important'
-                        }} size="small">
-                            <Select
-                                id="test-select"
-                                value={age}
-                                onChange={handleChange}
-                                displayEmpty
-                                sx={{
-                                    "& .MuiSvgIcon-root": {
-                                        color: 'black'
-                                    },
 
-                                }}
-                            >
-                                <MenuItem value="">
-                                    All Sites
-                                </MenuItem>
-                                <MenuItem value={10}>Ten</MenuItem>
+                        <Grid container spacing={2} sx={{ display: "flex", justifyContent: "right", marginBottom: "1em", marginRight: "2em" }}>
+                            <Grid item xs={2}><Typography sx={{ fontWeight: "bold", fontSize: "9pt", display: "flex", justifyContent: "flex-end", marginTop: "1.5em" }}>Select Site / Facility:</Typography></Grid>
+                            <Grid item xs={2.5}>
+                                <FormControl sx={{
+                                    "& .MuiInputBase-root": {
+                                        height: '70%',
+                                        borderRadius: '2px',
+                                        backgroundColor: 'white'
+                                    }, ml: 'auto !important', m: 1, minWidth: 120, width: '100%', marginBottom: '5px !important'
+                                }} size="small">
+                                    <Select
+                                        id="test-select"
+                                        value={age}
+                                        onChange={handleChange}
+                                        displayEmpty
+                                        sx={{
+                                            "& .MuiSvgIcon-root": {
+                                                color: 'black'
+                                            },
+
+                                        }}
+                                    >
+
+                                        <MenuItem value="">
+                                            <Typography sx={{ fontSize: "8pt" }}>Orlando, Florida</Typography>
+                                        </MenuItem>
+                                        {/* <MenuItem value={10}>Ten</MenuItem>
                                 <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
-                            </Select>
-                        </FormControl>
+                                <MenuItem value={30}>Thirty</MenuItem> */}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
                     )}
                 </Tabs>
             </Box>
             {/* <TabPanel value={tab} index={0}>
                 <InventorySettings />
             </TabPanel> */}
-            <TabPanel value={tab} index={0}>
+            {/* <TabPanel value={tab} index={0}>
                 <GeneralSettings />
-            </TabPanel>
-            <TabPanel value={tab} index={1}>
+            </TabPanel> */}
+            <TabPanel value={tab} index={0}>
                 <LabelSettings />
             </TabPanel>
-            <TabPanel value={tab} index={2}>
+            <TabPanel value={tab} index={1}>
                 <FormularyList />
             </TabPanel>
-            <TabPanel value={tab} index={3}>
+            {/* <TabPanel value={tab} index={3}>
                 <BusinessRules />
-            </TabPanel>
+            </TabPanel> */}
         </Box>
     )
 

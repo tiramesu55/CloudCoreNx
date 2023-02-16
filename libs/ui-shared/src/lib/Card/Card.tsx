@@ -1,30 +1,36 @@
 import { Card as MaterialCard, CardProps, useTheme } from '@mui/material';
 
+type variantTypes = 'elevation' | 'outlined';
+
 interface Props extends CardProps {
-  variant?: any;
-  borderRadius?: string;
+  variant?: variantTypes;
+  borderRadius?: string | number;
   background?: string;
-  sx?: object;
-  boxShadow?: number;
   borderColor?: string;
+  children?: React.ReactNode;
 }
 
 export const Card = (props: Props) => {
+  const { variant, borderRadius, background, borderColor, children, ...other } =
+    props;
   const theme = useTheme();
-
   return (
     <MaterialCard
-      variant={'outlined'}
+      variant={variant ?? 'outlined'}
       sx={{
-        borderRadius: `${theme.shape.borderRadius}px`,
-        backgroundColor: theme.palette.defaultCardBackground.main,
-        borderColor: theme.palette.cardBorder.main,
+        borderRadius: `${
+          borderRadius ? borderRadius : theme.shape.borderRadius
+        }px`,
+        backgroundColor: background
+          ? background
+          : theme.palette.defaultCardBackground.main,
+        borderColor: borderColor ? borderColor : theme.palette.cardBorder.main,
         height: '100%',
         width: '100%',
       }}
-      {...props}
+      {...other}
     >
-      {props.children}
+      {children}
     </MaterialCard>
   );
 };

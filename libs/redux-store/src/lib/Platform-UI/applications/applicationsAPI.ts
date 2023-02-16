@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Application, Maintenance } from "./applicationsSlice";
+import { ApplicationRole, Maintenance } from "./applicationsSlice";
 
 export const getApplicationsApi = (url: string, token: string) => axios.get(`${url}/Platform/PlatformApplication`, {
   headers: {
@@ -9,7 +9,7 @@ export const getApplicationsApi = (url: string, token: string) => axios.get(`${u
 );
 
 
-export const updateApplicationApi = (app: Application, url: string, token: string) => axios.put(`${url}/UpdateApplication`, app, {
+export const updateApplicationApi = (app: ApplicationRole, url: string, token: string) => axios.put(`${url}/UpdateApplication`, app, {
   headers: {
     'Authorization': `Bearer ${token}`
   }
@@ -17,7 +17,7 @@ export const updateApplicationApi = (app: Application, url: string, token: strin
 );
 
 
-export const addApplicationApi = (app: Application, url: string, token: string) => axios.post(`${url}/Platform/Add/PlatformApplication`, app, {
+export const addApplicationApi = (app: ApplicationRole, url: string, token: string) => axios.post(`${url}/Platform/Add/PlatformApplication`, app, {
   headers: {
     'Authorization': `Bearer ${token}`
   }

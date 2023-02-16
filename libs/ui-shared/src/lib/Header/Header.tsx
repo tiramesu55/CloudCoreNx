@@ -1,16 +1,17 @@
 import { AppBar, Toolbar, Typography, Divider, Box } from '@mui/material';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { ReportIssue } from '../ReportIssue/ReportIssue';
-import { UserMenu } from './UserMenu';
+import { UserMenu, UserTooltip } from './UserMenu';
 import reportIssueIcon from '../assets/report-issue.svg';
 import { useTheme } from '@mui/material/styles';
 import { withStyles } from '@mui/styles';
-import AppsMenu from './AppsMenu';
-import { ConfigCtx, IConfig } from '@cloudcore/okta-and-config';
+import { AppsMenu } from './AppsMenu';
 import NavBar from './NavBar';
 import Maintenance from './Maintenance';
 import { NavLink } from 'react-router-dom';
 import { IAppsMenu } from '@cloudcore/common-lib';
+import AddRoadIcon from '@mui/icons-material/AddRoad';
+import { RoadMap } from './RoadMap';
 
 interface headerProps {
   title: string;
@@ -25,6 +26,8 @@ interface headerProps {
   isFormModified?: boolean;
   unSavedData?: (open: boolean, app: string) => void;
   appsMenu?: IAppsMenu;
+  isMainApp?: boolean;
+  roadMap?: roadMapProps;
 }
 
 interface logoProps {
@@ -63,11 +66,18 @@ interface maintenanceProps {
   handleMaintenanceDialog: (value: boolean) => void;
 }
 
+interface roadMapProps {
+  url: string;
+  title: string;
+  height?: string;
+  width?: string;
+  dialogTitle?: string;
+}
+
 export const Header = (props: headerProps) => {
   /* Report Issue Code */
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { marketplaceConfiguration } = props;
-  const config: IConfig = useContext(ConfigCtx)!;
   const [isOpen, setIsOpen] = useState(false);
   const theme = useTheme();
   const handleReportIssueDialogOpen = () => {
@@ -107,8 +117,9 @@ export const Header = (props: headerProps) => {
     navLinkIconActive: {
       textDecoration: 'none',
       color: theme.palette.primary.main,
-      fontSize: theme.typography.subtitle1.fontSize,
+      fontSize: theme.typography.h5.fontSize,
       marginLeft: theme.spacing(3),
+      marginRight: theme.spacing(3),
       //fontWeight: 600,
     },
     appBar: {
@@ -189,9 +200,22 @@ export const Header = (props: headerProps) => {
     },
   }))(() => null);
 
+  const [roadMapDialogOpen, setRoadMapDialogOpen] = useState(false);
+  const handleRoadMapDialog = (value: boolean) => {
+    setRoadMapDialogOpen(value);
+  };
+
   return (
     <Box>
       <CustomCss />
+      <RoadMap
+        open={roadMapDialogOpen}
+        handleClose={handleRoadMapDialog}
+        url={props.roadMap ? props.roadMap.url : ''}
+        title={props.roadMap ? props.roadMap.title : ''}
+        height={props.roadMap ? props.roadMap.height : ''}
+        dialogTitle={props.roadMap ? props.roadMap.dialogTitle : ''}
+      />
       <AppBar
         style={style.appBar}
         position="relative"
@@ -217,12 +241,13 @@ export const Header = (props: headerProps) => {
               </NavLink>
             </Typography>
             <Divider orientation="vertical" variant="middle" flexItem />
-            {config.isMainApp ? (
+            {props?.isMainApp ? (
               <AppsMenu
                 title={props.title}
                 betaIcon={props.betaIcon}
                 isFormModified={props.isFormModified}
                 unSavedData={props.unSavedData}
+                isMainApp={props.isMainApp}
                 appsMenu={props.appsMenu}
               />
             ) : (
@@ -270,7 +295,23 @@ export const Header = (props: headerProps) => {
                   }
                 />
               )}
-
+            {props.title === 'Enterprise Analytics' && (
+              <Box
+                sx={{
+                  cursor: 'pointer',
+                  marginX: theme.spacing(2),
+                  marginTop: theme.spacing(1),
+                  color: theme.palette.primary.main,
+                }}
+                onClick={() => {
+                  handleRoadMapDialog(true);
+                }}
+              >
+                <UserTooltip title="Roadmap" placement="top">
+                  <AddRoadIcon></AddRoadIcon>
+                </UserTooltip>
+              </Box>
+            )}
             <UserMenu
               userMenuProps={{
                 userName: props.userMenu ? props.userMenu.userName : '',

@@ -29,11 +29,34 @@ import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const { useAppDispatch, useAppSelector } = platformStore;
 
+interface FilterList {
+  title?: any[];
+  userName?: any[];
+  firstName?: any[];
+  lastName?: any[];
+  email?: any[];
+  applications?: any[],
+  orgName?: any[],
+  status?: any[]
+}
+
 interface Props {
   handleOpenAlert: (payload: IAlert) => void;
   handleCloseAlert: () => void;
   alertData: IAlertData;
 }
+
+interface FilterList {
+  title?: any[];
+  userName?: any[];
+  firstName?: any[];
+  lastName?: any[];
+  email?: any[];
+  applications?: any[],
+  orgName?: any[],
+  status?: any[]
+}
+
 const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
   return (
     <Chip
@@ -88,7 +111,56 @@ export const ListUsers = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(
     location.state?.rowsPerPage ? location.state?.rowsPerPage : 10
   );
-  //const [error, setError] = useState(false);
+  const [filters, setFilters] = useState<FilterList>(location.state?.filters ? location.state.filters : {
+    firstName: [],
+    lastName: [],
+    userName: [],
+    title: [],
+    applications: [],
+    email: [],
+    orgName: [],
+    status: []
+  });
+  const [selectedEmail, setSelectedEmail] = useState(location.state?.selectedId ? location.state.selectedId : "");
+
+  window.history.replaceState({
+    from: 'dashboard', 
+    currentPage,
+    rowsPerPage,
+    selectedId: selectedEmail,
+    filters
+  }, document.title);
+
+  const handleFilterChange = (column: any, value: any, type: any, index: any, displayData: any) => {
+    if (location?.state?.filters !== undefined) {
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        currentPage,
+        rowsPerPage,
+        selectedId: selectedEmail
+      })
+    }
+    if (type === "reset") {
+      setFilters({
+        firstName: [],
+        lastName: [],
+        userName: [],
+        title: [],
+        applications: [],
+        email: [],
+        orgName: [],
+        status: []
+      })
+    } else {
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        [column]: value[index]
+      }));
+    }
+  }
+
 
   useEffect(() => {
     if (platformBaseUrl) {
@@ -119,6 +191,7 @@ export const ListUsers = (props: Props) => {
       label: 'First Name',
       options: {
         display: false,
+        filterList: filters?.firstName
       },
     },
     {
@@ -126,6 +199,7 @@ export const ListUsers = (props: Props) => {
       label: 'Last Name',
       options: {
         display: false,
+        filterList: filters?.lastName
       },
     },
     {
@@ -133,6 +207,7 @@ export const ListUsers = (props: Props) => {
       label: 'Email',
       options: {
         display: false,
+        filterList: filters?.email
       },
     },
     {
@@ -141,6 +216,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: true,
+        filterList: filters?.userName,
         customBodyRender: (value: string, tableMeta: any) => {
           return (
             <Tooltip
@@ -172,6 +248,7 @@ export const ListUsers = (props: Props) => {
                     from: 'editUser',
                     currentPage,
                     rowsPerPage,
+                    filters
                   });
                 }}
               >
@@ -188,6 +265,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.title
       },
     },
     {
@@ -196,6 +274,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.orgName
       },
     },
     {
@@ -204,8 +283,9 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.applications,
         customBodyRender: (value: any) => {
-          if (value === '--') {
+          if (value === '--' || value.length < 1) {
             return <>{'--'}</>;
           } else {
             return <>{value.join(', ')}</>;
@@ -219,6 +299,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.status
       },
     },
   ];
@@ -232,7 +313,6 @@ export const ListUsers = (props: Props) => {
             textTransform: 'capitalize',
             fontWeight: 'bold',
             fontSize: '18px',
-
             textDecoration: 'none',
             color: theme.palette.primary.main,
           }}
@@ -275,6 +355,8 @@ export const ListUsers = (props: Props) => {
     rowsPerPage,
     tableBodyMaxHeight: '72vh',
     filter: true,
+    onFilterChange: (column, filterList, type, changedColumnIndex, displayData) =>
+      handleFilterChange(column, filterList, type, changedColumnIndex, displayData),
     viewColumns: false,
     print: false,
     download: false,
@@ -286,11 +368,38 @@ export const ListUsers = (props: Props) => {
       name: 'userName',
       direction: 'asc',
     },
+    setRowProps: (row) => {
+      if (row[2] === selectedEmail) {
+        return {
+          style: {
+            backgroundColor: '#d6c4f5',
+          },
+        };
+      } else {
+        return {}
+      }
+    },
     onChangePage(currentPage) {
       setCurrentPage(currentPage);
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        rowsPerPage,
+        filters,
+        selectedId: selectedEmail
+      })
     },
     onChangeRowsPerPage(numberOfRows) {
       setRowsPerPage(numberOfRows);
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        currentPage,
+        filters,
+        selectedId: selectedEmail
+      })
     },
     rowHover: false,
   };

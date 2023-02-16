@@ -45,6 +45,13 @@ const BootstrapInput = styled(TextField)(({ theme }) => ({
 export const PhoneInput = forwardRef((props: Props, ref: any) => {
   const error = props.inputProps.error === 'true' ? true : false;
   const required = props.inputProps.required ? true : false;
+  const inputLabelProps = {
+    ...props,
+    inputProps : {
+      ...props.inputProps,
+      required : false
+    }
+  }
   return (
     <FormControl variant="standard" sx={{ width: props.inputProps.width }}>
       <InputLabel
@@ -63,13 +70,12 @@ export const PhoneInput = forwardRef((props: Props, ref: any) => {
         {props.inputProps.name}
       </InputLabel>
       <BootstrapInput
-        {...props}
+        {...inputLabelProps}
         {...props.field}
         inputRef={ref}
         fullWidth
         helperText={error ? props.inputProps.label : ''}
         error={error}
-        required={required}
         name={props.inputProps.name}
       />
     </FormControl>

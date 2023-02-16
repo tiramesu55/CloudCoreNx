@@ -6,7 +6,6 @@ import {
   AlertColor,
   Box,
   Button,
-  Card,
   FormControl,
   Grid,
   InputLabel,
@@ -17,6 +16,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { Card } from '@cloudcore/ui-shared';
 import {
   platformStore,
   getOrgCodeFromName,
@@ -53,18 +53,6 @@ const steps = [
     line1: `Import Data`,
   },
 ];
-
-const style = {
-  Card: {
-    width: '100%',
-    justifyContent: 'center',
-    overflow: 'auto',
-    paddingBottom: '10px',
-  },
-  Grid: {
-    justifyContent: 'center',
-  },
-};
 
 interface Props {
   handleOpenAlert: (payload: IAlert) => void;
@@ -404,7 +392,6 @@ const UserOnboarding = (props: Props) => {
             },
             (reason: any) => {
               setFormModified(false);
-
               setAlert(true);
               setAlertContent('importUserFileFailure - ' + reason.message);
               setAlertSev('error');
@@ -441,8 +428,8 @@ const UserOnboarding = (props: Props) => {
           duration={3000}
         />
         <Grid item xs={12}>
-          <Grid container style={style.Grid} paddingX={3}>
-            <Card style={style.Card}>
+          <Grid container paddingX={3}>
+            <Card>
               {alert && <Alert severity={alertSev}>{alertContent}</Alert>}
               <Grid py={4} px={2}>
                 <Typography
@@ -453,10 +440,10 @@ const UserOnboarding = (props: Props) => {
                   Import Users
                 </Typography>
                 <Grid container item>
-                  <Grid item xs={12} style={{ alignContent: 'center' }}>
+                  <Grid item xs={12} sx={{ alignContent: 'center' }}>
                     <Typography sx={{ marginBottom: 2 }}> </Typography>
 
-                    <Typography variant="h3" style={{ textAlign: 'center' }}>
+                    <Typography variant="h3" sx={{ textAlign: 'center' }}>
                       {response.reason}
                     </Typography>
                   </Grid>
@@ -467,9 +454,9 @@ const UserOnboarding = (props: Props) => {
                   <Grid item xs={4} sx={{}}>
                     {response.dataUpload ? (
                       <Typography
-                        style={{
+                        sx={{
                           paddingLeft: '30%',
-                          color: '#1B5E20',
+                          color: theme.palette.success.dark,
                           textAlign: 'left',
                         }}
                       >
@@ -477,9 +464,9 @@ const UserOnboarding = (props: Props) => {
                       </Typography>
                     ) : (
                       <Typography
-                        style={{
+                        sx={{
                           paddingLeft: '30%',
-                          color: '#C62828',
+                          color: theme.palette.error.dark,
                           textAlign: 'left',
                         }}
                       >
@@ -492,9 +479,7 @@ const UserOnboarding = (props: Props) => {
                   </Grid>
                   <Grid item xs={4}></Grid>
                   <Grid item xs={4}>
-                    <Typography
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
-                    >
+                    <Typography sx={{ paddingLeft: '30%', textAlign: 'left' }}>
                       Number of Users Read: {response.readUsers}
                     </Typography>
                   </Grid>
@@ -507,15 +492,21 @@ const UserOnboarding = (props: Props) => {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography
-                      color="#C62828"
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
+                      sx={{
+                        paddingLeft: '30%',
+                        textAlign: 'left',
+                        color: theme.palette.error.dark,
+                      }}
                     >
                       Invalid Users: {response.invalidUsers}
                     </Typography>
 
                     <Typography
-                      color="#1B5E20"
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
+                      sx={{
+                        color: theme.palette.success.dark,
+                        paddingLeft: '30%',
+                        textAlign: 'left',
+                      }}
                     >
                       Valid Users: {response.validUsers}
                     </Typography>
@@ -569,13 +560,7 @@ const UserOnboarding = (props: Props) => {
                   BACK
                 </Button>
 
-                <Button
-                  variant="outlined"
-                  onClick={backToUsers}
-                  sx={{
-                    marginRight: theme.spacing(2),
-                  }}
-                >
+                <Button variant="outlined" onClick={backToUsers}>
                   BACK TO USERS
                 </Button>
               </Box>
@@ -603,13 +588,9 @@ const UserOnboarding = (props: Props) => {
           duration={3000}
         />
         <Grid item xs={12}>
-          <Grid container paddingX={3} style={style.Grid}>
-            <Card style={style.Card}>
-              {alert ? (
-                <Alert severity={alertSev}>{alertContent}</Alert>
-              ) : (
-                <></>
-              )}
+          <Grid container paddingX={3}>
+            <Card>
+              {alert && <Alert severity={alertSev}>{alertContent}</Alert>}
               <Grid py={4} px={2}>
                 <Typography
                   fontSize={theme.typography.h3.fontSize}
@@ -622,7 +603,7 @@ const UserOnboarding = (props: Props) => {
                   <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((label) => (
                       <Step key={label.label}>
-                        <StepLabel style={{ whiteSpace: 'pre-line' }}>
+                        <StepLabel sx={{ whiteSpace: 'pre-line' }}>
                           {label.line1}
                         </StepLabel>
                       </Step>
@@ -641,8 +622,8 @@ const UserOnboarding = (props: Props) => {
                       alignContent: 'center',
                     }}
                   >
-                    <div
-                      style={{
+                    <Box
+                      sx={{
                         display: 'flex',
                         justifyContent: 'center',
                         flexDirection: 'row',
@@ -650,10 +631,10 @@ const UserOnboarding = (props: Props) => {
                       }}
                     >
                       <InputLabel
-                        style={{
-                          marginTop: '25px',
-                          marginRight: '10px',
-                          color: '#6513F0',
+                        sx={{
+                          marginTop: theme.spacing(3),
+                          marginRight: theme.spacing(1.5),
+                          color: theme.palette.primary.main,
                         }}
                         id="custom-select"
                       >
@@ -668,7 +649,7 @@ const UserOnboarding = (props: Props) => {
                           value={org}
                         />
                       </FormControl>
-                    </div>
+                    </Box>
 
                     <ImportFile
                       title="Import File"
@@ -701,7 +682,7 @@ const UserOnboarding = (props: Props) => {
                         <List
                           sx={{ paddingLeft: '35%', alignContent: 'center' }}
                         >
-                          <ListItem style={{ alignContent: 'center' }}>
+                          <ListItem sx={{ alignContent: 'center' }}>
                             Empty Column Values
                           </ListItem>
                           <ListItem>Empty Rows</ListItem>
@@ -721,10 +702,9 @@ const UserOnboarding = (props: Props) => {
                       alignSelf: 'center',
                       textAlign: 'center',
                       alignContent: 'center',
+                      marginTop: theme.spacing(5),
                     }}
                   >
-                    <br></br>
-                    <br></br>
                     <Button
                       color="primary"
                       variant="outlined"

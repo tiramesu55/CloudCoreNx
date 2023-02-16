@@ -1,5 +1,4 @@
-import styles from './ImportFile.module.css';
-import { Button, FormControl, FormLabel } from '@mui/material';
+import { Button, FormControl, FormLabel, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { theme } from '@cloudcore/ui-shared';
 
@@ -18,36 +17,30 @@ const ImportFile = (props: Props) => {
     props.onImportFileUpdate(csvFile, fileName);
   }, [csvFile, fileName]);
 
-  //handles reading data in file
-  const review = () => {
-    const file = csvFile;
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      if (e.target) {
-        const text = e.target.result;
-      }
-    };
-    if (file) {
-      reader.readAsText(file);
-    }
-  };
-
   return (
-    <div>
-      <div
-        style={{
+    <Box>
+      <Box
+        sx={{
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '10px',
+          padding: theme.spacing(1.5),
         }}
       >
-        <FormLabel style={{ paddingRight: '10px', color: '#6513F0' }}>
+        <FormLabel
+          sx={{
+            paddingRight: theme.spacing(1.5),
+            color: theme.palette.primary.main,
+          }}
+        >
           {props.title}
         </FormLabel>
         <FormLabel
-          style={{ paddingRight: '10px', color: theme.palette.secondary.dark }}
+          style={{
+            paddingRight: theme.spacing(1.5),
+            color: theme.palette.secondary.dark,
+          }}
         >
           {props.fileName !== '' ? props.fileName + '   ' : ''}
         </FormLabel>
@@ -83,8 +76,8 @@ const ImportFile = (props: Props) => {
             </Button>
           </label>
         </FormControl>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 export default ImportFile;

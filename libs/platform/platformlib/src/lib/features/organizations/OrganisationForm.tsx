@@ -15,6 +15,7 @@ import {
   location_img,
   UnsavedData,
 } from '@cloudcore/ui-shared';
+import { CustomMultiSelectBox } from '../../components/custom-multi-select-box/custom-multi-select-box';
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import flags from 'react-phone-number-input/flags';
@@ -30,13 +31,16 @@ import {
   updateOrganizationAsync,
   getOrganizationStatsAsync,
   organizationStats,
-  getAllOrganizationsDomains,
   selectOrgByOrgCode,
   getOrgFormModified,
   setOrgFormModified,
+  updateOrgApplication,
   fetchUsers,
   resetSite,
   getPostLogoutRedirectUrl,
+  getOrganizationsAsync,
+  applicationList,
+  selectedOrgApplications,
 } from '@cloudcore/redux-store';
 import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -56,6 +60,16 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { OrgDomainAutoComplete } from '../../components/org-auto-complete/OrgDomainAutoComplete';
 
+interface Application {
+  name: string;
+  appCode: string;
+}
+interface Props {
+  handleOpenAlert: (payload: IAlert) => void;
+  handleCloseAlert: () => void;
+  alertData: IAlertData;
+}
+
 const { useAppDispatch, useAppSelector } = platformStore;
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -65,12 +79,6 @@ const CustomCss = withStyles(() => ({
     },
   },
 }))(() => null);
-
-interface Props {
-  handleOpenAlert: (payload: IAlert) => void;
-  handleCloseAlert: () => void;
-  alertData: IAlertData;
-}
 
 const orgValidationSchema = Yup.object({
   orgCode: Yup.string().trim().required('Organization Code is Required'),
@@ -123,6 +131,8 @@ export const OrganizationForm = (props: Props) => {
   const disableEditDomain = (permissions.get('admin') ?? []).includes('global');
   const theme = useTheme();
   const organization = useAppSelector(selectedOrganization);
+  const allAppsList = useAppSelector(applicationList);
+  const selectedOrgAppsList = useAppSelector(selectedOrgApplications);
   const { platformBaseUrl } = config; // at this point config is not null (see app)
 
   const selected = useAppSelector(selectedId);
@@ -139,6 +149,7 @@ export const OrganizationForm = (props: Props) => {
   const orgFormModified = useAppSelector(getOrgFormModified);
   const [orgDomainDialogOpen, setOrgDomainDialogOpen] = useState(false);
   const [orgDomainList, setOrgDomainList] = useState<string[]>([]);
+  const [orgAppList, setOrgAppList] = useState<Application[]>();
   const adminRightsEnabled = (permissions.get('admin') ?? []).includes(
     'global'
   );
@@ -153,6 +164,18 @@ export const OrganizationForm = (props: Props) => {
     ...organization,
   };
 
+  const appChange = (updatedApp: any[]) => {
+    dispatch(
+      updateOrgApplication(
+        updatedApp.map((app) => ({
+          name: app.name,
+          appCode: app.value,
+        }))
+      )
+    );
+    dispatch(setOrgFormModified(true));
+  };
+
   useEffect(() => {
     if (isEditOrganization) {
       dispatch(setOrganization(selectOrgByID ? selectOrgByID : organization));
@@ -160,6 +183,10 @@ export const OrganizationForm = (props: Props) => {
       setOrgDomainList(organization?.orgDomains);
     }
   }, [organization?.orgDomains]);
+
+  useEffect(() => {
+    setOrgAppList(selectedOrgAppsList ? selectedOrgAppsList : []);
+  }, [selectedOrgAppsList ? selectedOrgAppsList.length : 0]);
 
   const retrieveData = window.localStorage.getItem('orgData');
   const orgData = JSON.parse(retrieveData as any);
@@ -181,24 +208,6 @@ export const OrganizationForm = (props: Props) => {
   useEffect(() => {
     if (isAddOrganization) {
       dispatch(resetOrganization());
-      dispatch(
-        getAllOrganizationsDomains({
-          url: platformBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            handleOpenAlert({
-              content: reason.message,
-              type: 'error',
-            });
-          }
-        );
       setOrgDomain('');
     }
   }, []);
@@ -234,24 +243,6 @@ export const OrganizationForm = (props: Props) => {
           orgCode: selectOrgByID?.orgCode
             ? selectOrgByID?.orgCode
             : storedOrgData?.orgCode,
-          url: platformBaseUrl,
-          token: token,
-        })
-      )
-        .unwrap()
-        .then(
-          (value: any) => {
-            //Do Nothing
-          },
-          (reason: any) => {
-            handleOpenAlert({
-              content: reason.message,
-              type: 'error',
-            });
-          }
-        );
-      dispatch(
-        getAllOrganizationsDomains({
           url: platformBaseUrl,
           token: token,
         })
@@ -429,19 +420,20 @@ export const OrganizationForm = (props: Props) => {
       onSubmit={async (values) => {
         if (isAddOrganization) {
           const newOrganization = {
-            name: values.name.trim(),
-            id: values.orgCode.trim(),
-            orgCode: values.orgCode.trim(),
-            description: values?.description?.trim(),
+            name: values.name ? values.name.trim() : '',
+            id: values.orgCode ? values.orgCode.trim() : '',
+            orgCode: values.orgCode ? values.orgCode.trim() : '',
+            description: values.description ? values.description.trim() : '',
             orgDomains: [...values.orgDomains],
-            officeEmail: values?.officeEmail?.trim(),
-            officePhone: values?.officePhone?.trim(),
+            officeEmail: values.officeEmail ? values.officeEmail.trim() : '',
+            officePhone: values.officePhone ? values.officePhone.trim() : '',
             address: {
-              state: values.address.state.trim(),
-              city: values.address.city.trim(),
-              street: values.address.street.trim(),
-              zip: values.address.zip.trim(),
+              state: values.address.state ? values.address.state.trim() : '',
+              city: values.address.city ? values.address.city.trim() : '',
+              street: values.address.street ? values.address.street.trim() : '',
+              zip: values.address.zip ? values.address.zip.trim() : '',
             },
+            applications: selectedOrgAppsList,
             root: values.root,
             orgAdmins: [],
             createdDate: new Date(),
@@ -449,7 +441,9 @@ export const OrganizationForm = (props: Props) => {
             createdBy: null,
             modifiedBy: null,
             childOrgs: [],
-            postLogoutRedirectUrl: values.postLogoutRedirectUrl.trim(),
+            postLogoutRedirectUrl: values.postLogoutRedirectUrl
+              ? values.postLogoutRedirectUrl.trim()
+              : '',
           };
           dispatch(
             createOrganizationAsync({
@@ -466,6 +460,12 @@ export const OrganizationForm = (props: Props) => {
                   type: 'success',
                 });
                 setSnackbarRouting(history.push(path));
+                dispatch(
+                  getOrganizationsAsync({
+                    url: platformBaseUrl,
+                    token: token,
+                  })
+                );
                 dispatch(setOrgFormModified(false));
               },
               (reason: any) => {
@@ -479,19 +479,22 @@ export const OrganizationForm = (props: Props) => {
         if (isEditOrganization || isEditOrganizationRedirect) {
           const updatedOrganization = {
             ...values,
-            name: values.name.trim(),
-            orgCode: values.orgCode.trim(),
-            description: values?.description?.trim(),
+            name: values.name ? values.name.trim() : '',
+            orgCode: values.orgCode ? values.orgCode.trim() : '',
+            description: values.description ? values.description.trim() : '',
             orgDomains: values?.orgDomains,
-            officeEmail: values?.officeEmail?.trim(),
-            officePhone: values?.officePhone?.trim(),
+            officeEmail: values.officeEmail ? values.officeEmail.trim() : '',
+            officePhone: values.officePhone ? values.officePhone.trim() : '',
             address: {
-              state: values.address.state.trim(),
-              city: values.address.city.trim(),
-              street: values.address.street.trim(),
-              zip: values.address.zip.trim(),
+              state: values.address.state ? values.address.state.trim() : '',
+              city: values.address.city ? values.address.city.trim() : '',
+              street: values.address.street ? values.address.street.trim() : '',
+              zip: values.address.zip ? values.address.zip.trim() : '',
             },
-            postLogoutRedirectUrl: values.postLogoutRedirectUrl.trim(),
+            applications: selectedOrgAppsList,
+            postLogoutRedirectUrl: values.postLogoutRedirectUrl
+              ? values.postLogoutRedirectUrl.trim()
+              : '',
           };
           dispatch(
             updateOrganizationAsync({
@@ -503,6 +506,12 @@ export const OrganizationForm = (props: Props) => {
             .unwrap()
             .then(
               () => {
+                dispatch(
+                  getOrganizationsAsync({
+                    url: platformBaseUrl,
+                    token: token,
+                  })
+                );
                 if (loggedInOrgCode === organization.orgCode) {
                   dispatch(
                     getPostLogoutRedirectUrl({
@@ -654,13 +663,14 @@ export const OrganizationForm = (props: Props) => {
                               id="orgCode"
                               fieldName="orgCode"
                               formWidth="90%"
+                              required={true}
                               error={
                                 form.errors.orgCode && form.touched.orgCode
                               }
                               helperText={
                                 form.touched.orgCode && form.errors.orgCode
                               }
-                              orgChangeHandler={handleOrgCodeChange}
+                              formChangeHandler={handleOrgCodeChange}
                             />
                           )}
                         </Field>
@@ -675,9 +685,10 @@ export const OrganizationForm = (props: Props) => {
                               id="name"
                               fieldName="name"
                               formWidth="90%"
+                              required={true}
                               error={form.errors.name && form.touched.name}
                               helperText={form.touched.name && form.errors.name}
-                              orgChangeHandler={handleOrgNameChange}
+                              formChangeHandler={handleOrgNameChange}
                             />
                           )}
                         </Field>
@@ -690,9 +701,10 @@ export const OrganizationForm = (props: Props) => {
                               label="Description"
                               id="description"
                               value={field.value}
-                              orgChangeHandler={handleOrgDescriptionChange}
+                              formChangeHandler={handleOrgDescriptionChange}
                               fieldName="description"
                               formWidth="90%"
+                              required={true}
                               error={
                                 form.errors.description &&
                                 form.touched.description
@@ -724,7 +736,8 @@ export const OrganizationForm = (props: Props) => {
                                 label="Office Email"
                                 fieldName="officeEmail"
                                 formWidth="90%"
-                                orgChangeHandler={handleOfficeEmailChange}
+                                formChangeHandler={handleOfficeEmailChange}
+                                required={true}
                                 error={
                                   form.errors.officeEmail &&
                                   form.touched.officeEmail
@@ -781,6 +794,7 @@ export const OrganizationForm = (props: Props) => {
                                     form.errors.officePhone,
                                   width: '81.5%',
                                   name: 'Phone',
+                                  required: true,
                                 }}
                               />
                             );
@@ -797,7 +811,8 @@ export const OrganizationForm = (props: Props) => {
                               label="Street"
                               fieldName="street"
                               formWidth="90%"
-                              orgChangeHandler={handleChangeStreet}
+                              formChangeHandler={handleChangeStreet}
+                              required={true}
                               error={
                                 form.errors?.address?.street &&
                                 form.touched?.address?.street
@@ -821,7 +836,8 @@ export const OrganizationForm = (props: Props) => {
                                 label="City"
                                 fieldName="city"
                                 formWidth="90%"
-                                orgChangeHandler={handleChangeCity}
+                                formChangeHandler={handleChangeCity}
+                                required={true}
                                 error={
                                   form.errors?.address?.city &&
                                   form.touched?.address?.city
@@ -845,7 +861,8 @@ export const OrganizationForm = (props: Props) => {
                               label="State/Prov"
                               fieldName="state"
                               formWidth="90%"
-                              orgChangeHandler={handleChangeState}
+                              formChangeHandler={handleChangeState}
+                              required={true}
                               error={
                                 form.errors?.address?.state &&
                                 form.touched?.address?.state
@@ -868,7 +885,8 @@ export const OrganizationForm = (props: Props) => {
                               value={field.value}
                               fieldName="zip"
                               formWidth="90%"
-                              orgChangeHandler={handleChangeZip}
+                              formChangeHandler={handleChangeZip}
+                              required={true}
                               error={
                                 form.errors?.address?.zip &&
                                 form.touched?.address?.zip
@@ -892,7 +910,8 @@ export const OrganizationForm = (props: Props) => {
                                 fieldName="postLogoutRedirectUrl"
                                 formWidth="90%"
                                 value={field.value}
-                                orgChangeHandler={handlePostRedirectUrl}
+                                required={true}
+                                formChangeHandler={handlePostRedirectUrl}
                                 error={
                                   form.errors.postLogoutRedirectUrl &&
                                   form.touched.postLogoutRedirectUrl
@@ -908,6 +927,31 @@ export const OrganizationForm = (props: Props) => {
                       )}
                     </Grid>
                   </Grid>
+                  {adminRightsEnabled && orgAppList && (
+                    <Grid xs={12} item>
+                      <Typography
+                        sx={{ paddingY: theme.spacing(3.7) }}
+                        fontSize={theme.typography.h3.fontSize}
+                        fontWeight="bold"
+                        color="#000000"
+                      >
+                        Applications
+                      </Typography>
+                      <CustomMultiSelectBox
+                        inputAppList={orgAppList}
+                        totalList={
+                          allAppsList
+                            ? allAppsList.map((app) => ({
+                                name: app.name,
+                                value: app.appCode,
+                              }))
+                            : []
+                        }
+                        customSelectLabel="Applications"
+                        handleOrgAppChange={appChange}
+                      />
+                    </Grid>
+                  )}
                   {(isEditOrganization || isEditOrganizationRedirect) && (
                     <Grid xs={12} item>
                       <Typography
