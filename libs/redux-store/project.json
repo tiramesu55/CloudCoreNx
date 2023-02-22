@@ -16,7 +16,8 @@
       "outputs": ["coverage/libs/redux-store"],
       "options": {
         "jestConfig": "libs/redux-store/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "transform": {}
       }
     }
   }

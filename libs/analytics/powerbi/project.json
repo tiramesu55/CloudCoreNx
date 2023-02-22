@@ -16,7 +16,8 @@
       "outputs": ["coverage/libs/analytics/powerbi"],
       "options": {
         "jestConfig": "libs/analytics/powerbi/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "transform": {}
       }
     }
   }

@@ -9,7 +9,9 @@
     "start-marketplace": "npx nx serve marketplace",
     "start-main": "npx nx serve main",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "test-file": "nx run ui-shared:test --testFile=List.spec.tsx",
+    "test-redux": "nx run redux-store:test --testFile=common.spec.tsx"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +39,7 @@
     "dateformat": "^5.0.3",
     "formik": "^2.2.9",
     "history": "^5.3.0",
+    "jest-svg-transformer": "^1.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.38",
     "mui-datatables": "^4.2.2",
@@ -67,9 +70,10 @@
     "@nrwl/storybook": "^14.7.3",
     "@nrwl/web": "14.7.3",
     "@nrwl/workspace": "14.7.3",
+    "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "13.3.0",
     "@types/dateformat": "^5.0.0",
-    "@types/jest": "28.1.1",
+    "@types/jest": "^28.1.1",
     "@types/mui-datatables": "^3.7.9",
     "@types/node": "16.11.7",
     "@types/react": "18.0.18",
