@@ -16,7 +16,6 @@
     "**/*.test.jsx",
     "**/*.spec.jsx",
     "**/*.d.ts",
-    "image.d.ts",
-    // "**/**/**/*.d.ts"
+    "image.d.ts"
   ]
 }

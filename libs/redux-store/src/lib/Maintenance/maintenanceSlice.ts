@@ -58,7 +58,6 @@ export const getMaintenanceAsync = createAsyncThunk<
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('response Maintenance', response)
     // The value we return becomes the `fulfilled` action payload
     return {
       data: response.data,

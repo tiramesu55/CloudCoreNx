@@ -59,8 +59,6 @@ interface Props {
 }
 const ReportBiClientComponent = lazy(() => import('@cloudcore/powerbi'));
 export const AnalyticsPowerbi = (props: Props) => {
-  console.log('AnalyticsPowerbi', props);
-  console.log('nexia_logo_img', nexia_logo_img);
   const theme = useTheme();
   const { useAppDispatch, useAppSelector } = analyticsStore;
   const dispatch = useAppDispatch();
@@ -105,7 +103,7 @@ export const AnalyticsPowerbi = (props: Props) => {
   const { loadingSingleReport, selectedReports, reportFilter, reports } =
     useAppSelector((state) => state.report);
   const state = useAppSelector((state) => state);
-  console.log('state', state);
+  // console.log('state', state);
   const { openAlert, content, type } = useAppSelector((state) => state.common);
   const selectedReportName = useMemo(() => {
     const selectedRoport = reports?.filter(
@@ -172,7 +170,6 @@ export const AnalyticsPowerbi = (props: Props) => {
           })
           .then((response) => {
             //   setListReportLoading(false);
-            console.log('response 1', response)
             dispatch(loadReports(response.suites));
           })
           .catch((error) => {
@@ -278,7 +275,6 @@ export const AnalyticsPowerbi = (props: Props) => {
         }))
       : [];
   }, [reports, loadData]);
-  console.log('navLinkMenuList', navLinkMenuList)
   const path = useMemo(() => {
     return `${config.isMainApp ? '/analytics' : '/'}`;
   }, [config.isMainApp]);
@@ -286,7 +282,6 @@ export const AnalyticsPowerbi = (props: Props) => {
   const resetTimerRef = useRef(null);
 
   const ErrorFallback = ({ error, resetErrorBoundary }: any) => {
-    console.log('error', error);
     return (
       <Grid item xs={12} sx={{ textAlign: 'center', padding: theme.spacing(6) }}>
         <Typography variant="h2" sx={{ color: theme.palette.error.main }}>

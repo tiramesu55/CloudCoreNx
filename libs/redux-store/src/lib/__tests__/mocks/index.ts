@@ -470,7 +470,7 @@ export const config = {
     redirectUri: 'http://localhost:3000/login/callback',
     pkce: true,
   },
-  instrumentationKey: '8f2e56e0-9ec2-491d-80bb-42f37ada0f5f',
+  instrumentationKey: null,
   REACT_APP_SUITES_URL:
     'https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/GetSuitesByPermission',
   REACT_APP_POWERBI_URL:

@@ -7,17 +7,20 @@ let appInsights: ApplicationInsights | null = null;
 const browserHistory = createBrowserHistory({ basename: '' } as BrowserHistoryOptions);
 const reactPlugin = new ReactPlugin() as any;
 const appInsightsFunc = async () => { 
+  
   const config = await GetConfig();
-  appInsights  = new ApplicationInsights({
-      config: {
-          instrumentationKey: config.instrumentationKey,
-          extensions: [reactPlugin],
-          extensionConfig: {
-            [reactPlugin.identifier]: { history: browserHistory }
-          }
-      }
-  });
-  appInsights.loadAppInsights();
+  if(config.instrumentationKey){
+    appInsights  = new ApplicationInsights({
+        config: {
+            instrumentationKey: config.instrumentationKey,
+            extensions: [reactPlugin],
+            extensionConfig: {
+              [reactPlugin.identifier]: { history: browserHistory }
+            }
+        }
+    });
+   appInsights.loadAppInsights();
+  }
 }
 appInsightsFunc();
 export { reactPlugin, appInsights };

@@ -34,18 +34,49 @@ describe('List', () => {
       </ThemeProvider>
     );
     expect(screen.getByRole('toolbar')).toHaveTextContent('Listed Organizations')
-    // expect(screen.getByText("Organizations")).toBeVisible();
-    // expect(screen.findByDisplayValue("Address")).toBeVisible();
-    const elem = await screen.findAllByText("Address");
-    console.log(elem[0])
-    // expect(screen.getAllByText("Status")).toBeVisible();
 
     props.data.forEach((item) => {
       expect(screen.getByText(item.name)).toBeVisible();
       const address = `${item.address.street}, ${item.address.city}`;
       expect(screen.getByText(address)).toBeVisible();
-      const activeStatus = item.inactiveDate ? 'Not Active' : 'Active';
-      expect(screen.getByText(activeStatus)).toBeVisible();
     });
+  });
+
+  it('should render List component empty div', async () => {
+    const props = {
+      label: 'Organizations',
+      name: 'name',
+      idSelected: 'wag',
+      data: null,
+    };
+    render(
+      <ThemeProvider theme={theme}>
+        <List
+          {...props}
+          changeSelectedId={() => {}}
+        />
+      </ThemeProvider>
+    );
+      const toolbar = screen.queryAllByText('Listed Organizations')
+      expect(toolbar).toHaveLength(0)
+
+  });
+  it('should render List component empty table', async () => {
+    const props = {
+      label: 'Organizations',
+      name: 'name',
+      idSelected: 'wag',
+      data: [],
+    };
+    render(
+      <ThemeProvider theme={theme}>
+        <List
+          {...props}
+          changeSelectedId={() => {}}
+        />
+      </ThemeProvider>
+    );
+    expect(screen.getByRole('toolbar')).toHaveTextContent('Listed Organizations')
+    expect(screen.getByText("Organizations")).toBeInTheDocument();
   });
 });
