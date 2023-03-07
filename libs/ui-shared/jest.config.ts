@@ -8,10 +8,15 @@ export default {
     '@cloudcore/okta-and-config': "<rootDir>/mocks/contextMock.js" 
   },
   transform: {
-    '^.+\\.(js|ts|tsx)$': 'babel-jest'
+    '^.+\\.(js|ts|tsx)$': 'ts-jest',
   },
   verbose: true,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/ui-shared',
-  bail: true
+  bail: true,
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.spec.json',
+    },
+  },
 };

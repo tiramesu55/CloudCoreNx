@@ -73,6 +73,9 @@ export const UnsavedData = (props: Props) => {
         rowsPerPage: rowsPerPage,
       });
       setForms();
+    } else if (props.location === 'onboarding') {
+      history.push(`${path}user`);
+      setForms();
     } else if (props.location === 'dashboard') {
       history.push(path);
       setForms();

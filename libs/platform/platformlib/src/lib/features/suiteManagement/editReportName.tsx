@@ -152,6 +152,7 @@ const EditReportName = (props: Props) => {
             props.handleUpadteReportName(report);
           }}
           autoFocus
+          data-testid="save"
         >
           Save
         </Button>

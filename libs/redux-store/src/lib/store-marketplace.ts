@@ -5,6 +5,9 @@ import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux';
 import { commonReducer } from './Common/commonSlice';
 import { maintenanceReducer } from './Maintenance/maintenanceSlice';
 import { labelaryReduce } from './marketplace/labelry/labelrySlice';
+import { DashboardReducer } from './marketplace/dashboard/dashboardSlice';
+import { LabelSettingsReducer } from './marketplace/labelSettings/LabelSettingsSlice';
+
 export const store = configureStore({
   reducer: {
     report: reportReducer,
@@ -12,6 +15,8 @@ export const store = configureStore({
     common: commonReducer,
     maintenance: maintenanceReducer,
     labelary: labelaryReduce,
+    dashboard: DashboardReducer,
+    label: LabelSettingsReducer,
   },
   devTools: process.env['NODE_ENV'] !== 'production',
   // Optional Redux store enhancers

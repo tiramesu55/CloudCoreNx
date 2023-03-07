@@ -1,5 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { InfoCard } from './InfoCard';
+import { users_img } from '@cloudcore/ui-shared';
 
 export default {
   component: InfoCard,
@@ -12,10 +13,7 @@ const Template: ComponentStory<typeof InfoCard> = (args) => (
 
 export const Primary = Template.bind({});
 Primary.args = {
-  title: '',
-  count: 0,
-  image: '',
-  editSites: false,
-  orgCode: '',
-  orgName: '',
+  title: 'Users',
+  count: 10,
+  image: users_img,
 };

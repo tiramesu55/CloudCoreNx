@@ -29,7 +29,9 @@ export interface OktaClaims extends CustomUserClaims {
 
 //we assume that the config  context is the most outward one
 export function useClaimsAndSignout(): UseClaimsAndSignout | null {
-  const { oktaAuth, authState } = useOktaAuth();
+  const authData = useOktaAuth();
+  const oktaAuth = authData && authData.oktaAuth;
+  const authState = authData && authData.authState;
   const { HandleUserLogOut } = useAppInsightHook();
   const ctx = useContext(ConfigCtx);
   const postLogoutRedirectUri = useAppSelector(

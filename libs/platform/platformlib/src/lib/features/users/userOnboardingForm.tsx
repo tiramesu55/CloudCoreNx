@@ -6,7 +6,6 @@ import {
   AlertColor,
   Box,
   Button,
-  Card,
   FormControl,
   Grid,
   InputLabel,
@@ -17,11 +16,14 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { Card } from '@cloudcore/ui-shared';
 import {
   platformStore,
   getOrgCodeFromName,
   organizationList,
   importUserFile,
+  setUserOnboardingFormModified,
+  getUserOnboardingFormModified,
 } from '@cloudcore/redux-store';
 import { useHistory } from 'react-router-dom';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
@@ -40,11 +42,11 @@ import {
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 const steps = [
-  {
+  /* {
     label: 'Step 1',
     line1: 'Download template,\nadd user info and save as CSV',
   },
-  {
+   */ {
     label: 'Step 2',
     line1: `Select Organization \nand file to import`,
   },
@@ -53,18 +55,6 @@ const steps = [
     line1: `Import Data`,
   },
 ];
-
-const style = {
-  Card: {
-    width: '100%',
-    justifyContent: 'center',
-    overflow: 'auto',
-    paddingBottom: '10px',
-  },
-  Grid: {
-    justifyContent: 'center',
-  },
-};
 
 interface Props {
   handleOpenAlert: (payload: IAlert) => void;
@@ -137,7 +127,9 @@ const UserOnboarding = (props: Props) => {
   const [alertSev, setAlertSev] = useState<AlertColor>('error');
   const [response, setResponse] = useState<Response | null>(null);
   const [dialogBoxOpen, setDialogBoxOpen] = useState(false);
-  const [formModified, setFormModified] = useState(false);
+  const userOnboardingFormModified = useAppSelector(
+    getUserOnboardingFormModified
+  );
 
   //const location: any = useLocation();
   //const isUserOnboarding = location.state?.from === 'onboarding';
@@ -201,20 +193,19 @@ const UserOnboarding = (props: Props) => {
   };
 
   const backToUsers = () => {
-    formModified ? setDialogBoxOpen(true) : history.push(`${path}user`);
+    userOnboardingFormModified
+      ? setDialogBoxOpen(true)
+      : history.push(`${path}user`);
   };
 
   //stepper changes
   const [activeStep, setActiveStep] = useState(0);
 
-  const checkTemplate = () => {
+  const checkOrgfile = () => {
     setActiveStep(1);
   };
-  const checkOrgfile = () => {
-    setActiveStep(2);
-  };
   const checkImport = () => {
-    setActiveStep(3);
+    setActiveStep(1);
   };
 
   //columns for template csv download
@@ -222,7 +213,6 @@ const UserOnboarding = (props: Props) => {
     'email,firstname,lastname,phone,title,city,street,zip,state';
 
   const download = (data: string) => {
-    checkTemplate();
     // Creating a Blob for having a csv file format
     // and passing the data with type
     const blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
@@ -253,7 +243,7 @@ const UserOnboarding = (props: Props) => {
     setDialogBoxOpen(false);
     //we don't want to force them to redonwload
     //if just stepping back
-    setActiveStep(1);
+    setActiveStep(0);
   };
 
   /* Code to provide popup on reload of page, when data is modified */
@@ -264,13 +254,13 @@ const UserOnboarding = (props: Props) => {
       event.preventDefault();
       event.returnValue = message;
     };
-    if (formModified) {
+    if (userOnboardingFormModified) {
       window.addEventListener('beforeunload', preventUnload);
     }
     return () => {
       window.removeEventListener('beforeunload', preventUnload);
     };
-  }, [formModified]);
+  }, [userOnboardingFormModified]);
 
   function updateOrgCode(data: string) {
     const org = orgWithCodes.find((p) => p.name?.includes(data));
@@ -286,7 +276,7 @@ const UserOnboarding = (props: Props) => {
     //set this to null in case it was already selected
     //and user changed org
     handleImportFileUpdate(null, '');
-    setFormModified(true);
+    dispatch(setUserOnboardingFormModified(true));
   }
 
   //set the selected File from ImportFile component here
@@ -298,7 +288,6 @@ const UserOnboarding = (props: Props) => {
       checkOrgfile();
     } else {
       //if not mark step 2 as active
-      checkTemplate();
     }
     //this is disabled until org is selected
   }
@@ -398,13 +387,12 @@ const UserOnboarding = (props: Props) => {
                 });
               }
               //Their state can't be reused so we don't care
-              setFormModified(false);
+              dispatch(setUserOnboardingFormModified(false));
               // var endTime = new Date()
               // var seconds = (endTime.getTime() - startTime.getTime()) / 1000;
             },
             (reason: any) => {
-              setFormModified(false);
-
+              dispatch(setUserOnboardingFormModified(false));
               setAlert(true);
               setAlertContent('importUserFileFailure - ' + reason.message);
               setAlertSev('error');
@@ -441,8 +429,8 @@ const UserOnboarding = (props: Props) => {
           duration={3000}
         />
         <Grid item xs={12}>
-          <Grid container style={style.Grid} paddingX={3}>
-            <Card style={style.Card}>
+          <Grid container paddingX={3}>
+            <Card>
               {alert && <Alert severity={alertSev}>{alertContent}</Alert>}
               <Grid py={4} px={2}>
                 <Typography
@@ -453,10 +441,10 @@ const UserOnboarding = (props: Props) => {
                   Import Users
                 </Typography>
                 <Grid container item>
-                  <Grid item xs={12} style={{ alignContent: 'center' }}>
+                  <Grid item xs={12} sx={{ alignContent: 'center' }}>
                     <Typography sx={{ marginBottom: 2 }}> </Typography>
 
-                    <Typography variant="h3" style={{ textAlign: 'center' }}>
+                    <Typography variant="h3" sx={{ textAlign: 'center' }}>
                       {response.reason}
                     </Typography>
                   </Grid>
@@ -467,9 +455,9 @@ const UserOnboarding = (props: Props) => {
                   <Grid item xs={4} sx={{}}>
                     {response.dataUpload ? (
                       <Typography
-                        style={{
+                        sx={{
                           paddingLeft: '30%',
-                          color: '#1B5E20',
+                          color: theme.palette.success.dark,
                           textAlign: 'left',
                         }}
                       >
@@ -477,9 +465,9 @@ const UserOnboarding = (props: Props) => {
                       </Typography>
                     ) : (
                       <Typography
-                        style={{
+                        sx={{
                           paddingLeft: '30%',
-                          color: '#C62828',
+                          color: theme.palette.error.dark,
                           textAlign: 'left',
                         }}
                       >
@@ -492,9 +480,7 @@ const UserOnboarding = (props: Props) => {
                   </Grid>
                   <Grid item xs={4}></Grid>
                   <Grid item xs={4}>
-                    <Typography
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
-                    >
+                    <Typography sx={{ paddingLeft: '30%', textAlign: 'left' }}>
                       Number of Users Read: {response.readUsers}
                     </Typography>
                   </Grid>
@@ -507,15 +493,21 @@ const UserOnboarding = (props: Props) => {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography
-                      color="#C62828"
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
+                      sx={{
+                        paddingLeft: '30%',
+                        textAlign: 'left',
+                        color: theme.palette.error.dark,
+                      }}
                     >
                       Invalid Users: {response.invalidUsers}
                     </Typography>
 
                     <Typography
-                      color="#1B5E20"
-                      style={{ paddingLeft: '30%', textAlign: 'left' }}
+                      sx={{
+                        color: theme.palette.success.dark,
+                        paddingLeft: '30%',
+                        textAlign: 'left',
+                      }}
                     >
                       Valid Users: {response.validUsers}
                     </Typography>
@@ -569,13 +561,7 @@ const UserOnboarding = (props: Props) => {
                   BACK
                 </Button>
 
-                <Button
-                  variant="outlined"
-                  onClick={backToUsers}
-                  sx={{
-                    marginRight: theme.spacing(2),
-                  }}
-                >
+                <Button variant="outlined" onClick={backToUsers}>
                   BACK TO USERS
                 </Button>
               </Box>
@@ -594,6 +580,11 @@ const UserOnboarding = (props: Props) => {
           breadCrumbOrigin="All Users"
           breadCrumbTitle="Import Users"
           onClickButton={backToUsers}
+          addBtn={true}
+          onClickAddBtn={() => {
+            download(columnsDownload);
+          }}
+          addBtnText="Get Template"
         ></TitleAndCloseIcon>
         <Snackbar
           open={alertData.openAlert}
@@ -603,13 +594,9 @@ const UserOnboarding = (props: Props) => {
           duration={3000}
         />
         <Grid item xs={12}>
-          <Grid container paddingX={3} style={style.Grid}>
-            <Card style={style.Card}>
-              {alert ? (
-                <Alert severity={alertSev}>{alertContent}</Alert>
-              ) : (
-                <></>
-              )}
+          <Grid container paddingX={3}>
+            <Card>
+              {alert && <Alert severity={alertSev}>{alertContent}</Alert>}
               <Grid py={4} px={2}>
                 <Typography
                   fontSize={theme.typography.h3.fontSize}
@@ -622,7 +609,7 @@ const UserOnboarding = (props: Props) => {
                   <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((label) => (
                       <Step key={label.label}>
-                        <StepLabel style={{ whiteSpace: 'pre-line' }}>
+                        <StepLabel sx={{ whiteSpace: 'pre-line' }}>
                           {label.line1}
                         </StepLabel>
                       </Step>
@@ -630,114 +617,100 @@ const UserOnboarding = (props: Props) => {
                   </Stepper>
                 </Box>
               </Grid>
-              {activeStep > 0 ? ( //if template downloaded show org and file select
-                <Grid container item sx={{ marginBottom: '10%' }}>
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{
-                      alignSelf: 'center',
-                      textAlign: 'center',
-                      alignContent: 'center',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <InputLabel
-                        style={{
-                          marginTop: '25px',
-                          marginRight: '10px',
-                          color: '#6513F0',
+              <Grid
+                container
+                item
+                sx={{
+                  marginTop: theme.spacing(3),
+                  marginBottom: theme.spacing(8),
+                }}
+              >
+                <Grid
+                  item
+                  xs={12}
+                  sx={{
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    alignContent: 'center',
+                  }}
+                >
+                  <Grid container xs={12}>
+                    <Grid item xs={6.5}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'end',
+                          flexDirection: 'row',
+                          alignItems: 'center',
                         }}
-                        id="custom-select"
                       >
-                        {'Organization'}
-                      </InputLabel>
-                      <FormControl sx={{ width: '20%' }}>
-                        <InputSelectWithLabel
-                          id="org"
-                          placeholder="Select Organization"
-                          options={orgList}
-                          orgChangeHandler={handleSelectionUpdate}
-                          value={org}
-                        />
-                      </FormControl>
-                    </div>
-
-                    <ImportFile
-                      title="Import File"
-                      org={org}
-                      fileName={fileName}
-                      onImportFileUpdate={handleImportFileUpdate}
-                    ></ImportFile>
-
-                    <Button
-                      disabled={
-                        fileName.length > 0 && org.length > 0 ? false : true
-                      }
-                      variant="outlined"
-                      sx={{
-                        marginRight: theme.spacing(2),
-                      }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleUpload();
-                      }}
-                    >
-                      Import Data
-                    </Button>
-                    {alertContent.length > 0 ? (
-                      <>
-                        <Typography>
-                          Error processing file, please review. Common issues
-                          are listed below
-                        </Typography>
-                        <List
-                          sx={{ paddingLeft: '35%', alignContent: 'center' }}
+                        <InputLabel
+                          sx={{
+                            marginTop: theme.spacing(3),
+                            marginRight: theme.spacing(1.5),
+                            color: theme.palette.primary.main,
+                            '& .MuiInputLabel-asterisk': {
+                              color: theme.palette.error.main,
+                            },
+                          }}
+                          id="custom-select"
+                          required={true}
                         >
-                          <ListItem style={{ alignContent: 'center' }}>
-                            Empty Column Values
-                          </ListItem>
-                          <ListItem>Empty Rows</ListItem>
-                          <ListItem>Duplicate Rows</ListItem>
-                        </List>
-                      </>
-                    ) : null}
+                          {'Organization'}
+                        </InputLabel>
+                        <FormControl sx={{ width: '30%' }}>
+                          <InputSelectWithLabel
+                            id="org"
+                            placeholder="Select Organization"
+                            options={orgList}
+                            orgChangeHandler={handleSelectionUpdate}
+                            value={org}
+                          />
+                        </FormControl>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={5.5}>
+                      <ImportFile
+                        title="Import File"
+                        org={org}
+                        fileName={fileName}
+                        onImportFileUpdate={handleImportFileUpdate}
+                      ></ImportFile>
+                    </Grid>
                   </Grid>
-                </Grid>
-              ) : (
-                //if template not downloaded show download button
-                <Grid container item sx={{ marginBottom: '10%' }}>
-                  <Grid
-                    item
-                    xs={12}
+                  <Button
+                    disabled={
+                      fileName.length > 0 && org.length > 0 ? false : true
+                    }
+                    variant="outlined"
                     sx={{
-                      alignSelf: 'center',
-                      textAlign: 'center',
-                      alignContent: 'center',
+                      marginRight: theme.spacing(2),
+                      marginTop: theme.spacing(5),
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleUpload();
                     }}
                   >
-                    <br></br>
-                    <br></br>
-                    <Button
-                      color="primary"
-                      variant="outlined"
-                      component="span"
-                      onClick={() => {
-                        download(columnsDownload);
-                      }}
-                    >
-                      Get Template
-                    </Button>
-                  </Grid>
+                    Import Data
+                  </Button>
+                  {alertContent.length > 0 ? (
+                    <>
+                      <Typography>
+                        Error processing file, please review. Common issues are
+                        listed below
+                      </Typography>
+                      <List sx={{ paddingLeft: '35%', alignContent: 'center' }}>
+                        <ListItem sx={{ alignContent: 'center' }}>
+                          Empty Column Values
+                        </ListItem>
+                        <ListItem>Empty Rows</ListItem>
+                        <ListItem>Duplicate Rows</ListItem>
+                      </List>
+                    </>
+                  ) : null}
                 </Grid>
-              )}
+              </Grid>
             </Card>
             <LowerButton
               buttonName="BACK"

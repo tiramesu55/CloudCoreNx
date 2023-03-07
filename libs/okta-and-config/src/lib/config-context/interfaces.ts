@@ -25,4 +25,5 @@ export interface IConfig {
   DEFAULT_REPORTID?: string;
   isMainApp: boolean;
   marketplaceReports: string[]; //reports for marketplace.  Simple assumptions that we know which ID to use where
+  functionAppBaseUrl:string;
 }

@@ -20,7 +20,7 @@ import {
   selectedId,
   selectedIdOrganization,
   selectOrganizations,
-  getOrganizationsAsync,
+  getAllOrganizationsDomains,
 } from '@cloudcore/redux-store';
 import {
   ConfigCtx,
@@ -66,7 +66,7 @@ export const Dashboard = (props: Props) => {
   useEffect(() => {
     if (platformBaseUrl) {
       dispatch(
-        getOrganizationsAsync({
+        getAllOrganizationsDomains({
           url: platformBaseUrl,
           token: token,
         })

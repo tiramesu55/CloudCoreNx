@@ -1,5 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { UserMenu } from './UserMenu';
+import { sign_out_img } from '@cloudcore/ui-shared';
 
 export default {
   component: UserMenu,
@@ -11,4 +12,18 @@ const Template: ComponentStory<typeof UserMenu> = (args) => (
 );
 
 export const Primary = Template.bind({});
-Primary.args = {};
+Primary.args = {
+  userMenuProps: {
+    userMenuList: [
+      {
+        icon: sign_out_img,
+        label: 'Logout',
+        onClick: () => {
+          return;
+        },
+      },
+    ],
+    userInitials: 'DA',
+    userName: 'Dev Admin',
+  },
+};

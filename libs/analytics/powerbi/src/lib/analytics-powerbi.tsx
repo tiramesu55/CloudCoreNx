@@ -13,7 +13,7 @@ import {
   useMemo,
   useRef,
   useState,
-  lazy
+  lazy,
 } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
@@ -123,6 +123,7 @@ export const AnalyticsPowerbi = (props: Props) => {
   const { HandleReportEvent } = useAppInsightHook();
   const ap = permissions.get('analytics');
   const anltPermissions = ap && ap.length > 0;
+  const isExportAllowed = ap?.includes('_export') ?? false;
   const handleErrorResponse = (err: IErrorTypeResponse) => {
     HandleReportEvent({
       properties: {
@@ -159,6 +160,7 @@ export const AnalyticsPowerbi = (props: Props) => {
       }
     };
     if (token) {
+      getDefaultReport();
       if (config?.platformBaseUrl) {
         // setListReportLoading(true);  //  too quick. No point running spinner
         requests
@@ -182,24 +184,6 @@ export const AnalyticsPowerbi = (props: Props) => {
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (platformBaseUrl) {
-      dispatch(
-        getMaintenanceAsync({
-          url: platformBaseUrl,
-          token: token,
-        })
-      );
-      dispatch(
-        bypassUserAsync({
-          url: platformBaseUrl,
-          token: token,
-          email: email,
-        })
-      );
-    }
-  }, [platformBaseUrl, token, dispatch]);
 
   const handleReportClick = async (reportId: string, reportName: string) => {
     dispatch(
@@ -342,7 +326,8 @@ export const AnalyticsPowerbi = (props: Props) => {
           title={'Enterprise Analytics'}
           logo={{ img: nexia_logo_img, path }}
           betaIcon={true}
-          reportIssue={false}
+          isMainApp={config?.isMainApp}
+          reportIssue={true}
           navLinkMenuList={navLinkMenuList}
           userMenu={{
             userName: names ? names[0] + ' ' + names[1] : '',
@@ -363,6 +348,7 @@ export const AnalyticsPowerbi = (props: Props) => {
               userName={names ? names[0] + ' ' + names[1] : ''}
               userEmail={email ?? ''}
               reset={resetTimerRef.current}
+              isExportAllowed={isExportAllowed}
               openAlert={handleOpenAlert}
               closeAlert={handleCloseAlert}
               loadingReportSingle={handleLoadingReportSingle}

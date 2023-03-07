@@ -20,7 +20,8 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
 
   const appDetails = useSelector((state: any) => state.maintenance.appsMaintenance).
     filter((app: any) => app.name === appName)[0];
-  const maintenanceDetails: MaintenanceDetails = {
+
+  const maintenanceDetails : MaintenanceDetails = {
     maintenanceStartDate: appDetails?.maintenanceStartDate,
     maintenanceEndDate: appDetails?.maintenanceEndDate,
     maintenanceDisplayStartDate: appDetails?.maintenanceDisplayStartDate,
@@ -28,6 +29,7 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
     fullLockout: appDetails?.fullLockout,
     maintenanceReason: appDetails?.maintenanceReason
   }
+
   const isBypassUser = useSelector((state: any) => state.maintenance.bypassUser);
 
   const handleDisplayMaintenanceDialog = (value: boolean) => {
@@ -76,7 +78,9 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
     maintenanceDetails.maintenanceReason
   ]);
 
+
   useEffect(() => {
+
     if (maintenanceDetails.maintenanceDisplayStartDate !== undefined) {
       if (new Date(modifiedMaintenanceDetails.maintenanceDisplayStartDate).getTime() > currentDate.getTime()) {
         setLoadData(true)
@@ -85,6 +89,7 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
   }, [maintenanceDetails.maintenanceDisplayStartDate])
 
   useEffect(() => {
+
     const maintenanceDisplayTimeout = setTimeout(
       () => {
         if (maintenanceDetails.maintenanceDisplayStartDate !== undefined && maintenanceDetails.maintenanceDisplayStartDate !== null) {
@@ -92,7 +97,6 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
           setDisplayMaintenance(true);
         } else if (maintenanceDetails.maintenanceStartDate === null) {
           setLoadData(true);
-          console.log(maintenanceDetails.maintenanceStartDate, "display start date")
         }
       }, new Date(modifiedMaintenanceDetails.maintenanceDisplayStartDate).getTime() - currentDate.getTime()
     )
@@ -116,7 +120,7 @@ export const useMaintenance = (appName: string, currentDate: Date) => {
 
     const endMaintenanceTimeout = setTimeout(
       () => {
-        if (!isNaN(new Date(modifiedMaintenanceDetails.maintenanceEndDate).getTime()) && maintenanceDetails.maintenanceEndDate !== null) {
+        if (modifiedMaintenanceDetails.maintenanceEndDate !== undefined && maintenanceDetails.maintenanceEndDate !== null) {
           setDisplayMaintenance(false);
           setUnderMaintenance(false);
           setLoadData(true);

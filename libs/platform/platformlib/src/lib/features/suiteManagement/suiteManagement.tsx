@@ -136,7 +136,7 @@ const SuiteManagement = (props: Props) => {
 
   const updateSuiteManagement = () => {
     if (editedSuiteInfo) {
-      editedSuiteInfo.name = selectedSuiteName;
+      editedSuiteInfo.name = selectedSuiteName.trim();
       editedSuiteInfo.reports = editedSuiteRef.current;
     }
     if (editedSuiteInfo && selectedPermission && selectedSuiteName) {
@@ -179,7 +179,7 @@ const SuiteManagement = (props: Props) => {
           suite: {
             discriminator: 'suite',
             domain: selectedDomain,
-            name: selectedSuiteName,
+            name: selectedSuiteName.trim(),
             permission: selectedPermission,
             reports: editedSuiteRef.current,
           },

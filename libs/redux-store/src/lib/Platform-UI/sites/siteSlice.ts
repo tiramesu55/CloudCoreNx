@@ -5,9 +5,6 @@ import {
   createSlice,
   PayloadAction,
   createEntityAdapter,
-  isPending,
-  isFulfilled,
-  isRejected,
 } from "@reduxjs/toolkit";
 import { RootState } from "../../store-platform";
 import {
@@ -32,7 +29,7 @@ interface SiteDeleteAction {
   type: string;
 }
 
-export interface Address {
+interface Address {
   street: string;
   city: string;
   zip: string;
@@ -67,13 +64,13 @@ export interface Site {
   modifiedDate: Date | null;
 }
 
-export interface ApplicationSite {
+interface ApplicationSite {
   appCode: string;
   subscriptionStart: Date | null;
   subscriptionEnd: Date | null;
 }
 
-export interface SiteState {
+interface SiteState {
   sites: Site[];
   site: Site;
   selectedId: string;
@@ -190,7 +187,7 @@ export const siteSlice = createSlice({
         [action.payload.key]: action.payload.value,
       };
     },
-    updateSiteAdress: (state, action: PayloadAction<any>) => {
+    updateSiteAddress: (state, action: PayloadAction<any>) => {
       state.site = {
         ...state.site,
         address: {
@@ -273,7 +270,7 @@ export const siteSlice = createSlice({
 
 export const {
   updateSiteField,
-  updateSiteAdress,
+  updateSiteAddress,
   selectedIdSite,
   setSite,
   resetSite,

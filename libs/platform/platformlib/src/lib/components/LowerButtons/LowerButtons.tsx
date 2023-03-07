@@ -1,5 +1,4 @@
 import { Box, Button, Grid } from '@mui/material';
-import { theme } from '@cloudcore/ui-shared';
 
 interface Props {
   onClickButton: () => void;
@@ -14,14 +13,9 @@ const LowerButton = (props: Props) => {
           alignItems: 'flex-end',
           display: 'flex',
           justifyContent: 'end',
-          paddingX: theme.spacing(0),
         }}
       >
-        <Button
-          variant="outlined"
-          sx={{ marginRight: theme.spacing(2) }}
-          onClick={props.onClickButton}
-        >
+        <Button variant="outlined" onClick={props.onClickButton}>
           {props.buttonName}
         </Button>
       </Box>

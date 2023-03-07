@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { withStyles } from '@mui/styles';
 import { useState } from 'react';
 import { getSuiteFormModified, platformStore } from '@cloudcore/redux-store';
+import { useTheme } from '@mui/material/styles';
 
 interface Props {
   label?: string;
@@ -57,26 +58,19 @@ const CustomSelect = styled(Select)(({ theme }) => ({
     color: theme.palette.blackFont.main,
     WebkitTextFillColor: 'black !important',
   },
+  '& .MuiSvgIcon-root': {
+    color: `${theme.palette.common.black}`,
+  },
+  '& .MuiSelect-select:focus': {
+    backgroundColor: `${theme.palette.secondary.main}`,
+  },
+  '& .MuiPaper-root.MuiPaper-elevation': {
+    backgroundColor: `${theme.palette.secondary.main}`,
+  },
 }));
 
-const CustomSelectCss = withStyles((theme) => ({
-  '@global': {
-    '.css-16bw062-MuiSvgIcon-root-MuiSelect-icon': {
-      color: `${theme.palette.common.black} !important`,
-    },
-    '.css-yacrg0-MuiSvgIcon-root-MuiSelect-icon': {
-      color: `${theme.palette.common.black} !important`,
-    },
-    '.css-14e1qvh-MuiSelect-select-MuiInputBase-input-MuiInput-input:focus': {
-      backgroundColor: `${theme.palette.secondary.main} !important`,
-    },
-    '.css-1ooztp-MuiPaper-root-MuiMenu-paper-MuiPaper-root-MuiPopover-paper': {
-      backgroundColor: `${theme.palette.secondary.main} !important`,
-    },
-  },
-}))(() => null);
-
 const InputSelectWithLabel = (props: Props) => {
+  const theme = useTheme();
   const [value, setValue] = useState<string>(props.value);
   const { useAppSelector } = platformStore;
   const suiteFormModified = useAppSelector(getSuiteFormModified);
@@ -102,50 +96,46 @@ const InputSelectWithLabel = (props: Props) => {
 
   const required = props.required ? true : false;
   return (
-    <>
-      <CustomSelectCss />
-
-      <FormControl variant="standard" sx={{ width: '90%' }}>
-        <InputLabel
-          htmlFor={props.id}
-          sx={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            paddingBottom: '24px',
-            '& .MuiInputLabel-asterisk': {
-              color: '#FE3F3F',
-            },
-          }}
-          shrink
-          required={required}
-        >
-          {props.label}
-        </InputLabel>
-        <Select
-          labelId="select-label"
-          id="simple-select"
-          value={props.value}
-          label="Age"
-          onChange={handleChange}
-          displayEmpty
-          inputProps={{ 'aria-label': 'Without label' }}
-          input={<CustomSelect />}
-          disabled={props.disabled}
-        >
-          <MenuItem value="" disabled>
-            {props.placeholder}
-          </MenuItem>
-          {props.options &&
-            props.options?.map((option, i) => {
-              return (
-                <MenuItem key={i} value={option} onClick={handleUnsavedData}>
-                  {option}
-                </MenuItem>
-              );
-            })}
-        </Select>
-      </FormControl>
-    </>
+    <FormControl variant="standard" sx={{ width: '90%' }}>
+      <InputLabel
+        htmlFor={props.id}
+        sx={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          paddingBottom: '24px',
+          '& .MuiInputLabel-asterisk': {
+            color: theme.palette.error.main,
+          },
+        }}
+        shrink
+        required={required}
+      >
+        {props.label}
+      </InputLabel>
+      <Select
+        labelId="select-label"
+        id="simple-select"
+        value={props.value}
+        label="Age"
+        onChange={handleChange}
+        displayEmpty
+        inputProps={{ 'aria-label': 'Without label' }}
+        input={<CustomSelect />}
+        disabled={props.disabled}
+      >
+        <MenuItem value="" disabled>
+          {props.placeholder}
+        </MenuItem>
+        {props.options &&
+          props.options?.map((option, i) => {
+            return (
+              <MenuItem key={i} value={option} onClick={handleUnsavedData}>
+                {option}
+              </MenuItem>
+            );
+          })}
+      </Select>
+    </FormControl>
   );
 };
 

@@ -6,7 +6,11 @@ import {
   DialogContent,
   Button,
   Box,
+  Stack,
   Typography,
+  FormControl,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { warning_img } from '@cloudcore/ui-shared';
@@ -14,6 +18,7 @@ import { platformStore } from '@cloudcore/redux-store';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
   deleteSite,
+  deleteUsersSiteMapping,
   selectedSite,
   Site,
   updateSite,
@@ -43,6 +48,7 @@ export const ActivateDeactivateSite = (props: Props) => {
   const { token } = useClaimsAndSignout() as UseClaimsAndSignout;
   const theme = useTheme();
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
+  const [removeCheck, setRemoveCheck] = useState(false);
   const [open, setOpen] = useState(false);
   const site = useAppSelector(selectedSite);
   const history = useHistory();
@@ -127,9 +133,22 @@ export const ActivateDeactivateSite = (props: Props) => {
     }
   };
 
+  const onChangeIconHandler = (event: any) => {
+    setRemoveCheck(event.target.checked);
+  };
+
   const handleDeactivate = () => {
     setOpen(false);
     try {
+      if (removeCheck) {
+        dispatch(
+          deleteUsersSiteMapping({
+            siteID: site.id,
+            url: platformBaseUrl,
+            token: token,
+          })
+        );
+      }
       dispatch(
         deleteSite({
           id: site?.id,
@@ -160,7 +179,7 @@ export const ActivateDeactivateSite = (props: Props) => {
           }
         );
     } catch (err) {
-      console.log('faild to deactivate Site', err);
+      console.log('failed to deactivate Site', err);
     }
   };
 
@@ -197,45 +216,62 @@ export const ActivateDeactivateSite = (props: Props) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent sx={{ paddingTop: '40px', paddingX: '0px' }}>
-          <Box alignItems={'center'} display={'flex'} justifyContent={'center'}>
-            <img src={warning_img} alt="warning" />
-          </Box>
-          <Box>
-            <Typography
-              component={'span'}
-              variant="h6"
-              fontWeight={'bold'}
-              sx={{
-                color: 'red',
-                paddingTop: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              {'Warning'}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography
-              component={'span'}
-              variant="subtitle2"
-              color={theme.palette.blackFont.main}
-              fontSize={theme.typography.subtitle1.fontSize}
-              paddingX="40px"
-              paddingTop={'20px'}
-              display="flex"
-              align="center"
-            >
-              Are you sure, Do you want to
-              {site?.inactiveDate === null ? (
-                <> Deactivate </>
-              ) : (
-                <> Activate </>
-              )}
-              the Site {site?.siteName}?
-            </Typography>
-          </Box>
+        <DialogContent
+          sx={{
+            paddingTop: '40px',
+            paddingX: '0px',
+          }}
+        >
+          <Stack alignItems={'center'} justifyContent={'center'}>
+            <Box>
+              <img src={warning_img} alt="warning" />
+            </Box>
+            <Box>
+              <Typography
+                component={'span'}
+                variant="h6"
+                fontWeight={'bold'}
+                sx={{
+                  color: 'red',
+                  paddingTop: '20px',
+                }}
+              >
+                {'Warning'}
+              </Typography>
+            </Box>
+            <Box component="span" sx={{ px: 8, pt: 3 }}>
+              <Typography
+                color={theme.palette.blackFont.main}
+                fontSize={theme.typography.subtitle1.fontSize}
+                align={'center'}
+              >
+                Are you sure, Do you want to
+                {site?.inactiveDate === null ? (
+                  <> Deactivate </>
+                ) : (
+                  <> Activate </>
+                )}
+                the site {site?.siteName}?
+              </Typography>
+            </Box>
+            {site?.inactiveDate === null && (
+              <Box>
+                <FormControl variant="standard">
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    label="Remove the site for all users"
+                    labelPlacement="end"
+                    onChange={onChangeIconHandler}
+                    checked={removeCheck}
+                    sx={{
+                      color: `${theme.palette.blackFont.main}`,
+                      fontSize: `${theme.typography.subtitle1.fontSize}`,
+                    }}
+                  />
+                </FormControl>
+              </Box>
+            )}
+          </Stack>
         </DialogContent>
         <DialogActions
           sx={{
@@ -252,7 +288,7 @@ export const ActivateDeactivateSite = (props: Props) => {
               color: `${theme.palette.greyButton.main} !important`,
               border: `1px solid ${theme.palette.greyButton.main} !important`,
               '&:hover': {
-                color: `${theme.palette.greyButton.main} !important`,
+                backgroundColor: `white !important`,
                 border: `1px solid ${theme.palette.greyButton.main} !important`,
               },
             }}

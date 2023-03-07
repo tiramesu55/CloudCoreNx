@@ -22,6 +22,7 @@ interface IdlePopUpProps {
   seconds: number;
   timer: { minutes: number; seconds: number };
   sendResetData?: any;
+  isOpen?: boolean;
 }
 
 export const IdlePopUp = ({
@@ -30,6 +31,7 @@ export const IdlePopUp = ({
   seconds,
   timer,
   sendResetData,
+  isOpen,
 }: IdlePopUpProps) => {
   const [activityModal, setActivityModal] = useState<boolean>(false);
   // Do some idle action like log out your user
@@ -62,7 +64,7 @@ export const IdlePopUp = ({
 
   return (
     <Dialog
-      open={activityModal}
+      open={isOpen ? isOpen : activityModal}
       fullWidth={true}
       maxWidth="md"
       transitionDuration={0}

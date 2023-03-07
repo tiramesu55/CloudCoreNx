@@ -11,4 +11,6 @@ const Template: ComponentStory<typeof ReportIssue> = (args) => (
 );
 
 export const Primary = Template.bind({});
-Primary.args = {};
+Primary.args = {
+  isOpen: true,
+};

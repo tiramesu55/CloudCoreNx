@@ -10,35 +10,37 @@ export interface IApiResponseId extends IApiResponse {
 
 //DashboardDetails Interfaces
 export interface IDashboardDetailsPartner {
-  partnerId: number;
-  partnerName: string;
+  associationId: number;
+  associationName: string;
 }
-
 export interface IDashboardContractedRX extends IDashboardDetailsPartner {
   contractedRx: number;
 }
-
 export interface IDashboardRXFilled extends IDashboardDetailsPartner {
-  rxsFilled: number;
+  filledRx: number;
 }
-
+export interface IDashboardAvailableRx extends IDashboardDetailsPartner {
+  availableRx: number;
+}
 export interface IDashboardDetails {
-  customerId: number;
+  pharmacyId: number;
   facilityId: number;
-  partner: {
-    totalPartners: number;
-    partners: IDashboardDetailsPartner[];
+  association: {
+    totalAssociations: number;
+    associations: IDashboardDetailsPartner[];
   };
   contractedRx: {
     totalContractedRxs: number;
     contractedRxs: IDashboardContractedRX[];
   };
-  noOfRxsFilled: {
+  fullfilledRx: {
     totalRxsFilled: number;
-    rxsFilled: IDashboardRXFilled[];
+    filledRxs: IDashboardRXFilled[];
   };
-  dailyUtilization: number;
-  totalPendingRxs: number;
+  availableRx: {
+    totalRxsAvailable: number;
+    availableRxs: IDashboardAvailableRx[];
+  };
 }
 
 //InventoryConfiguration Interfaces

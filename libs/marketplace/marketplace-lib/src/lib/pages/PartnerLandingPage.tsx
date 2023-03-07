@@ -1,10 +1,8 @@
-
 import { Stack, darken, Typography, Box } from "@mui/material"
-import { blue, deepOrange, green, red, } from "@mui/material/colors"
+import { blue, deepOrange, green, red } from "@mui/material/colors"
 import { DashboardCard, DashboardContent } from "../components/Dashboard/DashboardCard"
 
-const LandingPage = () => {
-
+function PartnerLandingPage() {
     //TODO API call to get card colors
 
     return (
@@ -23,14 +21,14 @@ const LandingPage = () => {
                 <DashboardCard color={darken(green[500], .25)} helpText="testing" backgroundColor={green[800]} icon={<img src={require("../assets/TargetAsset.png")} alt="card" />}>
                     <DashboardContent valueProps={{ color: darken(green[500], .25) }} sectionTitle="No. Of Rxs Filled" value="343" />
                 </DashboardCard>
-                <DashboardCard color={deepOrange[500]} backgroundColor={deepOrange[500]} helpText="testing" icon={<img src={require("../assets/WaveAsset.png")} alt="card" />} >
+                <DashboardCard color={deepOrange[500]} backgroundColor={deepOrange[500]} helpText="testing" icon={<img src={require("../assets/WaveAsset.png")} alt="card" />}>
                     <DashboardContent sectionTitle="Daily Utilization" value="29%" sectionTitle2="Total Pending Rxs" value2="1157" />
                 </DashboardCard>
             </Stack>
 
-        </Box >
+        </Box>
 
-    )
+    );
 }
 
-export default LandingPage
+export default  PartnerLandingPage;

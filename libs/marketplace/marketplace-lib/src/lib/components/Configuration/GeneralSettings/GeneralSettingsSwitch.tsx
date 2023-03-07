@@ -100,16 +100,15 @@ export default function GeneralSettingsSwitch() {
 
     }
 
-    console.log(turnOff)
     return (
         <>
             <Stack direction="row" sx={{ marginBottom: 2, display: "flex" }}>
                 <Typography sx={{ fontSize: "10pt", fontWeight: "bold" }}>Accepting Partner Rx Orders</Typography>
                 {settingsDisplay === true ?
                     (<><Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 6, textAlign: "left" }}>Action By</Typography>
-                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 10 }}>Duration</Typography>
-                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 5 }}>Reason</Typography>
-                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 15 }}>Comment</Typography>
+                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 11.5 }}>Duration</Typography>
+                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 7 }}>Reason</Typography>
+                        <Typography sx={{ fontSize: "10pt", fontWeight: "bold", marginLeft: 11 }}>Comment</Typography>
 
 
                         <Stack direction="row" sx={{ marginBottom: 2, display: "flex" }}></Stack>

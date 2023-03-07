@@ -16,6 +16,7 @@ export * from './lib/Header/AppsMenu';
 export * from './lib/BackDrop';
 export * from './lib/DisplayMaintenance/displayMaintenance';
 export * from './lib/UnSavedData/UnSavedData';
+export * from './lib/Header/RoadMap';
 /* Export images from shared */
 export { default as access_denied_img } from './lib/assets/access_denied.svg';
 export { default as nexia_logo_img } from './lib/assets/NexiaLogo.svg';

@@ -47,7 +47,8 @@ export default class ReportEmbedding {
     loadingReportSingle: (v: boolean) => void,
     actualReportFilter: IFilterReport | undefined,
     selectFilterItemSelected: (t: string[], p: string) => void,
-    reset: () => void
+    reset: () => void,
+    isExportAllowed: boolean
   ): Promise<void> {
     this.pbiService.bootstrap(
       hostContainer,
@@ -63,7 +64,7 @@ export default class ReportEmbedding {
     
    const responseContent = await this.getReportEmbedModelFromResponse(apiResponse);
 
-   const reportConfiguration = this.buildReportEmbedConfiguration(responseContent, showMobileLayout);
+   const reportConfiguration = this.buildReportEmbedConfiguration(responseContent, showMobileLayout, isExportAllowed);
 
    this.runEmbedding(
           reportConfiguration,
@@ -76,6 +77,7 @@ export default class ReportEmbedding {
           handleErrorOrLogResponse,
           timeStartLoad,
           reset
+
         );
    } catch(err: any) {
         console.log("ERR", err)
@@ -131,7 +133,8 @@ export default class ReportEmbedding {
 
   private buildReportEmbedConfiguration(
     embedModel: IReportEmbedModel,
-    showMobileLayout: boolean
+    showMobileLayout: boolean,
+    isExportAllowed: boolean
   ): IEmbedConfiguration {
     const layoutSettings = {
       displayOption: models.DisplayOption.FitToPage,
@@ -144,6 +147,18 @@ export default class ReportEmbedding {
         ? models.LayoutType.MobilePortrait
         : models.LayoutType.Custom,
       customLayout: layoutSettings,
+
+        commands: [
+          {
+              exportData: {
+                  displayOption: isExportAllowed?models.CommandDisplayOption.Enabled :  models.CommandDisplayOption.Hidden,
+              },
+              drill: {
+                  displayOption: models.CommandDisplayOption.Disabled,
+              }
+          }
+      ]
+
     } as IEmbedSettings;
 
     return {
@@ -227,7 +242,8 @@ export default class ReportEmbedding {
       //need to remove tell react to stop progress indicator which is animated gif
     });
     report.on('visualClicked', () => {
-      reset();
+      if(reset)
+        reset();
     })
   }
 

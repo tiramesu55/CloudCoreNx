@@ -21,14 +21,14 @@ const MockInventorySettings: IPartnerInventorySettingList = {
       percentage: 15,
       isOwner: true,
     },
-    {
-      name: 'New Metro Pharmacy',
-      initials: 'MP',
-      borrowing: true,
-      percentage: 12,
-      isOwner: true,
-    },
-    { name: 'Getwell Pharmacy', initials: 'GP', isOwner: false },
+    // {
+    //   name: 'New Metro Pharmacy',
+    //   initials: 'MP',
+    //   borrowing: true,
+    //   percentage: 12,
+    //   isOwner: true,
+    // },
+    // { name: 'Getwell Pharmacy', initials: 'GP', isOwner: false },
   ],
 };
 

@@ -1,7 +1,12 @@
-import MUIDataTable, { MUIDataTableOptions } from 'mui-datatables';
-import { Box } from '@mui/material';
+import MUIDataTable, {
+  MUIDataTableOptions,
+  TableFilterList,
+} from 'mui-datatables';
+import { Box, FormControlLabel, Chip } from '@mui/material';
 import theme from '../themes';
 import { withStyles } from '@mui/styles';
+import { styled } from '@mui/material/styles';
+import CloseIcon from '@mui/icons-material/Close';
 
 /* eslint-disable-next-line */
 export interface ListProps {
@@ -12,10 +17,48 @@ export interface ListProps {
   changeSelectedId: (e: string) => void;
 }
 
+const MUIStyledDataTable = styled(MUIDataTable)(({ theme }) => ({
+  '& .MuiButtonBase-root': {
+    color: `${theme.palette.text.primary} !important`,
+  },
+  '& .MuiButton-root': {
+    padding: theme.spacing(0),
+    fontSize: theme.spacing(2),
+  },
+  '& .MUIDataTableHeadCell-toolButton': {
+    fontWeight: 'bold',
+    fontSize: `${theme.typography.subtitle1.fontSize} !important`,
+    textTransform: 'capitalize !important',
+  },
+  '& .MuiToolbar-root': {
+    backgroundColor: `${theme.palette.secondary.main} !important`,
+    padding: `${theme.spacing(0)} !important`,
+    paddingLeft: `${theme.spacing(2)} !important`,
+  },
+  '& .MUIDataTableFilterList-root': {
+    backgroundColor: '#f6f5f7',
+    margin: theme.spacing(0),
+    paddingBottom: theme.spacing(1),
+  },
+  '.MuiChip-label,.MuiChip-deleteIcon': {
+    color: `${theme.palette.primary.main} !important`,
+  },
+}));
+
 const CustomTableCss = withStyles((theme) => ({
   '@global': {
-    '.css-1ya7byf-MuiButtonBase-root-MuiIconButton-root': {
-      color: 'inherit !important',
+    '.MuiPopover-paper': {
+      '& .MuiSvgIcon-root': {
+        color: `${theme.palette.text.primary}`,
+      },
+      '& .MuiCheckbox-root.Mui-checked': {
+        '& .MuiSvgIcon-root': {
+          color: `${theme.palette.primary.main} !important`,
+        },
+      },
+    },
+    '#mui-component-select-name': {
+      marginRight: theme.spacing(6),
     },
     '*::-webkit-scrollbar-button': {
       height: '0px',
@@ -30,26 +73,25 @@ const CustomTableCss = withStyles((theme) => ({
       backgroundColor: 'rgba(0,0,0,.1)',
       borderRadius: '10px',
     },
-    '.css-1m9da53-MuiButtonBase-root-MuiButton-root': {
-      padding: '0px !important',
-    },
-    '.tss-1fbujeu-MUIDataTableHeadCell-toolButton': {
-      fontWeight: 'bold !important',
-      fontSize: '18px !important',
-      textTransform: 'capitalize !important',
-    },
-    '.tss-tlx3x1-MUIDataTableToolbar-root': {
-      backgroundColor: `${theme.palette.secondary.main} !important`,
-      padding: '0px !important',
-      paddingLeft: '16px !important',
-    },
-    '.tss-1vsygk-MUIDataTableFilterList-root': {
-      backgroundColor: '#f6f5f7 !important',
-      margin: '0px !important',
-      paddingBottom: theme.spacing(1),
-    },
   },
 }))(() => null);
+
+const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
+  return (
+    <Chip
+      variant="outlined"
+      color="primary"
+      label={label}
+      onDelete={onDelete}
+      deleteIcon={<CloseIcon />}
+      sx={{ mr: 1, mb: 1 }}
+    />
+  );
+};
+
+const CustomFilterList = (props: any) => {
+  return <TableFilterList {...props} ItemComponent={CustomChip} />;
+};
 
 export const List = (props: ListProps) => {
   const id = props.idSelected === '' ? props.data[0]?.id : props.idSelected;
@@ -76,8 +118,20 @@ export const List = (props: ListProps) => {
       options: {
         filter: true,
         sort: false,
-        customBodyRender: (value: any) => (
-          <div>{`${value?.street}, ${value?.city}`}</div>
+        customBodyRender: (value: any, tableMeta: any, updateValue: any) => (
+          <FormControlLabel
+            label=""
+            value={`${value?.street}, ${value?.city}`}
+            control={
+              <Box component={'span'}>{`${value?.street}, ${value?.city}`}</Box>
+            }
+            onChange={(event: any) =>
+              updateValue(
+                `${event.target.value?.street}, ${event.target.value?.city}`
+              )
+            }
+            sx={{ m: 0 }}
+          />
         ),
       },
     },
@@ -87,8 +141,24 @@ export const List = (props: ListProps) => {
       options: {
         filter: true,
         sort: false,
-        customBodyRender: (value: boolean) => (
-          <div>{value ? 'Not Active' : 'Active'}</div>
+        customBodyRender: (
+          value: boolean,
+          tableMeta: any,
+          updateValue: any
+        ) => (
+          <FormControlLabel
+            label=""
+            value={`${value ? 'Not Active' : 'Active'}`}
+            control={
+              <Box component={'span'}>{`${
+                value ? 'Not Active' : 'Active'
+              }`}</Box>
+            }
+            onChange={(event: any) =>
+              updateValue(`${value ? 'Not Active' : 'Active'}`)
+            }
+            sx={{ m: 0 }}
+          />
         ),
       },
     },
@@ -106,7 +176,7 @@ export const List = (props: ListProps) => {
       rowData: string[],
       rowMeta: { dataIndex: number; rowIndex: number }
     ) => {
-      props.changeSelectedId(props.data[rowMeta.rowIndex]?.id);
+      props.changeSelectedId(props.data[rowMeta.dataIndex]?.id);
     },
     setRowProps: (row) => {
       if (row[0] === id) {
@@ -130,7 +200,7 @@ export const List = (props: ListProps) => {
     props.data && (
       <>
         <CustomTableCss />
-        <MUIDataTable
+        <MUIStyledDataTable
           title={
             <Box
               sx={{
@@ -144,6 +214,9 @@ export const List = (props: ListProps) => {
           data={props.data}
           columns={columns}
           options={options}
+          components={{
+            TableFilterList: CustomFilterList,
+          }}
         />
       </>
     )

@@ -13,20 +13,20 @@ interface Role {
 }
 
 interface AppsGetAction {
-  data: Application[];
+  data: ApplicationRole[];
   type: string;
 }
 interface IAppActionPayload {
-  app: Application;
+  app: ApplicationRole;
   url: string;
   token: string;
 }
 interface AppAction {
-  data: Application;
+  data: ApplicationRole;
   type: string;
 }
 
-export interface Application {
+export interface ApplicationRole {
   id?: string,
   name: string,
   appCode: string,
@@ -44,8 +44,8 @@ export interface Maintenance {
   fullLockout: boolean;
 }
 
-export interface ApplicationState {
-  applications: Application[];
+interface ApplicationState {
+  applications: ApplicationRole[];
   selectedId: number;
   status: "idle" | "loading" | "failed" | "error";
 }
@@ -55,7 +55,7 @@ interface CreateMaintenanceAction {
   type: string;
 }
 
-export const initialState: ApplicationState = {
+const initialState: ApplicationState = {
   applications: [],
   selectedId: 0,
   status: "idle",
@@ -187,6 +187,11 @@ export const selectAppRoles = (state: RootState) => {
 export const applicationMapping = (state: RootState) => {
   //returning mapping of app codes to app name
   return new Map(state.applications.applications.map(p => { return [p.appCode, p.name]; }));
+}
+
+export const applicationList = (state: RootState) => {
+  //returning mapping of app codes to app name
+  return state.applications.applications;
 }
 
 export const permissionsList = (state: RootState) => {

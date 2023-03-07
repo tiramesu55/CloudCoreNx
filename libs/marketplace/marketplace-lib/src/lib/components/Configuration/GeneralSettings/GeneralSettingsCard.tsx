@@ -8,6 +8,12 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import GeneralSettingsSwitch from "./GeneralSettingsSwitch"
 import mockData from "./MockData";
+import { styled } from "@mui/material/styles";
+import CardHeader from '@mui/material/CardHeader';
+
+
+
+
 
 
 export default function GeneralSettings(props: any) {
@@ -49,15 +55,16 @@ export default function GeneralSettings(props: any) {
             return (
 
                 <Box sx={{ flexGrow: 1, }}>
-                    <Card sx={{ margin: 1.5, borderRadius: .5, boxShadow: 3 }}>
+                    <Card sx={{ margin: 3, borderRadius: .4, boxShadow: 3 }}>
                         <CardContent >
-                            <Stack direction="row" sx={{ marginBottom: "3px" }}>
+
+                            <Stack direction="row">
                                 <Avatar {...stringAvatar(result.PharmacyName)} style={{ width: 30, height: 30, fontSize: "12px" }} />
                                 <Typography sx={{ flexGrow: 1 }}>
                                     <Typography sx={{ marginLeft: 1.5, display: "flex", fontWeight: 'bold', fontSize: "16px" }}>{result.PharmacyName}</Typography>
                                 </Typography>
 
-                                <Typography sx={{ display: "flex", alignItems: 'center', fontSize: "13px" }}>Contracted Capacity: <Typography sx={{ marginLeft: .5, fontSize: "13px" }}><b>{result.ContractCapacity.toLocaleString()}</b></Typography></Typography>
+                                <Typography sx={{ display: "flex", alignItems: 'center', fontSize: "13px", textAlign: "left" }}>Contracted Capacity: <Typography sx={{ marginLeft: .5, fontSize: "13px" }}><b>{result.ContractCapacity.toLocaleString()}</b></Typography></Typography>
 
                                 <Typography sx={{ marginLeft: 5, marginRight: 5, color: "lightgray" }}> |</Typography>
 
@@ -69,7 +76,8 @@ export default function GeneralSettings(props: any) {
 
 
                             </Stack>
-                            <Divider variant='fullWidth' sx={{ width: '100% !important', marginTop: 2, marginBottom: 2 }} />
+
+                            <Divider variant='fullWidth' sx={{ marginTop: 2, marginBottom: 2, marginLeft: -5, marginRight: -10 }} />
                             <GeneralSettingsSwitch />
                         </CardContent>
                     </Card>

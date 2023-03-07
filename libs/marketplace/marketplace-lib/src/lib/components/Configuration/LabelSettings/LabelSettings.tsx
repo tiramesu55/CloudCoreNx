@@ -1,8 +1,10 @@
-import { Stack, lighten } from "@mui/material";
+import { Stack, lighten, Typography } from "@mui/material";
 import MockInventorySettings, { IPartnerInventorySetting } from "../../../mocks/InventorySettings";
 import ConfigurationCard from "../ConfigurationCard/ConfigurationCard";
 import InventorySettingsCard from "../InventorySettings/InventorySettingsCard";
+import LabelCarousel from "./LabelCarousel";
 import LabelSettingsContent from "./LabelSettingsContent";
+
 
 const LabelSettings = () => {
 
@@ -24,9 +26,13 @@ const LabelSettings = () => {
             {MockInventorySettings.data.map((data: IPartnerInventorySetting) => {
                 return (
                     <ConfigurationCard color={data.color} initials={data.initials} name={data.name}>
-                        <LabelSettingsContent />
+
+                        {/* <LabelSettingsContent /> */}
+                        <LabelCarousel />
+
                     </ConfigurationCard>)
             })}
+            {/* <LabelCarousel /> */}
         </Stack>
     );
 }

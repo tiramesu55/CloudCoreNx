@@ -35,7 +35,8 @@ interface Props {
 
 const LabelSettings = lazy( () =>  import( './components/labelSettings'));
 const ConfigurationTabs = lazy( () =>  import( './components/Configuration/Tabs/ConfigurationTabs'));
-const LandingPage = lazy( () =>  import( './pages/LandingPage'));
+const OwnerLandingPage  = lazy( () =>  import( './pages/OwnerLandingPage'));
+//const PartnerLandingPage  = lazy( () =>  import( './pages/PartnerLandingPage'));
 
 export const MpRoutes = (props: Props) => {
   const theme = useTheme();
@@ -189,6 +190,7 @@ export const MpRoutes = (props: Props) => {
         <Header
           title={'Marketplace'}
           logo={{ img: nexia_logo_img, path: `${path}` }}
+          isMainApp={config?.isMainApp}
           betaIcon={true}
           reportIssue={false}
           marketplaceConfiguration={
@@ -241,7 +243,7 @@ export const MpRoutes = (props: Props) => {
       {mpPermissions ? (
         <>
           <Route exact path={`${path}`}>
-            {ComponentLayout(LandingPage)}
+            {ComponentLayout(OwnerLandingPage)}
           </Route>
           <Route path={`${path}configuration/inventory`}>
             {ComponentLayout(ConfigurationTabs)}

@@ -82,6 +82,7 @@ export const ActivateDeactivateOrg = (props: Props) => {
           state: organization.address.state,
           zip: organization.address.zip,
         },
+        applications: organization.applications,
         orgDomains: [props.orgDomain],
         root: organization.root,
         orgAdmins: [],

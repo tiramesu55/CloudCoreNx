@@ -22,12 +22,18 @@ import {
 import {
   bypassUserAsync,
   getApplications,
+  getOrganizationsAsync,
   getMaintenanceAsync,
   platformStore,
   selectAppRoles,
   closeAlertAction,
   openAlertAction,
   getPostLogoutRedirectUrl,
+  setOrgFormModified,
+  setSiteFormModified,
+  setUserFormModified,
+  setUserOnboardingFormModified,
+  setSuiteFormModified,
 } from '@cloudcore/redux-store';
 
 import {
@@ -46,15 +52,21 @@ const { useAppDispatch, useAppSelector } = platformStore;
 interface Props {
   appsMenu?: IAppsMenu;
 }
-const SuiteManagement = lazy( () =>  import( '../features/suiteManagement/suiteManagement'));
-const SiteForm = lazy( () =>  import( '../features/sites/siteForm'));
-const Sites = lazy( () =>  import( '../features/sites/sites'));
-const UserOnboarding = lazy( () =>  import( '../features/users/userOnboardingForm'));
-const UserForm = lazy( () =>  import( '../features/users/userForm'));
-const UserEmail = lazy( () =>  import( '../features/users/userEmail'));
-const AddNewOrganisation = lazy( () =>  import( '../features/organizations/OrganisationForm'));
-const ListUsers = lazy( () =>  import( '../features/users/allUsers'));
-const Dashboard = lazy( () =>  import( '../Dashboard/dashboard'));
+const SuiteManagement = lazy(
+  () => import('../features/suiteManagement/suiteManagement')
+);
+const SiteForm = lazy(() => import('../features/sites/siteForm'));
+const Sites = lazy(() => import('../features/sites/sites'));
+const UserOnboarding = lazy(
+  () => import('../features/users/userOnboardingForm')
+);
+const UserForm = lazy(() => import('../features/users/userForm'));
+const UserEmail = lazy(() => import('../features/users/userEmail'));
+const AddNewOrganisation = lazy(
+  () => import('../features/organizations/OrganisationForm')
+);
+const ListUsers = lazy(() => import('../features/users/allUsers'));
+const Dashboard = lazy(() => import('../Dashboard/dashboard'));
 
 export const Routes = (props: Props) => {
   const handleOpenAlert = (payload: IAlert) =>
@@ -70,6 +82,10 @@ export const Routes = (props: Props) => {
   const loggedInOrgCode = useAppSelector((state) => state.maintenance.orgCode);
   const userFormModified = useAppSelector(
     (state) => state.user.userFormModified
+  );
+
+  const userOnboardingFormModified = useAppSelector(
+    (state) => state.user.userOnboardingFormModified
   );
 
   const orgCode = useAppSelector(
@@ -195,6 +211,24 @@ export const Routes = (props: Props) => {
           email: email,
         })
       );
+      dispatch(
+        getOrganizationsAsync({
+          url: platformBaseUrl,
+          token: token,
+        })
+      )
+        .unwrap()
+        .then(
+          (value: any) => {
+            //Do Nothing
+          },
+          (reason: any) => {
+            handleOpenAlert({
+              content: reason.message,
+              type: 'error',
+            });
+          }
+        );
     }
   }, [platformBaseUrl, token]);
 
@@ -268,6 +302,7 @@ export const Routes = (props: Props) => {
       orgFormModified === true ||
       siteFormModified === true ||
       userFormModified === true ||
+      userOnboardingFormModified === true ||
       suiteFormModified === true;
 
     const handleUnSavedDataDialogue = (open: boolean, app: string) => {
@@ -362,7 +397,14 @@ export const Routes = (props: Props) => {
           resetAppSwitch={resetAppSwitch}
         />
         <IdlePopUp
-          logOut={signOut}
+          logOut={() => {
+            dispatch(setOrgFormModified(false));
+            dispatch(setSiteFormModified(false));
+            dispatch(setUserFormModified(false));
+            dispatch(setUserOnboardingFormModified(false));
+            dispatch(setSuiteFormModified(false));
+            return signOut();
+          }}
           minutes={5}
           seconds={0}
           timer={{ minutes: 5, seconds: 0 }}
@@ -374,6 +416,7 @@ export const Routes = (props: Props) => {
           reportIssue={false}
           navLinkMenuList={navList}
           isFormModified={formModified}
+          isMainApp={config?.isMainApp}
           userMenu={{
             userName: names ? names[0] + ' ' + names[1] : '',
             userInitials: initials!,

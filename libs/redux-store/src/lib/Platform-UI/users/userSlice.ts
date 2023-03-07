@@ -11,6 +11,7 @@ import {
   updateUserApi,
   addUserApi,
   deleteUserApi,
+  deleteUsersSiteMappingApi,
   addMultipleUsers,
 } from './userAPI';
 
@@ -51,7 +52,7 @@ export interface SiteUser {
   siteId: string;
 }
 
-export interface ApplicationUser {
+interface ApplicationUser {
   id?: string;
   appCode: string;
   roles: Role[];
@@ -94,6 +95,7 @@ export interface UserState {
   //we store applications for the selected or new user
   applications: ApplicationUser[];
   userFormModified: boolean;
+  userOnboardingFormModified: boolean;
 }
 
 const userAdapter = createEntityAdapter<User>({
@@ -107,6 +109,7 @@ const initialState = userAdapter.getInitialState<UserState>({
   selectedId: '',
   applications: [],
   userFormModified: false,
+  userOnboardingFormModified: false,
 });
 
 export const fetchUsers = createAsyncThunk<
@@ -214,6 +217,26 @@ export const deleteUser = createAsyncThunk<
   }
 );
 
+export const deleteUsersSiteMapping = createAsyncThunk<
+  UserAction,
+  any,
+  { state: RootState }
+>(
+  'Users/deleteUsersSiteMapping',
+  async (
+    { siteID, url, token }: { siteID: string; url: string; token: string },
+    { getState }
+  ) => {
+    if (!token) return { data: null, type: 'updateAll' };
+    const response = await deleteUsersSiteMappingApi(url, token, siteID);
+    // The value we return becomes the `fulfilled` action payload
+    return {
+      data: response.data,
+      type: 'updateAll',
+    };
+  }
+);
+
 const usersSlice = createSlice({
   name: 'user',
   initialState,
@@ -292,6 +315,10 @@ const usersSlice = createSlice({
     setUserFormModified: (state, action: PayloadAction<boolean>) => {
       state.userFormModified = action.payload;
     },
+    setUserOnboardingFormModified: (state, action: PayloadAction<boolean>) => {
+      state.userOnboardingFormModified = action.payload;
+    },
+    
   },
   extraReducers(builder) {
     builder
@@ -356,6 +383,9 @@ export const selectUserByIdState = (state: RootState) => state.user;
 export const getUserFormModified = (state: RootState) =>
   state.user.userFormModified;
 
+  export const getUserOnboardingFormModified = (state: RootState) =>
+  state.user.userOnboardingFormModified;
+
 export const selectUserByIdEntity = (id: string) => {
   return createSelector(selectUserByIdState, (state) => selectById(state, id));
 };
@@ -374,6 +404,7 @@ export const {
   updatePartialApp,
   updatePartialSite,
   setUserFormModified,
+  setUserOnboardingFormModified,
 } = usersSlice.actions;
 
 export const currentApps = (state: RootState) => state.user.applications;

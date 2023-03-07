@@ -1,0 +1,660 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`commonSlice should render AnalyticsPowerbi component 1`] = `
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+       
+      <div
+        style="height: 100vh; background: rgb(246, 245, 247);"
+      >
+        <div />
+        <div
+          class="MuiBox-root css-0"
+        >
+          <header
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionRelative css-c0mv2e-MuiPaper-root-MuiAppBar-root"
+            style="border: 1px; border-color: #0000000d; border-bottom: 1px solid #0000000D; margin: 0px; box-shadow: rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px; background: rgb(255, 255, 255); z-index: 1201; font-family: \\"Roboto\\", sans-serif; width: 100%;"
+          >
+            <div
+              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular css-bw3mp6-MuiToolbar-root"
+              style="padding-left: 20px; padding-right: 20px;"
+            >
+              <div
+                class="MuiBox-root css-17zsna1"
+              >
+                <div
+                  class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1m9344j-MuiTypography-root"
+                >
+                  <a
+                    aria-current="page"
+                    class="active"
+                    href="/"
+                  >
+                    <img
+                      alt="NexiaLogo"
+                      src="test"
+                      style="width: 100%; max-width: 163px; max-height: 41px;"
+                    />
+                  </a>
+                </div>
+                <hr
+                  class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-my8t4q-MuiDivider-root"
+                />
+                <div
+                  class="MuiBox-root css-bqedkg"
+                  style="text-decoration: none; color: rgb(101, 19, 240); font-size: 20px; margin-left: 24px; margin-right: 24px;"
+                >
+                  Enterprise Analytics
+                </div>
+                <div
+                  class="MuiBox-root css-k008qs"
+                >
+                  <div
+                    class="makeStyles-menuItems-2 MuiBox-root css-1opalb8"
+                  >
+                    <button
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-ipszf5-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Shipping Insights
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="KeyboardArrowDownIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                        />
+                      </svg>
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
+                    <div
+                      class="dropdown browserSpecific MuiBox-root css-1hyfx7x"
+                    >
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="SLA Dashboard"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            SLA Dashboard
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="SLA Report"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            SLA Report
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Service Level Dashboard"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Service Level Dashboard
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Shipping Insights"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Shipping Insights
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="makeStyles-menuItems-2 MuiBox-root css-1opalb8"
+                  >
+                    <button
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-ipszf5-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Rx Workflow
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="KeyboardArrowDownIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                        />
+                      </svg>
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
+                    <div
+                      class="dropdown browserSpecific MuiBox-root css-1hyfx7x"
+                    >
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Shipped Report"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Shipped Report
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Cancellations Report"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Cancellations Report
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Cancellations Dashboard"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Cancellations Dashboard
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        class="subMenuList MuiBox-root css-0"
+                        id="Filling Timeliness Report"
+                        type="button"
+                      >
+                        <div
+                          class="MuiBox-root css-17zsna1"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                          >
+                            Filling Timeliness Report
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="MuiBox-root css-m18vu2"
+              >
+                <span
+                  class="MuiBox-root css-0"
+                />
+                <div
+                  class="MuiBox-root css-1rixwjj"
+                >
+                  <button
+                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-20mkl5-MuiButtonBase-root-MuiIconButton-root"
+                    data-testid="initials-avatar"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <div
+                      aria-label=""
+                      class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-jvbni9-MuiAvatar-root"
+                      data-mui-internal-clone-element="true"
+                      data-testid="user"
+                    />
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+        </div>
+        <div
+          class="makeStyles-container-3"
+          id="container"
+          style="display: flex; flex-grow: 1; visibility: visible;"
+        >
+          <iframe
+            allowfullscreen="true"
+            scrolling="no"
+            src="https://app.powerbi.com/reportEmbed"
+            style="width: 100%; height: 100%;"
+          />
+        </div>
+        <div
+          aria-hidden="true"
+          class="MuiBackdrop-root css-akpka2-MuiBackdrop-root"
+          style="opacity: 1; position: absolute; background-color: white; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <span
+            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1qlambx-MuiCircularProgress-root"
+            role="progressbar"
+            style="width: 60px; height: 60px;"
+          >
+            <svg
+              class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+              viewBox="22 22 44 44"
+            >
+              <circle
+                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
+                cx="44"
+                cy="44"
+                fill="none"
+                r="20"
+                stroke-width="4"
+              />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+     
+    <div
+      style="height: 100vh; background: rgb(246, 245, 247);"
+    >
+      <div />
+      <div
+        class="MuiBox-root css-0"
+      >
+        <header
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionRelative css-c0mv2e-MuiPaper-root-MuiAppBar-root"
+          style="border: 1px; border-color: #0000000d; border-bottom: 1px solid #0000000D; margin: 0px; box-shadow: rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px; background: rgb(255, 255, 255); z-index: 1201; font-family: \\"Roboto\\", sans-serif; width: 100%;"
+        >
+          <div
+            class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular css-bw3mp6-MuiToolbar-root"
+            style="padding-left: 20px; padding-right: 20px;"
+          >
+            <div
+              class="MuiBox-root css-17zsna1"
+            >
+              <div
+                class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1m9344j-MuiTypography-root"
+              >
+                <a
+                  aria-current="page"
+                  class="active"
+                  href="/"
+                >
+                  <img
+                    alt="NexiaLogo"
+                    src="test"
+                    style="width: 100%; max-width: 163px; max-height: 41px;"
+                  />
+                </a>
+              </div>
+              <hr
+                class="MuiDivider-root MuiDivider-middle MuiDivider-vertical MuiDivider-flexItem css-my8t4q-MuiDivider-root"
+              />
+              <div
+                class="MuiBox-root css-bqedkg"
+                style="text-decoration: none; color: rgb(101, 19, 240); font-size: 20px; margin-left: 24px; margin-right: 24px;"
+              >
+                Enterprise Analytics
+              </div>
+              <div
+                class="MuiBox-root css-k008qs"
+              >
+                <div
+                  class="makeStyles-menuItems-2 MuiBox-root css-1opalb8"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="menu"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-ipszf5-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    Shipping Insights
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="KeyboardArrowDownIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                      />
+                    </svg>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                  <div
+                    class="dropdown browserSpecific MuiBox-root css-1hyfx7x"
+                  >
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="SLA Dashboard"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          SLA Dashboard
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="SLA Report"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          SLA Report
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Service Level Dashboard"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Service Level Dashboard
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Shipping Insights"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Shipping Insights
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="makeStyles-menuItems-2 MuiBox-root css-1opalb8"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="menu"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-ipszf5-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    Rx Workflow
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="KeyboardArrowDownIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                      />
+                    </svg>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                  <div
+                    class="dropdown browserSpecific MuiBox-root css-1hyfx7x"
+                  >
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Shipped Report"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Shipped Report
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Cancellations Report"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Cancellations Report
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Cancellations Dashboard"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Cancellations Dashboard
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      class="subMenuList MuiBox-root css-0"
+                      id="Filling Timeliness Report"
+                      type="button"
+                    >
+                      <div
+                        class="MuiBox-root css-17zsna1"
+                      >
+                        <p
+                          class="MuiTypography-root MuiTypography-body1 css-e000bs-MuiTypography-root"
+                        >
+                          Filling Timeliness Report
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiBox-root css-m18vu2"
+            >
+              <span
+                class="MuiBox-root css-0"
+              />
+              <div
+                class="MuiBox-root css-1rixwjj"
+              >
+                <button
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-20mkl5-MuiButtonBase-root-MuiIconButton-root"
+                  data-testid="initials-avatar"
+                  tabindex="0"
+                  type="button"
+                >
+                  <div
+                    aria-label=""
+                    class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-jvbni9-MuiAvatar-root"
+                    data-mui-internal-clone-element="true"
+                    data-testid="user"
+                  />
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
+      <div
+        class="makeStyles-container-3"
+        id="container"
+        style="display: flex; flex-grow: 1; visibility: visible;"
+      >
+        <iframe
+          allowfullscreen="true"
+          scrolling="no"
+          src="https://app.powerbi.com/reportEmbed"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+      <div
+        aria-hidden="true"
+        class="MuiBackdrop-root css-akpka2-MuiBackdrop-root"
+        style="opacity: 1; position: absolute; background-color: white; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <span
+          class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1qlambx-MuiCircularProgress-root"
+          role="progressbar"
+          style="width: 60px; height: 60px;"
+        >
+          <svg
+            class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+            viewBox="22 22 44 44"
+          >
+            <circle
+              class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
+              cx="44"
+              cy="44"
+              fill="none"
+              r="20"
+              stroke-width="4"
+            />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;

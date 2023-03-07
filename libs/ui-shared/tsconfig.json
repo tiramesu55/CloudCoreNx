@@ -9,13 +9,12 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
+    "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true
   },
   "files": [],
   "include": [],
-  "references": [
-    {
+  "references": [{
       "path": "./tsconfig.lib.json"
     },
     {

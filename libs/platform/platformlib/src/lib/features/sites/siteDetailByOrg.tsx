@@ -90,7 +90,10 @@ export const SiteDetailByOrg = () => {
                 </Typography>
               </Box>
             </Box>
-            <ApplicationBySites applications={selectedSite?.applications} />
+            <ApplicationBySites
+              orgCode={orgData.orgCode}
+              applications={selectedSite?.applications}
+            />
             <SiteContactDetails
               address={selectedSite?.address}
               sitePhone={selectedSite?.phone}

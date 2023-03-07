@@ -10,13 +10,13 @@ import {
   Switch,
 } from '@mui/material';
 import { useTheme } from '@mui/material';
-
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { parseISO } from 'date-fns';
 import { platformStore } from '@cloudcore/redux-store';
 import {
   applicationMapping,
   selectAllApplications,
+  getAppsByOrgCode,
 } from '@cloudcore/redux-store';
 
 interface Application {
@@ -25,18 +25,49 @@ interface Application {
   subscriptionEnd: Date | null;
   status?: boolean;
 }
-const { useAppSelector } = platformStore;
 interface Props {
+  orgCode: string;
   siteApplications: Application[];
   siteApplicationsHandler: (value: any) => void;
   disableEditApp: boolean;
 }
 
+const { useAppSelector } = platformStore;
+
 export const ApplicationSiteForm = (props: Props) => {
   const theme = useTheme();
-  const allApplications = useAppSelector(selectAllApplications);
+  const accessibleAppsList = useAppSelector((state) =>
+    getAppsByOrgCode(state, props.orgCode)
+  );
+  const allApplications = useAppSelector(selectAllApplications).filter((app) =>
+    accessibleAppsList.includes(app.appCode)
+  );
   const allApps = useAppSelector(applicationMapping);
-  const [applications, setApplications] = useState<any[]>([]);
+
+  const modifiedSiteApps = props.siteApplications
+    ? props.siteApplications.map((app) => {
+        return { ...app, status: true };
+      })
+    : [];
+
+  const [applications, setApplications] = useState<any[]>(
+    allApplications
+      .map((app) => ({
+        appCode: app.appCode,
+        subscriptionStart: moment(new Date()).format('YYYY-MM-DD'),
+        subscriptionEnd: moment(new Date()).format('YYYY-MM-DD'),
+        status: false,
+      }))
+      .map((app) => {
+        return {
+          ...app,
+          ...modifiedSiteApps.find(
+            (siteApp) => siteApp.appCode === app.appCode
+          ),
+        };
+      })
+  );
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     appCode: string,
@@ -62,30 +93,6 @@ export const ApplicationSiteForm = (props: Props) => {
       }));
     props.siteApplicationsHandler(updatedSiteApps);
   };
-
-  const modifiedSiteApps = props.siteApplications
-    ? props.siteApplications.map((app) => {
-        return { ...app, status: true };
-      })
-    : [];
-
-  const allModifiedApps = allApplications
-    .map((app) => ({
-      appCode: app.appCode,
-      subscriptionStart: moment(new Date()).format('YYYY-MM-DD'),
-      subscriptionEnd: moment(new Date()).format('YYYY-MM-DD'),
-      status: false,
-    }))
-    .map((app) => {
-      return {
-        ...app,
-        ...modifiedSiteApps.find((siteApp) => siteApp.appCode === app.appCode),
-      };
-    });
-
-  useEffect(() => {
-    setApplications(allModifiedApps);
-  }, [allApplications]);
 
   const handleStartDateChange = (value: any, appCode: string) => {
     const updatedApps = applications.map((app) => {

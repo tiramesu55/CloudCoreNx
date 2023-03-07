@@ -17,17 +17,16 @@ interface Props {
   error?: boolean;
   helperText?: string;
   focusHandler?: (val: any) => void;
-  orgChangeHandler?: ( event: any, onFieldChange : any) => void;
+  formChangeHandler?: (event: any, onFieldChange: any) => void;
   siteChangeHandler?: (key: string, event: any) => void;
   InputProps?: any;
   params?: {};
-  field ?: any;
+  field?: any;
 }
 
 export const InputTextWithLabel = (props: Props) => {
   const theme = useTheme();
   const required = props.required ? true : false;
-  
   return (
     <FormControl variant="standard" sx={{ width: props.formWidth }}>
       <InputLabel
@@ -37,7 +36,7 @@ export const InputTextWithLabel = (props: Props) => {
           fontWeight: 'bold',
           paddingBottom: '24px',
           '& .MuiInputLabel-asterisk': {
-            color: '#FE3F3F',
+            color: theme.palette.error.main,
           },
         }}
         shrink
@@ -55,11 +54,10 @@ export const InputTextWithLabel = (props: Props) => {
         }}
         value={props.value}
         disabled={props.disabled}
-        required={required}
         onChange={
-          props?.orgChangeHandler
+          props?.formChangeHandler
             ? (e: React.ChangeEvent<HTMLInputElement>) =>
-                props.orgChangeHandler!( e, props.field.onChange)
+                props.formChangeHandler!(e, props.field.onChange)
             : props.siteChangeHandler
             ? (e: React.ChangeEvent<HTMLInputElement>) =>
                 props.siteChangeHandler!(props.fieldName!, e.target.value)

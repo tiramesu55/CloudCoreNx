@@ -4,7 +4,8 @@ interface IConfigurationCard {
     name: string,
     initials: string,
     color?: string,
-    children?: React.ReactNode
+    children?: React.ReactNode,
+
 }
 
 const ConfigurationCard = (props: IConfigurationCard) => {
@@ -34,7 +35,9 @@ const ConfigurationCard = (props: IConfigurationCard) => {
 
     return (
         < Card raised sx={{ borderRadius: '4px' }}>
-            <CardHeader title={<Typography component={'span'} sx={{ padding: '5px', fontSize: 16, fontWeight: 600, }}>{name}</Typography>} avatar={<Avatar data-testid={`${name}-avatar`} sx={{ bgcolor: avatarColor, width: '32px', height: '32px', fontSize: '12px' }}>{initials}</Avatar>} />
+            <Typography sx={{ fontWeight: "bold", fontSize: "15pt", marginTop: "1em", marginLeft: "1em", marginBottom: "1em", }}>Orlando, Florida</Typography>
+
+            {/* // title={<Typography component={'span'} sx={{ padding: '5px', fontSize: 16, fontWeight: 600, }}>{name}</Typography>} avatar={<Avatar data-testid={`${name}-avatar`} sx={{ bgcolor: avatarColor, width: '32px', height: '32px', fontSize: '12px' }}>{initials}</Avatar>} /> */}
             <Divider variant='fullWidth' sx={{ width: '100%', color: '#F8F8F8' }} />
             {children}
         </Card >

@@ -1,5 +1,6 @@
 {
   "marketBaseUrl": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api",
+  "functionAppBaseUrl":"https://apim-marketplace-dev.azure-api.net/marketplace-api",
   "logoutSSO": "https://apim-nexiacc-dev-eastus2-a5efee35.azure-api.net/platform-api/SSOLogout",
   "oidcConfig": {
     "issuer": "https://iarx-services.oktapreview.com/oauth2/default/",

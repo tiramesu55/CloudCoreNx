@@ -37,6 +37,7 @@ export const ReportBiClientComponent = ({
   userName,
   userEmail,
   reset,
+  isExportAllowed,
   openAlert,
   closeAlert,
   loadingReportSingle,
@@ -48,6 +49,7 @@ export const ReportBiClientComponent = ({
   userName: string;
   userEmail: string;
   reset: any;
+  isExportAllowed: boolean;
   openAlert: (message: IAlert) => void;
   closeAlert: () => void;
   loadingReportSingle: (v: boolean) => void;
@@ -200,7 +202,8 @@ export const ReportBiClientComponent = ({
     const embeding = async (
       selectedReportId: string,
       reportContainer: HTMLDivElement,
-      isMobileViewport: boolean
+      isMobileViewport: boolean,
+      isExportAllowed: boolean
     ): Promise<void> => {
       reportEmbedding.resetElem(reportContainer);
       reportContainer.style.visibility = 'visible';
@@ -215,7 +218,8 @@ export const ReportBiClientComponent = ({
         loadingReportSingle,
         reportFilter,
         selectFilterItemSelected,
-        reset
+        reset,
+        isExportAllowed
       );
     };
     //call embedding
@@ -223,7 +227,8 @@ export const ReportBiClientComponent = ({
       embeding(
         selectedReport.reportId,
         reportContainer.current,
-        isMobileViewport
+        isMobileViewport,
+        isExportAllowed
       );
       handleTokenExpiration(reportContainer.current);
       setContainerCurrent(reportContainer.current);

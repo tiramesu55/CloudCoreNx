@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { FormControl, InputLabel, TextField } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 
 interface Props {
   error?: boolean;
@@ -9,8 +9,8 @@ interface Props {
   id?: string;
   label?: string;
   required?: boolean;
-  field : any;
-  meta : any;
+  field: any;
+  meta: any;
 }
 
 const BootstrapInput = styled(TextField)(({ theme }) => ({
@@ -43,8 +43,16 @@ const BootstrapInput = styled(TextField)(({ theme }) => ({
 }));
 
 export const PhoneInput = forwardRef((props: Props, ref: any) => {
+  const theme = useTheme();
   const error = props.inputProps.error === 'true' ? true : false;
   const required = props.inputProps.required ? true : false;
+  const inputLabelProps = {
+    ...props,
+    inputProps: {
+      ...props.inputProps,
+      required: false,
+    },
+  };
   return (
     <FormControl variant="standard" sx={{ width: props.inputProps.width }}>
       <InputLabel
@@ -54,7 +62,7 @@ export const PhoneInput = forwardRef((props: Props, ref: any) => {
           fontWeight: 'bold',
           paddingBottom: '24px',
           '& .MuiInputLabel-asterisk': {
-            color: '#FE3F3F',
+            color: theme.palette.error.main,
           },
         }}
         shrink
@@ -63,13 +71,12 @@ export const PhoneInput = forwardRef((props: Props, ref: any) => {
         {props.inputProps.name}
       </InputLabel>
       <BootstrapInput
-        {...props}
+        {...inputLabelProps}
         {...props.field}
         inputRef={ref}
         fullWidth
         helperText={error ? props.inputProps.label : ''}
         error={error}
-        required={required}
         name={props.inputProps.name}
       />
     </FormControl>

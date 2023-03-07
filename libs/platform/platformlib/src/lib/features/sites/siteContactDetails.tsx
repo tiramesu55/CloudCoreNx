@@ -1,7 +1,12 @@
 import { Grid, Typography, Divider } from '@mui/material';
 import { useTheme } from '@mui/material';
-import { Address } from '@cloudcore/redux-store';
 
+interface Address {
+  street: string;
+  city: string;
+  zip: string;
+  state: string;
+}
 interface Props {
   address: Address | undefined;
   sitePhone: string | undefined;
@@ -13,6 +18,7 @@ export const SiteContactDetails = (props: Props) => {
   return (
     <>
       <Typography
+        component="div"
         sx={{
           fontSize: theme.typography.subtitle1.fontSize,
           paddingTop: theme.spacing(4),

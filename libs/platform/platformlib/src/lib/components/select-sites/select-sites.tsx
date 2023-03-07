@@ -14,42 +14,53 @@ import {
   selectAllSites,
   getSites,
   checkIfRootOrganization,
+  getAppsByOrgCode,
   selectAppRoles,
-  ApplicationSite,
 } from '@cloudcore/redux-store';
 import { ConfigCtx, useOktaAuth } from '@cloudcore/okta-and-config';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
 
 interface Props {
   orgCode: string;
-  modifiedData: (modifiedData: boolean) => void;
   handleOpenAlert: (payload: IAlert) => void;
   handleCloseAlert: () => void;
   alertData: IAlertData;
 }
 
-const { useAppDispatch, useAppSelector } = platformStore;
+interface Application {
+  appCode: string;
+  subscriptionStart: Date | null;
+  subscriptionEnd: Date | null;
+}
+
 export interface Option {
   name: string;
   value: string;
   permissions?: string[]; // this is for permissions
-  applications?: ApplicationSite[];
+  applications?: Application[];
   inactiveDate?: Date | null;
 }
+
+const { useAppDispatch, useAppSelector } = platformStore;
 
 export const SelectSites = (props: Props) => {
   const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const { oktaAuth } = useOktaAuth();
   const token = oktaAuth?.getAccessToken(); // useClaimsAndSignout() as UseClaimsAndSignout ;
   const dispatch = useAppDispatch();
-  //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
-  const allApps = useAppSelector(selectAppRoles);
   //selectedApps below are from the user. for new user it is empty.  See the state.applications section of the state
   const { platformBaseUrl } = useContext(ConfigCtx)!; // at this point config is not null (see app)
   const selectedApps = useAppSelector(currentApps);
   const allSites = useAppSelector(selectAllSites);
   const root = useAppSelector((state) =>
     checkIfRootOrganization(state, props.orgCode)
+  );
+  const accessibleAppsList = useAppSelector((state) =>
+    getAppsByOrgCode(state, props.orgCode)
+  );
+  //allApps below returns an array of {appCode, roles[]} where roles is an array of Role. It will be easier to go over all apps in a loop
+  const allApps = useAppSelector(selectAppRoles).filter((app) =>
+    accessibleAppsList.includes(app.appCode)
   );
   const [loadSite, setLoadSite] = useState(false);
 
@@ -100,8 +111,6 @@ export const SelectSites = (props: Props) => {
       dispatch(updatePartialSite(payload));
     }
     dispatch(setUserFormModified(true));
-    // props.modifiedData(true);
-    //  dispatch(updateApplications(selection));
   };
 
   useEffect(() => {
@@ -132,42 +141,44 @@ export const SelectSites = (props: Props) => {
 
   return (
     <>
-      <Grid container item xs={12} mt={3}>
-        <Snackbar
-          open={alertData.openAlert}
-          type={alertData.type}
-          content={alertData.content}
-          onClose={handleCloseAlert}
-          duration={3000}
-        />
-        <Grid item xs={2}>
-          <Typography
-            fontSize={theme.typography.subtitle1.fontSize}
-            fontWeight="bold"
-            color={theme.palette.blackFont.main}
-          >
-            Applications
-          </Typography>
+      {allApps && allApps.length > 0 && props.orgCode !== '' && (
+        <Grid container item xs={12} mt={3}>
+          <Snackbar
+            open={alertData.openAlert}
+            type={alertData.type}
+            content={alertData.content}
+            onClose={handleCloseAlert}
+            duration={3000}
+          />
+          <Grid item xs={2}>
+            <Typography
+              fontSize={theme.typography.subtitle1.fontSize}
+              fontWeight="bold"
+              color={theme.palette.blackFont.main}
+            >
+              Applications
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography
+              fontSize={theme.typography.subtitle1.fontSize}
+              fontWeight="bold"
+              color={theme.palette.blackFont.main}
+            >
+              Roles
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography
+              fontSize={theme.typography.subtitle1.fontSize}
+              fontWeight="bold"
+              color={theme.palette.blackFont.main}
+            >
+              Sites
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item xs={4}>
-          <Typography
-            fontSize={theme.typography.subtitle1.fontSize}
-            fontWeight="bold"
-            color={theme.palette.blackFont.main}
-          >
-            Roles
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography
-            fontSize={theme.typography.subtitle1.fontSize}
-            fontWeight="bold"
-            color={theme.palette.blackFont.main}
-          >
-            Sites
-          </Typography>
-        </Grid>
-      </Grid>
+      )}
       {allApps &&
         props.orgCode !== '' &&
         allApps.map((appDetail) => {

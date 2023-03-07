@@ -18,11 +18,10 @@ import {
   selectUserByIdEntity,
   updateUser,
   currentApps,
-  User,
   addNewUser,
   setUserFormModified,
   getUserFormModified,
-  selectOrganizationByDomain,
+  selectOrgIDByDomain,
   selectOrgByOrgCode,
 } from '@cloudcore/redux-store';
 import { withStyles } from '@mui/styles';
@@ -30,6 +29,8 @@ import { ConfigCtx, IConfig, useOktaAuth } from '@cloudcore/okta-and-config';
 import { Snackbar, Card, UnsavedData } from '@cloudcore/ui-shared';
 import TitleAndCloseIcon from '../../components/TitleAndClose/TitleAndClose';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
+import { Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
 
 const CustomCss = withStyles(() => ({
   '@global': {
@@ -47,6 +48,28 @@ interface Props {
   handleCloseAlert: () => void;
   alertData: IAlertData;
 }
+
+const userValidationSchema = Yup.object({
+  firstName: Yup.string().trim().required('First Name is Required'),
+  lastName: Yup.string().trim().required('Last Name is Required'),
+  email: Yup.string()
+    .trim()
+    .email('Invalid Email')
+    .required('Email is Required'),
+  phone: Yup.string()
+    .trim()
+    .test(
+      'Phone number validation',
+      'Enter valid phone number',
+      function (value) {
+        const phoneValue = value !== undefined ? value : '';
+        const isValid =
+          phoneValue === '' ? true : isPossiblePhoneNumber(phoneValue);
+        return isValid;
+      }
+    ),
+});
+
 export const UserForm = (props: Props) => {
   const { handleOpenAlert, handleCloseAlert, alertData } = props;
   const config: IConfig = useContext(ConfigCtx)!; // at this point config is not null (see app)
@@ -70,48 +93,48 @@ export const UserForm = (props: Props) => {
   const isEditUser = location.state?.from === 'editUser';
 
   const headerTitle = location.state?.title;
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zip, setZip] = useState('');
-  const [phone, setPhone] = useState('');
-  const [title, setTitle] = useState('');
-  const [email, setEmail] = useState('');
   const [orgCode, setOrgCode] = useState('');
   const selectedId: string = useAppSelector(selectedUserEmail);
   const user = useAppSelector(selectUserByIdEntity(selectedId)); //selectUserByIdEntity(selectedId));
   const updatedUserInfo = structuredClone(user);
-  const [addRequestStatus, setAddRequestStatus] = useState('idle');
-  const org = useAppSelector((state) =>
-    selectOrganizationByDomain(state, selectedId)
-  );
-  const [phoneLabelColor, setPhoneLabelColor] = useState('#616161');
-  const [firstNameInvalid, setFirstNameInvalid] = useState(false);
-  const [lastNameInvalid, setLastNameInvalid] = useState(false);
-  const [phoneNumberInValid, setPhoneNumberInValid] = useState(false);
-  const [modifiedData, setModifiedData] = useState(false);
+  const org = useAppSelector((state) => selectOrgIDByDomain(state, selectedId));
   const userFormModified = useAppSelector(getUserFormModified);
   const getOrganization = useAppSelector((state: any) =>
     selectOrgByOrgCode(state, orgCode)
   );
 
-  const onFirstNameChanged = (value: string) => {
-    value ? setFirstNameInvalid(false) : setFirstNameInvalid(true);
-    setFirstName(value);
-    // setModifiedData(true);
+  const initialValues = isEditUser
+    ? {
+        ...user,
+        applications: selectedApps,
+      }
+    : {
+        email: selectedId,
+        firstName: '',
+        lastName: '',
+        title: '',
+        phone: '',
+        address: {
+          street: '',
+          city: '',
+          zip: '',
+          state: '',
+        },
+      };
+
+  const onFirstNameChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
 
-  const onFirstNameFocused = (ele: HTMLInputElement) => {
-    ele.value ? setFirstNameInvalid(false) : setFirstNameInvalid(true);
-  };
-
-  const onLastNameChanged = (value: string) => {
-    value ? setLastNameInvalid(false) : setLastNameInvalid(true);
-    setLastName(value);
-    // setModifiedData(true);
+  const onLastNameChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
   // replace location state to show the reload and redirect page
@@ -137,46 +160,43 @@ export const UserForm = (props: Props) => {
     }
   }, [location.state, location.pathname, history, path]);
 
-  const onLastNameFocused = (ele: HTMLInputElement) => {
-    ele.value ? setLastNameInvalid(false) : setLastNameInvalid(true);
-  };
-  const onStreetChanged = (value: string) => {
-    setStreet(value);
+  const onStreetChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
-  const onCityChanged = (value: string) => {
-    setCity(value);
+  const onCityChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
-  const onStateChanged = (value: string) => {
-    setState(value);
+  const onStateChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
-  const onZipChanged = (value: string) => {
-    setZip(value);
+  const onZipChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
-  const onPhoneChanged = (value: string) => {
-    if (value) {
-      const isValid = isPossiblePhoneNumber(value);
-      isValid ? setPhoneNumberInValid(false) : setPhoneNumberInValid(true);
-    } else {
-      setPhoneNumberInValid(false);
-    }
-    setPhone(value);
-    // setModifiedData(true);
+
+  const onTitleChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: any
+  ) => {
+    onChange(event);
     dispatch(setUserFormModified(true));
   };
-  const onTitleChanged = (value: string) => {
-    setTitle(value);
-    // setModifiedData(true);
-    dispatch(setUserFormModified(true));
-  };
-  const onEmailChanged = (value: string) => {
-    setEmail(value);
-    // setModifiedData(true);
-    dispatch(setUserFormModified(true));
-  };
+
   const onInActiveDateChanged = (value: Date | null) => {
     if (updatedUserInfo) {
       updatedUserInfo.inactiveDate = null;
@@ -193,139 +213,6 @@ export const UserForm = (props: Props) => {
     };
   });
 
-  const updateUserClick = () => {
-    try {
-      setAddRequestStatus('pending');
-      if (updatedUserInfo) {
-        updatedUserInfo.firstName = firstName.trim();
-        updatedUserInfo.lastName = lastName.trim();
-        updatedUserInfo.address.street = street.trim();
-        updatedUserInfo.address.city = city.trim();
-        updatedUserInfo.address.state = state?.trim();
-        updatedUserInfo.address.zip = zip.trim();
-        updatedUserInfo.phone = phone.trim();
-        updatedUserInfo.title = title.trim();
-        updatedUserInfo.email = email.trim();
-        updatedUserInfo.applications = selectedApps;
-        updatedUserInfo.modifiedDate = new Date();
-      }
-      if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(
-          updateUser({
-            user: updatedUserInfo!,
-            url: platformBaseUrl,
-            token: token,
-          })
-        )
-          .unwrap()
-          .then(
-            (value) => {
-              handleOpenAlert({
-                content: 'Changes were updated successfully',
-                type: 'success',
-              });
-              setSnackbarRouting(
-                history.push(`${path}user`, {
-                  currentPage: location.state?.currentPage,
-                  rowsPerPage: location.state?.rowsPerPage,
-                })
-              );
-              dispatch(setUserFormModified(false));
-            },
-            (reason) => {
-              handleOpenAlert({
-                content: reason.message,
-                type: 'error',
-              });
-            }
-          );
-      } else {
-        if (firstName === '') {
-          setFirstNameInvalid(true);
-          document.getElementById('firstName')?.focus();
-        }
-        if (lastName === '') {
-          setLastNameInvalid(true);
-          document.getElementById('lastName')?.focus();
-        }
-        if (phoneNumberInValid) {
-          document.getElementById('phoneInput')?.focus();
-        }
-      }
-      // dispatch(selectUserID(""));
-    } catch (err) {
-      console.error('Failed to save the user', err);
-    } finally {
-      setAddRequestStatus('idle');
-    }
-  };
-
-  const saveUserClick = () => {
-    try {
-      const newUser: User = {
-        firstName: firstName?.trim(),
-        lastName: lastName?.trim(),
-        address: {
-          street: street?.trim(),
-          city: city?.trim(),
-          state: state?.trim(),
-          zip: zip?.trim(),
-        },
-        phone: phone?.trim(),
-        title: title?.trim(),
-        email: email?.trim(),
-        applications: selectedApps,
-        id: email?.trim(),
-        orgCode: orgCode?.trim(),
-        inactiveDate: null,
-        createdDate: new Date(),
-        modifiedDate: new Date(),
-      };
-      if (firstName && lastName && !phoneNumberInValid) {
-        dispatch(
-          addNewUser({
-            user: newUser,
-            url: platformBaseUrl,
-            token: token,
-          })
-        )
-          .unwrap()
-          .then(
-            (value) => {
-              handleOpenAlert({
-                content: 'User added successfully',
-                type: 'success',
-              });
-              setSnackbarRouting(history.push(`${path}user/`));
-              dispatch(setUserFormModified(false));
-            },
-            (reason) => {
-              handleOpenAlert({
-                content: reason.message,
-                type: 'error',
-              });
-            }
-          );
-      } else {
-        if (firstName === '') {
-          setFirstNameInvalid(true);
-          document.getElementById('firstName')?.focus();
-        }
-        if (lastName === '') {
-          setLastNameInvalid(true);
-          document.getElementById('lastName')?.focus();
-        }
-        if (phoneNumberInValid) {
-          document.getElementById('phoneInput')?.focus();
-        }
-      }
-    } catch (err) {
-      console.error('Failed to save the user', err);
-    } finally {
-      setAddRequestStatus('idle');
-    }
-  };
-
   const closeEditUser = () => {
     userFormModified
       ? setDialogBoxOpen(true)
@@ -333,24 +220,14 @@ export const UserForm = (props: Props) => {
       ? history.push(`${path}user`, {
           currentPage: location.state?.currentPage,
           rowsPerPage: location.state?.rowsPerPage,
+          filters: location.state?.filters,
+          selectedId: user?.email,
         })
       : history.push(`${path}user/email`);
   };
 
   useEffect(() => {
-    setEmail(selectedId);
     setOrgCode(org ? org : user?.orgCode ? user?.orgCode : '');
-    if (user !== undefined && isEditUser) {
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setStreet(user.address.street);
-      setCity(user.address.city);
-      setState(user.address.state);
-      setZip(user.address.zip);
-      setPhone(user.phone);
-      setTitle(user.title);
-      setOrgCode(user.orgCode);
-    }
   }, [selectedId, user, isEditUser, isAddUser, org]);
 
   /* Code to provide popup on reload of Add/edit user page, when data is modified */
@@ -369,227 +246,402 @@ export const UserForm = (props: Props) => {
     };
   }, [userFormModified]);
 
-  const handleValidate = (value: any) => {
-    const isValid = isPossiblePhoneNumber(value);
-    isValid ? setPhoneNumberInValid(false) : setPhoneNumberInValid(true);
-    return isValid;
-  };
-
   return (
-    <Grid container spacing={1}>
-      <CustomCss />
-      <Snackbar
-        open={alertData.openAlert}
-        type={alertData.type}
-        content={alertData.content}
-        onClose={() => {
-          handleCloseAlert();
-          snackbarRouting();
-        }}
-        duration={3000}
-      />
-      {
-        <UnsavedData
-          open={dialogBoxOpen}
-          handleLeave={handleDialogBox}
-          location="users"
-        />
-      }
-      <Grid item xs={12}>
-        <TitleAndCloseIcon
-          onClickButton={closeEditUser}
-          breadCrumbOrigin={isAddUser ? 'Add New User' : 'All Users'}
-          breadCrumbTitle={isAddUser ? '' : headerTitle}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <Grid container paddingX={3}>
-          <Card>
-            <Grid p={2}>
-              <Grid item xs={12} display="flex" pb={2}>
-                <Box
-                  component="span"
-                  sx={{ alignSelf: 'self-end', textTransform: 'capitalize' }}
-                >
-                  <Typography
-                    fontSize={theme.typography.h3.fontSize}
-                    fontWeight="bold"
-                    color={theme.palette.blackFont.main}
-                  >
-                    {getOrganization && getOrganization.name} Organization
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={3}>
-                  <InputTextWithLabel
-                    label="Email ID"
-                    id="emailId"
-                    value={email}
-                    formWidth="90%"
-                    fieldName="emailId"
-                    changeHandler={onEmailChanged}
-                    disabled={true}
-                  />
-                </Grid>
-                <Grid item xs={2.5}>
-                  <InputTextWithLabel
-                    label="First Name"
-                    id="firstName"
-                    formWidth="90%"
-                    fieldName="firstName"
-                    value={firstName}
-                    changeHandler={onFirstNameChanged}
-                    error={firstNameInvalid}
-                    required={true}
-                    helperText={
-                      firstNameInvalid ? 'First Name is Required' : ''
-                    }
-                    focusHandler={onFirstNameFocused}
-                  />
-                </Grid>
-                <Grid item xs={2.5}>
-                  <InputTextWithLabel
-                    label="Last Name"
-                    id="lastName"
-                    formWidth="90%"
-                    fieldName="lastName"
-                    value={lastName}
-                    changeHandler={onLastNameChanged}
-                    error={lastNameInvalid}
-                    required={true}
-                    helperText={lastNameInvalid ? 'Last Name is Required' : ''}
-                    focusHandler={onLastNameFocused}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <InputTextWithLabel
-                    label="Title"
-                    id="title"
-                    value={title}
-                    formWidth="90%"
-                    fieldName="title"
-                    changeHandler={onTitleChanged}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <PhoneInput
-                    style={{ alignItems: 'normal' }}
-                    defaultCountry="US"
-                    value={phone}
-                    id="phoneInput"
-                    onChange={onPhoneChanged}
-                    inputComponent={CustomPhoneNumber}
-                    onFocus={() =>
-                      setPhoneLabelColor(theme.palette.primary.main)
-                    }
-                    onBlur={() => setPhoneLabelColor('#616161')}
-                    flags={flags}
-                    rules={{ validate: (phone: any) => handleValidate(phone) }}
-                    inputProps={{
-                      error: phoneNumberInValid.toString(),
-                      label: 'Enter valid phone number',
-                      name: 'Phone',
-                      width: '81.5%',
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <Grid container item xs={12} mt={2}>
-                <Grid item xs={3}>
-                  <InputTextWithLabel
-                    label="Street"
-                    id="street"
-                    value={street}
-                    formWidth="90%"
-                    fieldName="street"
-                    changeHandler={onStreetChanged}
-                  />
-                </Grid>
-                <Grid item xs={2.5}>
-                  <InputTextWithLabel
-                    label="City"
-                    id="city"
-                    value={city}
-                    formWidth="90%"
-                    fieldName="city"
-                    changeHandler={onCityChanged}
-                  />
-                </Grid>
-                <Grid item xs={2.5}>
-                  <InputTextWithLabel
-                    label="State/Prov"
-                    id="state"
-                    value={state}
-                    formWidth="90%"
-                    fieldName="state"
-                    changeHandler={onStateChanged}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <InputTextWithLabel
-                    label="Zip Code"
-                    id="zipCode"
-                    value={zip}
-                    formWidth="90%"
-                    fieldName="zip"
-                    changeHandler={onZipChanged}
-                  />
-                </Grid>
-              </Grid>
-              <SelectSites
-                orgCode={orgCode}
-                modifiedData={setModifiedData}
-                handleOpenAlert={handleOpenAlert}
-                handleCloseAlert={handleCloseAlert}
-                alertData={alertData}
+    <Formik
+      enableReinitialize={true}
+      initialValues={{ ...initialValues }}
+      validationSchema={userValidationSchema}
+      onSubmit={async (values) => {
+        if (isEditUser) {
+          const updatedUser = {
+            ...values,
+            email: values.email ? values.email?.trim() : '',
+            firstName: values.firstName ? values.firstName?.trim() : '',
+            lastName: values.lastName ? values.lastName?.trim() : '',
+            title: values?.title ? values?.title?.trim() : '',
+            phone: values?.phone ? values?.phone?.trim() : '',
+            address: {
+              street: values.address?.street
+                ? values.address?.street.trim()
+                : '',
+              city: values?.address?.city ? values?.address?.city.trim() : '',
+              zip: values?.address?.zip ? values?.address?.zip.trim() : '',
+              state: values?.address?.state
+                ? values?.address?.state.trim()
+                : '',
+            },
+            applications: selectedApps,
+            modifiedDate: new Date(),
+          };
+
+          dispatch(
+            updateUser({
+              user: updatedUser,
+              url: platformBaseUrl,
+              token: token,
+            })
+          )
+            .unwrap()
+            .then(
+              (value) => {
+                handleOpenAlert({
+                  content: 'Changes were updated successfully',
+                  type: 'success',
+                });
+                setSnackbarRouting(
+                  history.push(`${path}user`, {
+                    currentPage: location.state?.currentPage,
+                    rowsPerPage: location.state?.rowsPerPage,
+                    filters: location.state?.filters,
+                    selectedId: user?.email,
+                  })
+                );
+                dispatch(setUserFormModified(false));
+              },
+              (reason) => {
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
+              }
+            );
+        }
+
+        if (isAddUser) {
+          const newUser = {
+            email: values.email ? values.email?.trim() : '',
+            firstName: values.firstName ? values.firstName?.trim() : '',
+            lastName: values.lastName ? values.lastName?.trim() : '',
+            title: values?.title ? values?.title?.trim() : '',
+            phone: values?.phone ? values?.phone?.trim() : '',
+            address: {
+              street: values.address?.street
+                ? values.address?.street.trim()
+                : '',
+              city: values?.address?.city ? values?.address?.city.trim() : '',
+              zip: values?.address?.zip ? values?.address?.zip.trim() : '',
+              state: values?.address?.state
+                ? values?.address?.state.trim()
+                : '',
+            },
+            applications: selectedApps,
+            id: selectedId ? selectedId.trim() : '',
+            orgCode: orgCode ? orgCode?.trim() : '',
+            inactiveDate: null,
+            createdDate: new Date(),
+            modifiedDate: new Date(),
+          };
+
+          dispatch(
+            addNewUser({
+              user: newUser,
+              url: platformBaseUrl,
+              token: token,
+            })
+          )
+            .unwrap()
+            .then(
+              (value) => {
+                handleOpenAlert({
+                  content: 'User added successfully',
+                  type: 'success',
+                });
+                setSnackbarRouting(history.push(`${path}user/`));
+                dispatch(setUserFormModified(false));
+              },
+              (reason) => {
+                handleOpenAlert({
+                  content: reason.message,
+                  type: 'error',
+                });
+              }
+            );
+        }
+      }}
+    >
+      {({ setFieldValue }) => (
+        <Form>
+          <Grid container spacing={1}>
+            <CustomCss />
+            <Snackbar
+              open={alertData.openAlert}
+              type={alertData.type}
+              content={alertData.content}
+              onClose={() => {
+                handleCloseAlert();
+                snackbarRouting();
+              }}
+              duration={3000}
+            />
+            {
+              <UnsavedData
+                open={dialogBoxOpen}
+                handleLeave={handleDialogBox}
+                location="users"
+              />
+            }
+            <Grid item xs={12}>
+              <TitleAndCloseIcon
+                onClickButton={closeEditUser}
+                breadCrumbOrigin={isAddUser ? 'Add New User' : 'All Users'}
+                breadCrumbTitle={isAddUser ? '' : headerTitle}
               />
             </Grid>
-          </Card>
-          <Grid item xs={12} my={2}>
-            <Box
-              sx={{
-                alignItems: 'flex-end',
-                display: 'flex',
-                justifyContent: isAddUser ? 'end' : 'space-between',
-                paddingX: theme.spacing(0),
-              }}
-            >
-              {isEditUser && (
-                <ActivateOrDeactiveUser
-                  user={updatedUserInfo}
-                  setActiveDate={onInActiveDateChanged}
-                  openAlert={handleOpenAlert}
-                  closeAlert={handleCloseAlert}
-                />
-              )}
-              <Box>
-                <Button
-                  variant="outlined"
-                  sx={{ marginRight: theme.spacing(2) }}
-                  onClick={closeEditUser}
-                >
-                  BACK
-                </Button>
-                {isEditUser ? (
-                  <Button
-                    variant="outlined"
-                    disabled={!userFormModified}
-                    onClick={updateUserClick}
+            <Grid item xs={12}>
+              <Grid container paddingX={3}>
+                <Card>
+                  <Grid p={2}>
+                    <Grid item xs={12} display="flex" pb={2}>
+                      <Box
+                        component="span"
+                        sx={{
+                          alignSelf: 'self-end',
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        <Typography
+                          fontSize={theme.typography.h3.fontSize}
+                          fontWeight="bold"
+                          color={theme.palette.blackFont.main}
+                        >
+                          {getOrganization && getOrganization.name} Organization
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    <Grid container item xs={12}>
+                      <Grid item xs={3}>
+                        <Field name="email">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              label="Email ID"
+                              fieldName="emailId"
+                              formWidth="90%"
+                              disabled={true}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2.5}>
+                        <Field name="firstName">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              label="First Name"
+                              id="firstName"
+                              fieldName="firstName"
+                              formWidth="90%"
+                              required={true}
+                              error={
+                                form.errors.firstName && form.touched.firstName
+                              }
+                              helperText={
+                                form.touched.firstName && form.errors.firstName
+                              }
+                              formChangeHandler={onFirstNameChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2.5}>
+                        <Field name="lastName">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              label="Last Name"
+                              id="lastName"
+                              fieldName="lastName"
+                              formWidth="90%"
+                              required={true}
+                              error={
+                                form.errors.lastName && form.touched.lastName
+                              }
+                              helperText={
+                                form.touched.lastName && form.errors.lastName
+                              }
+                              formChangeHandler={onLastNameChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Field name="title">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              label="Title"
+                              id="title"
+                              fieldName="title"
+                              formWidth="90%"
+                              formChangeHandler={onTitleChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Field name="phone">
+                          {({ field, form }: { field: any; form: any }) => {
+                            const phoneError =
+                              form.touched.phone && Boolean(form.errors.phone)
+                                ? form.touched.phone &&
+                                  Boolean(form.errors.phone)
+                                : false;
+                            return (
+                              <PhoneInput
+                                style={{ alignItems: 'normal' }}
+                                defaultCountry="US"
+                                id="phone"
+                                value={field.value}
+                                onChange={(value: any) => {
+                                  if (value === undefined) {
+                                    setFieldValue('phone', '');
+                                  } else {
+                                    setFieldValue('phone', value);
+                                    dispatch(setUserFormModified(true));
+                                  }
+                                }}
+                                inputComponent={CustomPhoneNumber}
+                                flags={flags}
+                                inputProps={{
+                                  error: phoneError.toString(),
+                                  label:
+                                    form.touched.phone && form.errors.phone,
+                                  width: '81.5%',
+                                  name: 'Phone',
+                                }}
+                              />
+                            );
+                          }}
+                        </Field>
+                      </Grid>
+                    </Grid>
+                    <Grid container item xs={12} mt={2}>
+                      <Grid item xs={3}>
+                        <Field name="address.street">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              id="address.street"
+                              label="Street"
+                              fieldName="street"
+                              formWidth="90%"
+                              formChangeHandler={onStreetChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2.5}>
+                        <Field name="address.city">
+                          {({ field, form }: { field: any; form: any }) => {
+                            return (
+                              <InputTextWithLabel
+                                field={field}
+                                value={field.value}
+                                id="address.city"
+                                label="City"
+                                fieldName="city"
+                                formWidth="90%"
+                                formChangeHandler={onCityChanged}
+                              />
+                            );
+                          }}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2.5}>
+                        <Field name="address.state">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              value={field.value}
+                              id="address.state"
+                              label="State/Prov"
+                              fieldName="state"
+                              formWidth="90%"
+                              formChangeHandler={onStateChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Field name="address.zip">
+                          {({ field, form }: { field: any; form: any }) => (
+                            <InputTextWithLabel
+                              field={field}
+                              id="address.zip"
+                              label="Zip/Postal"
+                              value={field.value}
+                              fieldName="zip"
+                              formWidth="90%"
+                              formChangeHandler={onZipChanged}
+                            />
+                          )}
+                        </Field>
+                      </Grid>
+                    </Grid>
+                    <SelectSites
+                      orgCode={orgCode}
+                      handleOpenAlert={handleOpenAlert}
+                      handleCloseAlert={handleCloseAlert}
+                      alertData={alertData}
+                    />
+                  </Grid>
+                </Card>
+                <Grid item xs={12} my={2}>
+                  <Box
+                    sx={{
+                      alignItems: 'flex-end',
+                      display: 'flex',
+                      justifyContent: isAddUser ? 'end' : 'space-between',
+                      paddingX: theme.spacing(0),
+                    }}
                   >
-                    UPDATE USER
-                  </Button>
-                ) : (
-                  <Button variant="outlined" onClick={saveUserClick}>
-                    Save
-                  </Button>
-                )}
-              </Box>
-            </Box>
+                    {isEditUser && (
+                      <ActivateOrDeactiveUser
+                        user={updatedUserInfo}
+                        setActiveDate={onInActiveDateChanged}
+                        openAlert={handleOpenAlert}
+                        closeAlert={handleCloseAlert}
+                      />
+                    )}
+                    <Box>
+                      <Button
+                        variant="outlined"
+                        sx={{ marginRight: theme.spacing(2) }}
+                        onClick={closeEditUser}
+                      >
+                        BACK
+                      </Button>
+                      {isEditUser ? (
+                        <Button
+                          variant="outlined"
+                          disabled={!userFormModified}
+                          type="submit"
+                        >
+                          UPDATE USER
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outlined"
+                          type="submit"
+                          data-testid="save"
+                        >
+                          Save
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
           </Grid>
-        </Grid>
-      </Grid>
-    </Grid>
+        </Form>
+      )}
+    </Formik>
   );
 };
 export default UserForm;

@@ -29,6 +29,13 @@ export const deleteUserApi = (url: string, token: string, userID: string) =>
     },
   });
 
+  export const deleteUsersSiteMappingApi = (url: string, token: string, siteID: string) =>
+  axios.delete(`${url}/User/SiteMapping/${siteID}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
 export const addMultipleUsers = (url: string, token: string, file: FormData) =>
   axios.post(`${url}/Platform/BulkUserUpload`, file, {
     headers: {

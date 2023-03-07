@@ -26,14 +26,39 @@ import {
   useClaimsAndSignout,
 } from '@cloudcore/okta-and-config';
 import { IAlert, IAlertData } from '@cloudcore/common-lib';
+import { styled } from '@mui/material/styles';
+import CloseIcon from '@mui/icons-material/Close';
 
 const { useAppDispatch, useAppSelector } = platformStore;
+
+interface FilterList {
+  title?: any[];
+  userName?: any[];
+  firstName?: any[];
+  lastName?: any[];
+  email?: any[];
+  applications?: any[];
+  orgName?: any[];
+  status?: any[];
+}
 
 interface Props {
   handleOpenAlert: (payload: IAlert) => void;
   handleCloseAlert: () => void;
   alertData: IAlertData;
 }
+
+interface FilterList {
+  title?: any[];
+  userName?: any[];
+  firstName?: any[];
+  lastName?: any[];
+  email?: any[];
+  applications?: any[];
+  orgName?: any[];
+  status?: any[];
+}
+
 const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
   return (
     <Chip
@@ -41,9 +66,41 @@ const CustomChip = ({ label, onDelete }: { label: any; onDelete: any }) => {
       color="primary"
       label={label}
       onDelete={onDelete}
+      deleteIcon={<CloseIcon />}
+      sx={{ mr: 1, mb: 1 }}
     />
   );
 };
+
+const MUIStyledDataTable = styled(MUIDataTable)(({ theme }) => ({
+  '.MuiChip-label,.MuiChip-deleteIcon': {
+    color: `${theme.palette.primary.main} !important`,
+  },
+  '& .MuiIconButton-root': {
+    color: 'inherit !important',
+  },
+  '& .MUIDataTableToolbar-icon': {
+    color: 'inherit',
+  },
+  '& .MUIDataTableHeadCell-toolButton': {
+    fontWeight: 'bold',
+    fontSize: theme.typography.subtitle1.fontSize,
+    textTransform: 'capitalize !important',
+  },
+  '& .MUIDataTableFilterList-root': {
+    backgroundColor: '#f6f5f7',
+    margin: theme.spacing(0),
+    paddingBottom: theme.spacing(1),
+  },
+  '& .MuiTablePagination-selectIcon': {
+    color: 'inherit !important',
+  },
+  '& .MuiToolbar-root': {
+    backgroundColor: `${theme.palette.secondary.main} !important`,
+    padding: `${theme.spacing(0)} !important`,
+    paddingLeft: `${theme.spacing(2)} !important`,
+  },
+}));
 
 const CustomFilterList = (props: any) => {
   return <TableFilterList {...props} ItemComponent={CustomChip} />;
@@ -88,7 +145,70 @@ export const ListUsers = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(
     location.state?.rowsPerPage ? location.state?.rowsPerPage : 10
   );
-  //const [error, setError] = useState(false);
+  const [filters, setFilters] = useState<FilterList>(
+    location.state?.filters
+      ? location.state.filters
+      : {
+          firstName: [],
+          lastName: [],
+          userName: [],
+          title: [],
+          applications: [],
+          email: [],
+          orgName: [],
+          status: [],
+        }
+  );
+  const [selectedEmail, setSelectedEmail] = useState(
+    location.state?.selectedId ? location.state.selectedId : ''
+  );
+
+  window.history.replaceState(
+    {
+      from: 'dashboard',
+      currentPage,
+      rowsPerPage,
+      selectedId: selectedEmail,
+      filters,
+    },
+    document.title
+  );
+
+  const handleFilterChange = (
+    column: any,
+    value: any,
+    type: any,
+    index: any,
+    displayData: any
+  ) => {
+    if (location?.state?.filters !== undefined) {
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        currentPage,
+        rowsPerPage,
+        selectedId: selectedEmail,
+      });
+    }
+    if (type === 'reset') {
+      setFilters({
+        firstName: [],
+        lastName: [],
+        userName: [],
+        title: [],
+        applications: [],
+        email: [],
+        orgName: [],
+        status: [],
+      });
+    } else {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        [column]: value[index],
+      }));
+    }
+  };
 
   useEffect(() => {
     if (platformBaseUrl) {
@@ -119,6 +239,7 @@ export const ListUsers = (props: Props) => {
       label: 'First Name',
       options: {
         display: false,
+        filterList: filters?.firstName,
       },
     },
     {
@@ -126,6 +247,7 @@ export const ListUsers = (props: Props) => {
       label: 'Last Name',
       options: {
         display: false,
+        filterList: filters?.lastName,
       },
     },
     {
@@ -133,6 +255,7 @@ export const ListUsers = (props: Props) => {
       label: 'Email',
       options: {
         display: false,
+        filterList: filters?.email,
       },
     },
     {
@@ -141,6 +264,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: true,
+        filterList: filters?.userName,
         customBodyRender: (value: string, tableMeta: any) => {
           return (
             <Tooltip
@@ -172,6 +296,7 @@ export const ListUsers = (props: Props) => {
                     from: 'editUser',
                     currentPage,
                     rowsPerPage,
+                    filters,
                   });
                 }}
               >
@@ -188,6 +313,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.title,
       },
     },
     {
@@ -196,6 +322,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.orgName,
       },
     },
     {
@@ -204,8 +331,9 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.applications,
         customBodyRender: (value: any) => {
-          if (value === '--') {
+          if (value === '--' || value.length < 1) {
             return <>{'--'}</>;
           } else {
             return <>{value.join(', ')}</>;
@@ -219,6 +347,7 @@ export const ListUsers = (props: Props) => {
       options: {
         filter: true,
         sort: false,
+        filterList: filters?.status,
       },
     },
   ];
@@ -232,7 +361,6 @@ export const ListUsers = (props: Props) => {
             textTransform: 'capitalize',
             fontWeight: 'bold',
             fontSize: '18px',
-
             textDecoration: 'none',
             color: theme.palette.primary.main,
           }}
@@ -242,6 +370,7 @@ export const ListUsers = (props: Props) => {
               task: 'addUser',
             });
           }}
+          data-testid="addnewuser"
         >
           Add New User
         </Button>
@@ -274,6 +403,20 @@ export const ListUsers = (props: Props) => {
     rowsPerPage,
     tableBodyMaxHeight: '72vh',
     filter: true,
+    onFilterChange: (
+      column,
+      filterList,
+      type,
+      changedColumnIndex,
+      displayData
+    ) =>
+      handleFilterChange(
+        column,
+        filterList,
+        type,
+        changedColumnIndex,
+        displayData
+      ),
     viewColumns: false,
     print: false,
     download: false,
@@ -285,23 +428,44 @@ export const ListUsers = (props: Props) => {
       name: 'userName',
       direction: 'asc',
     },
+    setRowProps: (row) => {
+      if (row[2] === selectedEmail) {
+        return {
+          style: {
+            backgroundColor: '#d6c4f5',
+          },
+        };
+      } else {
+        return {};
+      }
+    },
     onChangePage(currentPage) {
       setCurrentPage(currentPage);
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        rowsPerPage,
+        filters,
+        selectedId: selectedEmail,
+      });
     },
     onChangeRowsPerPage(numberOfRows) {
       setRowsPerPage(numberOfRows);
+      history.replace({
+        title: 'Edit User',
+        task: 'editUser',
+        from: 'editUser',
+        currentPage,
+        filters,
+        selectedId: selectedEmail,
+      });
     },
     rowHover: false,
   };
 
   const CustomTableCss = withStyles(() => ({
     '@global': {
-      '.css-1ya7byf-MuiButtonBase-root-MuiIconButton-root': {
-        color: 'inherit !important',
-      },
-      '.tss-1f6q3ny-MUIDataTableToolbar-icon': {
-        color: 'inherit !important',
-      },
       '*::-webkit-scrollbar-button': {
         height: '0px',
       },
@@ -315,25 +479,19 @@ export const ListUsers = (props: Props) => {
         backgroundColor: 'rgba(0,0,0,.1)',
         borderRadius: '10px',
       },
-      '.css-1m9da53-MuiButtonBase-root-MuiButton-root': {
-        padding: '0px !important',
+
+      '#mui-component-select-name': {
+        marginRight: theme.spacing(6),
       },
-      '.tss-1fbujeu-MUIDataTableHeadCell-toolButton': {
-        fontWeight: 'bold !important',
-        fontSize: '18px !important',
-        textTransform: 'capitalize !important',
-      },
-      '.tss-tlx3x1-MUIDataTableToolbar-root': {
-        backgroundColor: '#f6f5f7 !important',
-        padding: '0px !important',
-      },
-      '.tss-1vsygk-MUIDataTableFilterList-root': {
-        backgroundColor: '#f6f5f7 !important',
-        margin: '0px !important',
-        paddingBottom: theme.spacing(1),
-      },
-      '.MuiTablePagination-selectIcon': {
-        color: 'inherit !important',
+      '.MuiPopover-paper': {
+        '& .MuiSvgIcon-root': {
+          color: `${theme.palette.text.primary}`,
+        },
+        '& .MuiCheckbox-root.Mui-checked': {
+          '& .MuiSvgIcon-root': {
+            color: `${theme.palette.primary.main} !important`,
+          },
+        },
       },
     },
   }))(() => null);
@@ -351,7 +509,7 @@ export const ListUsers = (props: Props) => {
         <CustomTableCss />
         <Grid item xs={12} sx={{ margin: theme.spacing(2.5) }}>
           <Card sx={{ border: 'none' }}>
-            <MUIDataTable
+            <MUIStyledDataTable
               title={
                 <Box sx={{ fontSize: theme.typography.subtitle1.fontSize }}>
                   All Users
